@@ -1,0 +1,171 @@
+{% extends "base-plus.html" %}
+{% load static %}
+
+{% block header_title %}
+Pagamentos INSS<span class="produto-text"></span>
+{% endblock %}
+
+{% block addcss_extra %}
+<link rel="stylesheet" href="{% static 'css/apps/juridico/acoes.css' %}">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+    <!-- Lista de Pagamentos -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class='bx bx-dollar-circle me-2'></i> Lista de Pagamentos
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Filtros -->
+                    <form id="formFiltroPagamentos" class="form-filtros mb-4">
+                        <div class="form-row row g-3">
+                            <div class="form-group col-md-3">
+                                <input type="text" id="filtroNomePagamento" class="form-control" placeholder="Nome do Cliente...">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <input type="text" id="filtroCPFPagamento" class="form-control" placeholder="CPF...">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <select id="filtroStatusPagamento" class="form-select">
+                                    <option value="">Status do Pagamento...</option>
+                                    <option value="EM_ANDAMENTO">Em Andamento</option>
+                                    <option value="QUITADO">Quitado</option>
+                                    <option value="CANCELADO">Cancelado</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <select id="filtroTipoAcaoPagamento" class="form-select">
+                                    <option value="">Tipo de Ação...</option>
+                                    <option value="ASSOCIACAO">Associação</option>
+                                    <option value="CARTAO">Cartão</option>
+                                    <option value="DEBITO">Débito em Conta</option>
+                                    <option value="LIMPANOME">Limpa Nome</option>
+                                    <option value="REVISIONAL">Revisional</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Tabela de Pagamentos -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover" id="tabelaPagamentos">
+                            <thead>
+                                <tr>
+                                    <th class="text-center"><i class='bx bx-user me-1'></i>Cliente</th>
+                                    <th class="text-center"><i class='bx bx-id-card me-1'></i>CPF</th>
+                                    <th class="text-center"><i class='bx bx-file-blank me-1'></i>Tipo Ação</th>
+                                    <th class="text-center"><i class='bx bx-credit-card me-1'></i>Tipo Pagamento</th>
+                                    <th class="text-center"><i class='bx bx-dollar me-1'></i>Valor Total</th>
+                                    <th class="text-center"><i class='bx bx-wallet me-1'></i>Valor Restante</th>
+                                    <th class="text-center"><i class='bx bx-info-circle me-1'></i>Status Pag.</th>
+                                    <th class="text-center"><i class='bx bx-cog me-1'></i>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaPagamentosBody">
+                                <!-- Linhas inseridas via JavaScript/API -->
+                            </tbody>
+                        </table>
+                        <div id="nenhumResultadoPagamentos" class="alert alert-warning text-center" style="display: none;">
+                            Nenhum pagamento encontrado.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Registrar Pagamento -->
+<div class="modal fade" id="modalRegistrarPagamento" tabindex="-1" aria-labelledby="modalRegistrarPagamentoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalRegistrarPagamentoLabel">
+                    <i class='bx bx-money me-2'></i>Registrar Pagamento
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRegistrarPagamento">
+                    <input type="hidden" id="acaoId" name="acao_id">
+                    <input type="hidden" id="registroPagamentoId" name="registro_pagamento_id">
+                    <div class="mb-3">
+                        <label for="valorPago" class="form-label">Valor Pago <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="text" class="form-control" id="valorPago" name="valor_pago" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dataPagamento" class="form-label">Data do Pagamento <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="dataPagamento" name="data_pagamento" required>
+                    </div>
+                    <div class="mb-3" id="divParcela" style="display: none;">
+                        <label for="numeroParcela" class="form-label">Número da Parcela <span class="text-danger">*</span></label>
+                        <select class="form-select" id="numeroParcela" name="numero_parcela">
+                            <option value="">Selecione a parcela...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="flgAtrasado" name="flg_atrasado">
+                            <label class="form-check-label" for="flgAtrasado">
+                                Pagamento Atrasado
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="divJurosAtrasado" style="display: none;">
+                        <label for="jurosAtrasado" class="form-label">Juros por Atraso Mensal (%)</label>
+                        <input type="number" class="form-control" id="jurosAtrasado" name="juros_atrasado" min="0" max="100" step="0.01">
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="flgAcordo" name="flg_acordo">
+                            <label class="form-check-label" for="flgAcordo">
+                                Pagamento com Acordo
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="divTipoAcordo" style="display: none;">
+                        <label for="tipoAcordo" class="form-label">Tipo de Acordo</label>
+                        <select class="form-select" id="tipoAcordo" name="tipo_acordo">
+                            <option value="NENHUM">Nenhum</option>
+                            <option value="DESCONTO">Desconto no Valor</option>
+                            <option value="PARCELAMENTO">Novo Parcelamento</option>
+                            <option value="QUITACAO">Quitação com Desconto</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="observacaoPagamento" class="form-label">Observação</label>
+                        <textarea class="form-control" id="observacaoPagamento" name="observacao" rows="3"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class='bx bx-x me-1'></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class='bx bx-check me-1'></i>Confirmar Pagamento
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block addjs_extra %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+<script src="{% static 'js/apps/juridico/pagamentos.js' %}"></script>
+{% endblock %} 

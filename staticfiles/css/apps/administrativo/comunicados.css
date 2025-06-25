@@ -1,0 +1,673 @@
+/* ==========================================
+   CSS para a página de Comunicados
+   Baseado no estilo de administrativo.css
+   Foco: Verde e Azul, com ênfase no Verde
+   ========================================== */
+
+/* ---------- Variáveis de Cores e Sombreamentos ---------- */
+:root {
+    --color-primary-dark: #142650; /* Azul escuro */
+    --color-secondary: #70f611; /* Verde */
+    --color-tertiary: #0bd5f0; /* Azul claro (ciano) */
+    --color-accent: #b4874c; /* Tom terroso */
+    --color-white: #fff;
+    --color-gray: #ddd;
+    --color-light-gray: #f0f0f0;
+    --color-text-dark: #333;
+    --color-text-light: #666;
+    --color-danger: #dc3545;
+    --color-success: #198754; /* Verde escuro para sucesso */
+    
+    /* Novas cores para os cards */
+    --color-red-soft: #ff6b6b;
+    --color-red-lighter: #ff8787;
+    --color-blue-soft: #4dabf7;
+    --color-blue-lighter: #74c0fc;
+
+    --box-shadow-light: 0 2px 6px rgba(0,0,0,0.05);
+    --box-shadow-medium: 0 4px 12px rgba(0,0,0,0.1);
+    --box-shadow-card-hover: 0 6px 18px rgba(112, 246, 17, 0.15);
+
+    /* Gradientes com foco no verde */
+    --gradient-primary-green: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary-dark) 100%);
+    --gradient-secondary-green: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-tertiary) 50%, var(--color-secondary) 100%);
+    --gradient-metallic-green-focus: linear-gradient(135deg, #ffffff 0%, var(--color-secondary) 30%, var(--color-tertiary) 50%, var(--color-secondary) 70%, #ffffff 100%);
+    --gradient-card-header: linear-gradient(-45deg, var(--color-secondary), #5cb85c, var(--color-primary-dark), var(--color-secondary));
+    --gradient-card-header-red: linear-gradient(-45deg, var(--color-red-soft), #ff8787, var(--color-danger), var(--color-red-soft));
+    --gradient-card-header-blue: linear-gradient(-45deg, var(--color-blue-soft), #74c0fc, var(--color-primary-dark), var(--color-blue-soft));
+
+    /* Animação do Gradiente */
+    --gradient-animation: gradientBG 12s ease infinite;
+}
+
+/* ==========================================
+   Estilos Gerais da Página
+   ========================================== */
+body {
+    background-color: var(--color-light-gray);
+}
+
+.container {
+    max-width: 1200px;
+    display: flex;
+    gap: 30px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    
+    padding-bottom: 50px;
+}
+
+.row.mb-4 {
+    display: flex;
+    gap: 38px;
+    width: 100%;
+    justify-content: center;
+}
+
+.row.mb-4 .col-md-6 {
+    flex: 0 0 300px;
+    max-width: 300px;
+    min-width: 300px;
+}
+
+.titulo-pagina {
+    color: var(--color-primary-dark);
+    font-weight: 600;
+    border-bottom: 3px solid var(--color-secondary);
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.titulo-pagina i {
+    color: var(--color-secondary);
+}
+
+/* ==========================================
+   Estilos do Card de Comunicado
+   ========================================== */
+.card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-gray);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow-light);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--box-shadow-card-hover);
+}
+
+.card .card-header {
+    background: var(--gradient-card-header) !important;
+    background-size: 400% 400% !important;
+    animation: var(--gradient-animation) !important;
+    color: var(--color-white) !important;
+    font-weight: 600;
+    font-size: 1.1em;
+    padding: 1rem 1.25rem;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.card.border-success .card-header {
+    background: var(--gradient-card-header-red) !important;
+}
+
+.card.border-info .card-header {
+    background: var(--gradient-card-header-blue) !important;
+}
+
+.card .card-header i {
+    margin-right: 0.75rem;
+    font-size: 1.3rem;
+    vertical-align: middle;
+}
+
+/* Efeito de brilho metálico */
+.card .card-header::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      135deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.05) 40%,
+      rgba(255,255,255,0.3) 50%,
+      rgba(255,255,255,0.05) 60%,
+      rgba(255,255,255,0) 100%
+    );
+    transform: rotate(45deg);
+    transition: all 0.7s ease;
+    z-index: -1;
+}
+
+.card:hover .card-header::before {
+    top: 100%;
+    left: 100%;
+}
+
+/* Estilos específicos para os cards de contagem */
+.card.border-success .card-body p {
+    color: var(--color-red-soft);
+}
+
+.card.border-info .card-body p {
+    color: var(--color-blue-soft);
+}
+
+.card .card-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(245, 255, 245, 0.8) 100%);
+}
+
+.card .card-body p {
+    text-align: center;
+    font-size: 1.5rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* ==========================================
+   Estilos do Formulário
+   ========================================== */
+.card form {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.card form .mb-3 {
+    flex: 1 1 100%; /* Todos os campos ocupam a linha inteira */
+    min-width: 250px;
+}
+
+.card form .form-label {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: var(--color-primary-dark);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+}
+
+.card form .form-label i {
+    margin-right: 0.5rem;
+    color: var(--color-secondary);
+    font-size: 1.1rem;
+}
+
+.card form .form-control,
+.card form .form-select {
+    border: 2px solid var(--color-gray);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    background-color: var(--color-white);
+    width: 100%;
+}
+
+.card form .form-control:focus,
+.card form .form-select:focus {
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 3px rgba(112, 246, 17, 0.15);
+    background-color: #fafffa;
+    outline: none;
+}
+
+/* Estilo específico para o textarea */
+#comunicado_texto {
+    min-height: 150px;
+    resize: vertical;
+}
+
+/* Estilo para o select múltiplo */
+#comunicado_destinatarios {
+    min-height: 120px;
+}
+
+/* Estilo para o input de arquivos */
+#comunicado_arquivos {
+    padding: 0.5rem;
+}
+
+/* Switch */
+.card form .form-check.form-switch {
+    padding-left: 3em;
+    display: flex;
+    align-items: center;
+    min-height: auto;
+    margin-top: 0.5rem;
+}
+
+.card form .form-switch .form-check-input {
+    width: 2.5em;
+    height: 1.25em;
+    margin-left: -3em;
+    background-color: var(--color-gray);
+    border-color: #bbb;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23bbb'/%3e%3c/svg%3e");
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, background-position 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.card form .form-switch .form-check-input:focus {
+    border-color: var(--color-secondary);
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(112, 246, 17, 0.2);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba(112, 246, 17, 0.8)'/%3e%3c/svg%3e");
+}
+
+.card form .form-switch .form-check-input:checked {
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+    background-position: right center;
+}
+
+.card form .form-switch .form-check-label {
+    padding-top: 0.1em;
+    color: var(--color-text-dark);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Botão de Submissão */
+.card form button[type="submit"] {
+    background: var(--gradient-secondary-green) !important;
+    background-size: 300% 300% !important;
+    animation: gradientBGButton 10s ease infinite !important;
+    border: none;
+    border-radius: 8px;
+    color: var(--color-primary-dark) !important;
+    font-weight: 600;
+    padding: 0.8rem 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(112, 246, 17, 0.15);
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.card form button[type="submit"]:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(112, 246, 17, 0.25);
+}
+
+.card form button[type="submit"]:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 5px rgba(112, 246, 17, 0.2);
+}
+
+.card form button[type="submit"] i {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+}
+
+/* Efeito de brilho no botão */
+.card form button[type="submit"]::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 200%;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.15);
+    transform: rotate(30deg);
+    transition: all 0.6s ease;
+}
+
+.card form button[type="submit"]:hover::before {
+    left: 100%;
+}
+
+/* Estado de Carregamento do Botão */
+.card form button[type="submit"]:disabled {
+    background: var(--color-gray) !important;
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* ==========================================
+   Mensagens de Feedback (Toast Notifications)
+   ========================================== */
+#toast-container-fixed {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1056;
+    width: auto;
+    max-width: 400px;
+}
+
+#toast-container-fixed .alert {
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem 1.25rem;
+    font-weight: 500;
+    box-shadow: var(--box-shadow-medium);
+    border: none;
+    margin-bottom: 0.5rem;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    position: relative;
+}
+
+#toast-container-fixed .alert.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+#toast-container-fixed .alert-success {
+    background: linear-gradient(135deg, #d1e7dd, var(--color-success));
+    color: #0a3622;
+}
+
+#toast-container-fixed .alert-danger {
+    background: linear-gradient(135deg, #f8d7da, var(--color-danger));
+    color: #58151c;
+}
+
+#toast-container-fixed .alert i {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+#toast-container-fixed .alert-dismissible .btn-close {
+    padding: 0.8rem;
+    opacity: 0.8;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    line-height: 1;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    color: inherit;
+}
+
+#toast-container-fixed .alert-dismissible .btn-close:hover {
+    opacity: 1;
+}
+
+/* ==========================================
+   Responsividade
+   ========================================== */
+@media (max-width: 767px) {
+    .row.mb-4 {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .row.mb-4 .col-md-6 {
+        max-width: 100%;
+    }
+    
+    .card .card-body {
+        padding: 1rem;
+    }
+    .card .card-header {
+        font-size: 1em;
+        padding: 0.8rem 1rem;
+    }
+    .card form .mb-3 {
+        min-width: unset;
+    }
+    .card form button[type="submit"] {
+        padding: 0.7rem 1.2rem;
+    }
+}
+
+/* ==========================================
+   Animações
+   ========================================== */
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes gradientBGButton {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ==========================================
+   Estilos dos Labels de Navegação
+   ========================================== */
+.col-12.d-flex.justify-content-center.gap-4 {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-label {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: none !important;
+    position: relative;
+}
+
+.btn-label i {
+    font-size: 1.3rem;
+}
+
+.btn-label-red {
+    color: var(--color-red-soft);
+}
+
+.btn-label-blue {
+    color: var(--color-blue-soft);
+}
+
+.btn-label:hover {
+    transform: translateY(-2px);
+}
+
+.btn-label.active {
+    color: var(--color-primary-dark);
+    border-bottom: 3px solid currentColor;
+    flex-wrap: nowrap;
+    width: 200px;
+}
+
+/* ==========================================
+   Estilos dos Modais
+   ========================================== */
+.modal-comunicados {
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.email-container {
+    background: var(--color-white);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow-medium);
+    overflow: hidden;
+}
+
+.email-content {
+    padding: 1.5rem;
+}
+
+.lista-comunicados {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.comunicado-item {
+    background: var(--color-white);
+    border: 1px solid var(--color-gray);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.comunicado-item:hover {
+    box-shadow: var(--box-shadow-light);
+    transform: translateY(-2px);
+}
+
+.comunicado-item.nao-lido {
+    border-left: 4px solid var(--color-red-soft);
+}
+
+.comunicado-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.comunicado-header h3 {
+    color: var(--color-primary-dark);
+    font-size: 1.2em;
+    margin: 0;
+}
+
+.comunicado-header .data {
+    color: var(--color-text-light);
+    font-size: 0.9em;
+}
+
+.comunicado-texto {
+    color: var(--color-text-dark);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    white-space: pre-wrap;
+}
+
+.comunicado-banner {
+    margin: 1rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--box-shadow-light);
+}
+
+.comunicado-banner img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+.comunicado-arquivos {
+    background: var(--color-light-gray);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.comunicado-arquivos h4 {
+    color: var(--color-primary-dark);
+    font-size: 1em;
+    margin: 0 0 0.5rem 0;
+}
+
+.arquivo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: var(--color-white);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.arquivo:last-child {
+    margin-bottom: 0;
+}
+
+.arquivo i {
+    color: var(--color-primary-dark);
+}
+
+.arquivo a {
+    color: var(--color-primary-dark);
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.arquivo a:hover {
+    text-decoration: underline;
+}
+
+.btn-marcar-lido {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    color: var(--color-primary-dark);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.btn-marcar-lido:hover {
+    background: var(--color-light-gray);
+}
+
+.btn-marcar-lido i {
+    font-size: 1.2em;
+}
+
+/* Responsividade */
+@media (max-width: 767px) {
+    .email-content {
+        padding: 1rem;
+    }
+    
+    .comunicado-item {
+        padding: 1rem;
+    }
+    
+    .comunicado-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}

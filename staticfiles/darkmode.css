@@ -1,0 +1,376 @@
+/* ============================ */
+/* 🌗 THEME SWITCH - TOGGLE CSS */
+/* ============================ */
+
+/* Wrapper do botão de tema */
+.theme-switch-wrapper {
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  
+  /* Caixa do switch */
+  .theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+  
+  /* Oculta o input real */
+  .theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  /* Área clicável do switch */
+  .slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 5px;
+    background-color: #f4f4f4;
+    border-radius: 34px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background-color 0.4s ease;
+  }
+  
+  /* Bolinha deslizante */
+  .slider:before {
+    content: "";
+    position: absolute;
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: #fff;
+    border-radius: 50%;
+    z-index: 2;
+    transition: transform 0.4s ease;
+  }
+  
+  /* Ícones (Sol e Lua) */
+  .slider i {
+    font-size: 14px;
+    z-index: 1;
+    transition: opacity 0.4s ease;
+  }
+  
+  .fa-sun {
+    color: #FFD43B; /* Amarelo solar */
+    margin-left: auto;
+  }
+  /* Garante que no modo escuro o sol continue visível */
+[data-theme="dark"] .fa-sun {
+    color: #FFD43B !important;
+    opacity: 1 !important;
+  }
+
+  .fa-moon {
+    color: #5c7cfa;
+    margin-right: auto;
+  }
+  
+  /* Modo escuro ativado */
+  input:checked + .slider {
+    background-color: #2f3640;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(26px);
+  }
+  
+  input:checked + .slider .fa-sun {
+    opacity: 1;
+  }
+  
+  input:checked + .slider .fa-moon {
+    opacity: 1;
+    color: #fff;
+  }
+  
+  /* Hover com glow */
+  .theme-switch:hover .slider {
+    box-shadow: 0 0 12px rgba(33, 150, 243, 0.6);
+  }
+  
+  /* Transições suaves */
+  body.transition,
+  .transition {
+    transition: all 0.3s ease;
+  }
+  
+  /* ============================ */
+  /* 🌙 DARK THEME VARIABLES */
+  /* ============================ */
+  [data-theme="dark"] {
+    --bg-primary: #1a1625;
+    --bg-secondary: #2d2438;
+    --text-primary: #ffffff;
+    --text-secondary: #b8b5c0;
+    --accent-primary: #6e42c1;
+    --accent-secondary: #8659d4;
+    --card-bg: #2d2438;
+    --border-color: #3d3450;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Responsivo */
+  @media (max-width: 768px) {
+    .theme-switch-wrapper {
+      top: 70px;
+      right: 10px;
+    }
+  }
+
+
+
+/* Dark mode colors */
+[data-theme="dark"] {
+    --bg-primary: #1a1625;
+    --bg-secondary: #2d2438;
+    --text-primary: #ffffff;
+    --text-secondary: #b8b5c0;
+    --accent-primary: #6e42c1;
+    --accent-secondary: #8659d4;
+    --card-bg: #2d2438;
+    --border-color: #3d3450;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] body {
+    background: var(--bg-primary);
+}
+
+[data-theme="dark"] main {
+    background-color: var(--bg-primary);
+}
+
+[data-theme="dark"] main header {
+    background-color: var(--bg-secondary);
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+[data-theme="dark"] .ranking-title {
+    color: var(--accent-secondary);
+}
+
+[data-theme="dark"] .container {
+    background-color: var(--bg-secondary);
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+[data-theme="dark"] .card {
+    background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .info__valores .title {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .txt {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .info__foto .valor {
+    color: #d9b0ff !important; /* Cor específica para valores no info__foto */
+}
+
+/* Cards no Dark Mode */
+[data-theme="dark"] .card.faturamento {
+    background-color: rgba(46, 125, 50, 0.15);  /* Verde escuro com transparência */
+}
+
+[data-theme="dark"] .card.quantidade {
+    background-color: rgba(21, 101, 192, 0.15);  /* Azul escuro com transparência */
+}
+
+[data-theme="dark"] .card.agendamentos {
+    background-color: rgba(239, 108, 0, 0.15);  /* Laranja escuro com transparência */
+}
+
+/* Cores dos valores e porcentagens no Dark Mode */
+[data-theme="dark"] .card.faturamento .valor,
+[data-theme="dark"] .card.faturamento .porcentagem {
+    color: #81c784;  /* Verde mais claro para legibilidade */
+}
+
+[data-theme="dark"] .card.quantidade .valor,
+[data-theme="dark"] .card.quantidade .porcentagem {
+    color: #64b5f6;  /* Azul mais claro para legibilidade */
+}
+
+[data-theme="dark"] .card.agendamentos .valor,
+[data-theme="dark"] .card.agendamentos .porcentagem {
+    color: #ffb74d;  /* Laranja mais claro para legibilidade */
+}
+
+
+/* Dark mode colors */
+[data-theme="dark"] {
+    --bg-primary: #1a1625;
+    --bg-secondary: #2d2438;
+    --text-primary: #ffffff;
+    --text-secondary: #b8b5c0;
+    --accent-primary: #6e42c1;
+    --accent-secondary: #8659d4;
+    --card-bg: #2d2438;
+    --border-color: #3d3450;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] body {
+    background: var(--bg-primary);
+}
+
+[data-theme="dark"] main {
+    background-color: var(--bg-primary);
+}
+
+[data-theme="dark"] main header {
+    background-color: var(--bg-secondary);
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+[data-theme="dark"] .ranking-title {
+    color: var(--accent-secondary);
+}
+
+[data-theme="dark"] .container {
+    background-color: var(--bg-secondary);
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+[data-theme="dark"] .card {
+    background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .info__valores .title {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .txt {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] table {
+    background-color: var(--bg-secondary);
+}
+
+[data-theme="dark"] th {
+    color: var(--accent-secondary);
+    background-color: var(--bg-secondary);
+}
+
+[data-theme="dark"] td {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] tr:hover {
+    background-color: var(--card-bg);
+}
+
+[data-theme="dark"] td.valor {
+    color: var(--accent-secondary);
+}
+
+[data-theme="dark"] .info__foto .valor {
+    color: #d9b0ff !important; /* Cor específica para valores no info__foto */
+}
+
+/* Cards no Dark Mode */
+[data-theme="dark"] .card.faturamento {
+    background-color: rgba(46, 125, 50, 0.15);  /* Verde escuro com transparência */
+}
+
+[data-theme="dark"] .card.quantidade {
+    background-color: rgba(21, 101, 192, 0.15);  /* Azul escuro com transparência */
+}
+
+[data-theme="dark"] .card.agendamentos {
+    background-color: rgba(239, 108, 0, 0.15);  /* Laranja escuro com transparência */
+}
+
+/* Cores dos valores e porcentagens no Dark Mode */
+[data-theme="dark"] .card.faturamento .valor,
+[data-theme="dark"] .card.faturamento .porcentagem {
+    color: #81c784;  /* Verde mais claro para legibilidade */
+}
+
+[data-theme="dark"] .card.quantidade .valor,
+[data-theme="dark"] .card.quantidade .porcentagem {
+    color: #64b5f6;  /* Azul mais claro para legibilidade */
+}
+
+[data-theme="dark"] .card.agendamentos .valor,
+[data-theme="dark"] .card.agendamentos .porcentagem {
+    color: #ffb74d;  /* Laranja mais claro para legibilidade */
+}
+
+
+/* Dark Mode para os cards */
+[data-theme="dark"] .card.meta-geral {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    border: 1px solid #283593;
+}
+
+[data-theme="dark"] .card.meta-siape {
+    background: linear-gradient(135deg, #e65100 0%, #ef6c00 100%);
+    border: 1px solid #f57c00;
+}
+
+[data-theme="dark"] .card .icon {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .info__valores .title {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .info__valores .valor {
+    color: #ffffff;
+}
+
+[data-theme="dark"] .percentual {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .porcentagem {
+    color: #ffffff;
+}
+
+/* Ajuste para o dark mode */
+[data-theme="dark"] .card.faturamento-mensal {
+    background-color: rgba(2, 136, 209, 0.15);  /* Azul escuro com transparência */
+}
+
+[data-theme="dark"] .card.faturamento-mensal .valor,
+[data-theme="dark"] .card.faturamento-mensal .porcentagem {
+    color: #4FC3F7;  /* Azul mais claro para legibilidade */
+}
+
+/* Dark mode */
+[data-theme="dark"] .progress-container {
+    background-color: rgba(110, 66, 193, 0.1);
+    border-color: rgba(110, 66, 193, 0.2);
+}
+
+[data-theme="dark"] .progress-bar {
+    background: linear-gradient(
+        90deg,
+        rgba(110, 66, 193, 0.8),
+        rgba(134, 89, 212, 1)
+    );
+}
+
+[data-theme="dark"] .progress-text {
+    color: #ffffff;
+}

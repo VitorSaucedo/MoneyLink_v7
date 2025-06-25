@@ -1,0 +1,19 @@
+/* ==========================================
+   CONSULTA CLIENTE CSS - IMPORTAÇÕES
+   Arquivo principal que importa todos os módulos
+   ========================================== */
+
+/* Importar todos os módulos separados */
+@import url('consulta_cliente_variables.css');
+@import url('consulta_cliente_controles.css');
+@import url('consulta_cliente_cards.css');
+@import url('consulta_cliente_subcards.css');
+@import url('consulta_cliente_formulario.css');
+@import url('consulta_cliente_agendamento.css');
+@import url('consulta_cliente_calculadoras.css');
+@import url('consulta_cliente_telefones.css');
+@import url('consulta_cliente_agendamentos_lista.css');
+@import url('consulta_cliente_modais.css');
+@import url('consulta_cliente_alertas.css');
+@import url('consulta_cliente_animacoes.css');
+@import url('consulta_cliente_especiais.css');

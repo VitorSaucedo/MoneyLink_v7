@@ -1,0 +1,13 @@
+.container-developing {
+    width: 100%;
+    height: calc(100vh - 120px); /* Ajustado para considerar menu e footer */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container-developing img {
+    width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}

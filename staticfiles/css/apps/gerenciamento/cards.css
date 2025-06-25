@@ -1,0 +1,155 @@
+/* Variáveis de cores e tamanhos */
+:root {
+    --primary-color: blue;
+    --secondary-color: white;
+    --hover-color: darkblue;
+    --font-primary: 'Roboto', sans-serif;
+    --card-width: 200px;
+    --card-height: 300px;
+    --card-margin: 18px 25px 18px 0;
+    --photo-size: 125px;
+    --photo-border-color: rgb(20, 2, 80);
+    --photo-background-color: rgb(236, 236, 236);
+    --photo-border-width: 8px;
+}
+
+/* Reset básico */
+* {
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+/* Estilos principais do corpo */
+.body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50vh;
+    margin: 0;
+    font-family: var(--font-primary); /* Fonte primária */
+}
+
+/* Estilo do slider */
+.slider {
+    max-width: 1000px; /* Reduzi um pouco a largura máxima do slider */
+    height: 500px; /* Altura um pouco menor */
+    display: flex;
+    overflow-x: auto; /* Scroll horizontal */
+    overflow-y: hidden;
+    padding: 20px 0;
+    margin-top: 25px;
+}
+
+/* Espaçamento entre os cards no slider */
+.container__card {
+    position: relative;
+    min-width: var(--card-width); /* Usando a variável para largura do card */
+    min-height: var(--card-height); /* Usando a variável para altura do card */
+    max-width: 350px; /* Um pouco menor que antes */
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra */
+    overflow: hidden; /* Garante o border-radius */
+    margin: var(--card-margin); /* Usando a variável de margem */
+}
+
+/* Estilos para os fundos superior e inferior */
+.background__sup, .background__sub {
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    z-index: -1;
+}
+
+.background__sup {
+    top: 0;
+    background-color: var(--primary-color);
+}
+
+.background__sub {
+    bottom: 0;
+    background-color: var(--secondary-color);
+}
+
+/* Estilo do conteúdo interno dos cards */
+.content__card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* Foto circular com borda e background */
+.content__card .photo {
+    border-radius: 50%;
+    width: var(--photo-size);
+    height: var(--photo-size);
+    border: var(--photo-border-width) solid var(--secondary-color);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+/* Ajustes de imagem na foto */
+.content__card .photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Estilo do título e texto */
+.title {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Estilo dos botões personalizados */
+.button .btn-custom {
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    border: none;
+    border-radius: 5px;
+}
+
+.button .btn-custom:hover {
+    background-color: var(--hover-color); /* Cor ao passar o mouse */
+}
+
+/* Estrutura flex para foto e texto no conteúdo */
+.sup-photo, .sub-text {
+    width: 100%;
+    height: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+/* Foto com background e borda */
+.sup-photo .photo {
+    background-color: var(--photo-background-color);
+    position: relative;
+    top: 30px;
+}
+
+.sup-photo .photo img {
+    border: 5px solid var(--photo-border-color);
+    border-radius: 50%;
+}
+
+/* Ajustes de tamanho do texto */
+.slider h2 {
+    font-size: 13pt;
+}
+
+.slider p {
+    font-size: 10pt;
+}
