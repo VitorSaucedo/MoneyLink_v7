@@ -1,0 +1,877 @@
+/**
+ * admin.css - Estilos para administração do módulo TI
+ * 
+ * Este arquivo contém APENAS os estilos para o tema CLARO (padrão).
+ * Os estilos para o tema escuro estão no arquivo ti-dark-mode.css
+ * 
+ * Organização:
+ * 1. Variáveis CSS
+ * 2. Reset e estilos base
+ * 3. Layout e containers
+ * 4. Componentes de interface
+ * 5. Formulários e campos
+ * 6. Botões e interações
+ * 7. Estados e validação
+ * 8. Funcionalidades específicas
+ * 9. Animações e transições
+ * 10. Responsividade
+ * 11. Utilitários
+ */
+
+/* ========================================
+   1. VARIÁVEIS CSS 
+   ======================================== */
+:root {
+    /* === CORES PRIMÁRIAS === */
+    --color-primary: #142650;
+    --color-secondary: #70f611;
+    --color-tertiary: #0bd5f0;
+    --color-accent: #6e42c1;
+    --color-white: #ffffff;
+    --color-black: #000000;
+    
+    /* === CORES DE TEXTO === */
+    --color-text-primary: #333333;
+    --color-text-secondary: #666666;
+    --color-text-muted: #6c757d;
+    --color-text-light: #ffffff;
+    
+    /* === CORES DE FUNDO === */
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f8f9fa;
+    --color-bg-tertiary: #f0f0f0;
+    
+    /* === CORES DE BORDA === */
+    --color-border-primary: #dddddd;
+    --color-border-secondary: rgba(220, 220, 220, 0.5);
+    
+    /* === CORES DE STATUS === */
+    --color-success: #198754;
+    --color-warning: #ffc107;
+    --color-danger: #dc3545;
+    --color-info: #0dcaf0;
+    
+    /* === VARIÁVEIS SEMÂNTICAS TI === */
+    --ti-bg-primary: var(--color-bg-primary);
+    --ti-bg-secondary: var(--color-bg-secondary);
+    --ti-bg-card: var(--color-bg-primary);
+    --ti-bg-hover: var(--color-bg-tertiary);
+    --ti-bg-input: var(--color-bg-primary);
+    
+    --ti-text-primary: var(--color-text-primary);
+    --ti-text-secondary: var(--color-text-secondary);
+    --ti-text-muted: var(--color-text-muted);
+    
+    --ti-accent-primary: var(--color-secondary);
+    --ti-accent-secondary: var(--color-tertiary);
+    --ti-accent-tertiary: var(--color-accent);
+    
+    --ti-border-primary: var(--color-border-primary);
+    --ti-border-secondary: var(--color-border-secondary);
+    
+    /* === SOMBRAS === */
+    --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 6px 18px rgba(112, 246, 17, 0.15);
+    
+    /* === GRADIENTES === */
+    --gradient-primary: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+    --gradient-secondary: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-tertiary) 50%, var(--color-secondary) 100%);
+    --gradient-header: linear-gradient(-45deg, var(--color-secondary), #5cb85c, var(--color-primary), var(--color-secondary));
+    
+    /* === TRANSIÇÕES === */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.7s ease;
+    
+    /* === ESPAÇAMENTOS === */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    
+    /* === BORDAS === */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 10px;
+    
+    /* === ANIMAÇÕES === */
+    --animation-gradient: gradientBG 12s ease infinite;
+    --animation-gradient-button: gradientBGButton 10s ease infinite;
+}
+
+/* ========================================
+   2. RESET E ESTILOS BASE
+   ======================================== */
+
+/* Reset básico */
+* {
+    box-sizing: border-box;
+}
+
+/* Estilos base do body */
+body {
+    background-color: var(--ti-bg-primary);
+    color: var(--ti-text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    transition: var(--transition-normal);
+}
+
+/* ========================================
+   3. LAYOUT E CONTAINERS
+   ======================================== */
+
+/* Container principal */
+.container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px !important;
+    margin: 0 auto;
+    padding: var(--spacing-md);
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Container do cabeçalho */
+.header-container {
+    align-items: center;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: var(--spacing-sm) 0;
+    margin-bottom: var(--spacing-lg);
+    transition: var(--transition-normal);
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Título da página */
+.titulo-pagina {
+    color: var(--ti-text-primary);
+    font-weight: 600;
+    font-size: 1.75rem;
+    border: none;
+    padding-bottom: var(--spacing-sm);
+    display: inline-block;
+    transition: var(--transition-normal);
+    background-color: transparent;
+    box-shadow: none;
+    margin: 0;
+}
+
+.titulo-pagina i {
+    color: var(--ti-accent-primary);
+    margin-right: var(--spacing-sm);
+    transition: var(--transition-normal);
+}
+
+/* ========================================
+   4. COMPONENTES DE INTERFACE
+   ======================================== */
+
+/* Toggle de tema */
+.theme-switch-wrapper {
+    margin-top: -2px;
+    vertical-align: middle;
+}
+
+header .theme-switch {
+    width: 50px;
+    height: 28px;
+}
+
+header .theme-switch .slider:before {
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    transition: var(--transition-normal);
+}
+
+header .theme-switch input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+header .slider i {
+    font-size: 12px;
+}
+
+/* Cards */
+.card {
+    background-color: var(--ti-bg-card);
+    border: none !important;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    outline: none !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: var(--spacing-lg);
+    transition: var(--transition-normal);
+    position: relative;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+/* Cabeçalhos de Card */
+.card-header {
+    background: var(--gradient-header) !important;
+    background-size: 400% 400% !important;
+    animation: var(--animation-gradient) !important;
+    color: var(--color-text-light) !important;
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding: var(--spacing-md) var(--spacing-lg);
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    border: none !important;
+    position: relative;
+    z-index: 1;
+    transition: var(--transition-normal);
+    overflow: hidden;
+}
+
+.card-header i {
+    margin-right: var(--spacing-sm);
+    font-size: 1.3rem;
+    vertical-align: middle;
+}
+
+/* Efeito de brilho metálico nos cabeçalhos */
+.card-header::before {
+    content: '';
+    position: absolute;
+    top: -150%;
+    left: -150%;
+    width: 300%;
+    height: 300%;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.05) 40%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.05) 60%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(45deg);
+    transition: var(--transition-slow);
+    z-index: 0;
+}
+
+.card:hover .card-header::before {
+    top: 150%;
+    left: 150%;
+}
+
+/* Corpo do Card */
+.card-body {
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    background-color: var(--ti-bg-card);
+    transition: var(--transition-normal);
+    border: none !important;
+    box-shadow: none !important;
+    flex-grow: 1;
+}
+
+/* ========================================
+   5. FORMULÁRIOS E CAMPOS
+   ======================================== */
+
+/* Container de formulário */
+.card form {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+}
+
+/* Grupos de campos */
+.form-group,
+.mb-3 {
+    flex: 1 1 45%;
+    min-width: 250px;
+    margin-bottom: var(--spacing-md);
+}
+
+.form-group.full-width,
+.mb-3.full-width {
+    flex-basis: 100%;
+}
+
+/* Labels de formulário */
+.form-label {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: var(--ti-text-primary);
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.95rem;
+    transition: var(--transition-normal);
+}
+
+.form-label i {
+    margin-right: var(--spacing-sm);
+    color: var(--ti-accent-primary);
+    font-size: 1.1rem;
+    transition: var(--transition-normal);
+}
+
+/* Campos de entrada */
+.form-control,
+.form-select {
+    border: 2px solid var(--ti-border-primary);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 1rem;
+    font-family: inherit;
+    line-height: 1.5;
+    background-color: var(--ti-bg-input);
+    color: var(--ti-text-primary);
+    width: 100%;
+    transition: var(--transition-normal);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--ti-accent-primary);
+    box-shadow: 0 0 0 3px rgba(112, 246, 17, 0.15);
+    background-color: var(--ti-bg-input);
+    outline: none;
+}
+
+.form-control:hover,
+.form-select:hover {
+    border-color: var(--ti-accent-secondary);
+}
+
+/* Campos desabilitados */
+.form-control:disabled,
+.form-select:disabled {
+    background-color: var(--ti-bg-secondary);
+    color: var(--ti-text-muted);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Textarea */
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* ========================================
+   6. BOTÕES E INTERAÇÕES
+   ======================================== */
+
+/* Estilos base para botões */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: none;
+    border-radius: var(--border-radius-md);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    box-shadow: var(--shadow-sm);
+    min-height: 44px; /* Acessibilidade - área de toque mínima */
+}
+
+/* Botão Primário */
+.btn-primary,
+button[type="submit"] {
+    background: var(--gradient-secondary) !important;
+    background-size: 300% 300% !important;
+    animation: var(--animation-gradient-button) !important;
+    color: var(--ti-text-primary);
+}
+
+.btn-primary:hover,
+button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-primary:active,
+button[type="submit"]:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Botão Secundário */
+.btn-secondary {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+}
+
+.btn-secondary:hover {
+    background-color: var(--ti-accent-tertiary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Botões de Listagem */
+.btn-listagem {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    width: 100%;
+    max-width: 300px;
+}
+
+.btn-listagem:hover {
+    background-color: var(--color-primary);
+    color: var(--ti-accent-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Estados de botão */
+.btn:disabled,
+.btn.disabled {
+    background: linear-gradient(135deg, #cccccc, #999999) !important;
+    color: #666666 !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none !important;
+    box-shadow: none !important;
+    animation: none !important;
+}
+
+.btn:disabled:hover,
+.btn.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Ícones em botões */
+.btn i {
+    font-size: 1.2rem;
+}
+
+/* Botões de ação específicas */
+.btn-success {
+    background-color: var(--color-success);
+    color: var(--color-text-light);
+}
+
+.btn-warning {
+    background-color: var(--color-warning);
+    color: var(--ti-text-primary);
+}
+
+.btn-danger {
+    background-color: var(--color-danger);
+    color: var(--color-text-light);
+}
+
+.btn-info {
+    background-color: var(--color-info);
+    color: var(--ti-text-primary);
+}
+
+/* ========================================
+   7. ESTADOS E VALIDAÇÃO
+   ======================================== */
+
+/* Estado de carregamento */
+.is-loading {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z'%3E%3CanimateTransform attributeName='transform' dur='0.75s' repeatCount='indefinite' type='rotate' values='0 12 12;360 12 12'/%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+    padding-right: calc(1.5em + var(--spacing-sm));
+}
+
+/* Estado válido */
+.is-valid,
+.form-control.is-valid {
+    border-color: var(--color-success) !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23198754' d='M9,16.17L4.83,12l-1.42,1.41L9,19L21,7l-1.41-1.41L9,16.17z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+    padding-right: calc(1.5em + var(--spacing-sm));
+}
+
+/* Estado inválido */
+.is-invalid,
+.form-control.is-invalid {
+    border-color: var(--color-danger) !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23dc3545' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+    padding-right: calc(1.5em + var(--spacing-sm));
+}
+
+/* Feedback de validação */
+.invalid-feedback,
+.valid-feedback {
+    display: none;
+    font-size: 0.875rem;
+    margin-top: var(--spacing-xs);
+    line-height: 1.4;
+}
+
+.invalid-feedback {
+    color: var(--color-danger);
+}
+
+.valid-feedback {
+    color: var(--color-success);
+}
+
+.form-control.is-invalid + .invalid-feedback,
+.form-control.is-valid + .valid-feedback {
+    display: block;
+}
+
+/* Estados de foco com validação */
+.form-control.is-valid:focus {
+    border-color: var(--color-success);
+    box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15);
+}
+
+.form-control.is-invalid:focus {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+}
+
+/* ========================================
+   8. FUNCIONALIDADES ESPECÍFICAS
+   ======================================== */
+
+/* Container de periféricos pendentes */
+.perifericos-pendentes-container {
+    background-color: var(--ti-bg-secondary);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+    border: 1px solid var(--ti-border-primary);
+    transition: var(--transition-normal);
+}
+
+.perifericos-pendentes-container h5 {
+    color: var(--ti-text-primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+}
+
+.perifericos-pendentes-container h5 i {
+    color: var(--ti-accent-primary);
+    font-size: 1.3rem;
+    margin-right: var(--spacing-sm);
+}
+
+/* Tabelas */
+.table {
+    margin-bottom: 0;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.table thead th {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    font-weight: 600;
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.table tbody td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--ti-border-secondary);
+    vertical-align: middle;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: rgba(112, 246, 17, 0.05);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(112, 246, 17, 0.1);
+    transition: var(--transition-fast);
+}
+
+/* Estados especiais de tabela */
+.table .empty-state td {
+    color: var(--ti-text-muted);
+    font-style: italic;
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+/* Botões específicos */
+.btn-remover-periferico {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: transparent;
+    border: 1px solid var(--color-danger);
+    color: var(--color-danger);
+    border-radius: var(--border-radius-sm);
+    font-size: 0.8rem;
+    transition: var(--transition-fast);
+}
+
+.btn-remover-periferico:hover {
+    background-color: var(--color-danger);
+    color: var(--color-text-light);
+}
+
+/* Contadores e indicadores */
+.contagem-pendentes {
+    font-weight: 600;
+    color: var(--ti-accent-primary);
+}
+
+/* Divisórias */
+.form-divider {
+    border-bottom: 1px dashed var(--ti-border-primary);
+    padding-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+/* ========================================
+   9. ANIMAÇÕES E TRANSIÇÕES
+   ======================================== */
+
+/* Animações de gradiente */
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes gradientBGButton {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Animação de destaque para linhas */
+@keyframes highlight-row {
+    0% { background-color: rgba(112, 246, 17, 0.3); }
+    100% { background-color: transparent; }
+}
+
+.row-highlight {
+    animation: highlight-row 1.5s ease-out;
+}
+
+/* Animação de fade-in */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Animação de pulse para elementos de carregamento */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* ========================================
+   10. RESPONSIVIDADE
+   ======================================== */
+
+/* Tablets e dispositivos médios */
+@media (max-width: 992px) {
+    .form-group,
+    .mb-3 {
+        flex: 1 1 100%;
+    }
+    
+    .btn-listagem {
+        max-width: 100%;
+    }
+    
+    .container {
+        padding: var(--spacing-sm);
+    }
+    
+    .card-body {
+        padding: var(--spacing-md);
+    }
+    
+    .titulo-pagina {
+        font-size: 1.5rem;
+    }
+}
+
+/* Dispositivos móveis */
+@media (max-width: 768px) {
+    .card-header {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 1rem;
+    }
+    
+    .btn {
+        padding: var(--spacing-sm);
+        font-size: 0.9rem;
+    }
+    
+    .table {
+        font-size: 0.875rem;
+    }
+    
+    .table thead th,
+    .table tbody td {
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+}
+
+/* Dispositivos muito pequenos */
+@media (max-width: 576px) {
+    .container {
+        padding: var(--spacing-xs);
+    }
+    
+    .titulo-pagina {
+        font-size: 1.25rem;
+    }
+    
+    .card {
+        margin-bottom: var(--spacing-md);
+    }
+}
+
+/* ========================================
+   11. UTILITÁRIOS
+   ======================================== */
+
+/* Classes de espaçamento */
+.m-0 { margin: 0 !important; }
+.mt-1 { margin-top: var(--spacing-xs) !important; }
+.mb-1 { margin-bottom: var(--spacing-xs) !important; }
+.mt-2 { margin-top: var(--spacing-sm) !important; }
+.mb-2 { margin-bottom: var(--spacing-sm) !important; }
+.mt-3 { margin-top: var(--spacing-md) !important; }
+.mb-3 { margin-bottom: var(--spacing-md) !important; }
+.mt-4 { margin-top: var(--spacing-lg) !important; }
+.mb-4 { margin-bottom: var(--spacing-lg) !important; }
+
+.p-0 { padding: 0 !important; }
+.p-1 { padding: var(--spacing-xs) !important; }
+.p-2 { padding: var(--spacing-sm) !important; }
+.p-3 { padding: var(--spacing-md) !important; }
+.p-4 { padding: var(--spacing-lg) !important; }
+
+/* Classes de texto */
+.text-center { text-align: center !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+.text-muted { color: var(--ti-text-muted) !important; }
+.text-primary { color: var(--ti-accent-primary) !important; }
+.text-success { color: var(--color-success) !important; }
+.text-danger { color: var(--color-danger) !important; }
+.text-warning { color: var(--color-warning) !important; }
+.text-info { color: var(--color-info) !important; }
+
+/* Classes de display */
+.d-none { display: none !important; }
+.d-block { display: block !important; }
+.d-inline { display: inline !important; }
+.d-inline-block { display: inline-block !important; }
+.d-flex { display: flex !important; }
+
+/* Classes de flexbox */
+.justify-content-center { justify-content: center !important; }
+.justify-content-between { justify-content: space-between !important; }
+.align-items-center { align-items: center !important; }
+.flex-column { flex-direction: column !important; }
+.flex-wrap { flex-wrap: wrap !important; }
+
+/* Classes de largura */
+.w-25 { width: 25% !important; }
+.w-50 { width: 50% !important; }
+.w-75 { width: 75% !important; }
+.w-100 { width: 100% !important; }
+
+/* Estilos para ícones */
+.bx,
+.fas,
+.far,
+.fab {
+    margin-right: var(--spacing-sm);
+}
+
+/* Classe de especificidade para o app TI */
+.app-ti {
+    /* Garante que os estilos sejam aplicados corretamente */
+}
+
+.app-ti .card,
+.app-ti .form-control,
+.app-ti .form-select,
+.app-ti .btn {
+    transition: var(--transition-normal);
+}
+
+/* Classe para elementos com largura total */
+.full-width {
+    width: 100% !important;
+    flex-basis: 100% !important;
+}
+
+/* Classe para elementos centralizados */
+.centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Classe para scroll suave */
+.smooth-scroll {
+    scroll-behavior: smooth;
+}
+
+/* Classe para elementos com sombra */
+.shadow-sm { box-shadow: var(--shadow-sm) !important; }
+.shadow-md { box-shadow: var(--shadow-md) !important; }
+.shadow-lg { box-shadow: var(--shadow-lg) !important; }
+
+/* Classe para elementos arredondados */
+.rounded-sm { border-radius: var(--border-radius-sm) !important; }
+.rounded-md { border-radius: var(--border-radius-md) !important; }
+.rounded-lg { border-radius: var(--border-radius-lg) !important; }

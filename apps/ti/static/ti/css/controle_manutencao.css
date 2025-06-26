@@ -1,0 +1,120 @@
+/* Estilos adicionais específicos para esta página podem ser adicionados aqui */
+.table-manutencao {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.table-manutencao th, .table-manutencao td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+    vertical-align: middle;
+}
+.table-manutencao th {
+    background-color: var(--color-primary-dark);
+    color: white;
+    font-weight: 600;
+}
+.table-manutencao tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+/* Regra forte para desabilitar qualquer efeito de hover */
+.table-manutencao tr:hover,
+.table-manutencao tbody tr:hover,
+.table-manutencao tr:hover td,
+table.table-manutencao tr:hover,
+table.table-manutencao tbody tr:hover {
+    background-color: inherit !important;
+    background: inherit !important;
+}
+.btn-consertado {
+    background-color: var(--color-success);
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+.btn-consertado:hover {
+    background-color: #157347; /* Um tom mais escuro de verde */
+}
+.btn-consertado:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+/* Botão para excluir periférico */
+.btn-excluir {
+    background-color: var(--color-danger);
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-left: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-excluir:hover {
+    background-color: #bb2d3b; /* Um tom mais escuro de vermelho */
+}
+
+.btn-excluir:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+/* Espaçamento entre botões na célula de ações */
+.acoes-container {
+    align-items: center;
+    display: flex;
+    gap: 5px;
+}
+
+.card .card-body {
+    overflow-x: auto; /* Permite scroll horizontal na tabela se necessário */
+}
+
+.container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    justify-content: center;
+    max-width: 1200px;
+}
+
+/* Estilos para a lista de resumo integrada */
+.integrated-summary-list {
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 10px; /* Espaço acima da lista */
+    margin-bottom: 20px; /* Espaço abaixo da lista, antes da tabela */
+    font-size: 0.9em; /* Fonte um pouco menor */
+}
+.integrated-summary-list li {
+    padding: 4px 0; /* Padding menor */
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dashed #eee;
+}
+.integrated-summary-list li:last-child {
+    border-bottom: none;
+}
+.integrated-summary-list .total-manutencao {
+    font-weight: bold;
+    color: var(--color-danger); /* Mantém a cor de perigo para o total */
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #ccc;
+}
+.integrated-summary-list .item-name {
+    color: var(--color-text-muted); /* Cor mais suave para o nome do item */
+}
+.integrated-summary-list .item-count {
+    font-weight: 600; /* Contagem em negrito */
+    color: var(--color-primary-dark); /* Cor primária para a contagem */
+}

@@ -1,0 +1,289 @@
+/**
+ * forms_common.css - Estilos comuns para formulários e listas do módulo TI
+ */
+
+/* Estilos para cabeçalhos de cards */
+.card-header-custom {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #198754;
+  color: white;
+  border-radius: 5px 5px 0 0;
+}
+
+.card-header-custom i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+/* Estilos para cabeçalhos com ações */
+.card-header-custom.card-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header-title {
+  display: flex;
+  align-items: center;
+}
+
+.card-header-title i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+.card-header-actions .btn {
+  border-radius: 20px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.card-header-actions .btn i {
+  margin-right: 5px;
+}
+
+/* Estilos para formulários */
+.form-custom {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-custom .form-label {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.form-custom .form-label i {
+  margin-right: 8px;
+  color: #198754;
+}
+
+.form-custom .form-control,
+.form-custom .form-select {
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+  padding: 10px;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-custom .form-control:focus,
+.form-custom .form-select:focus {
+  border-color: #198754;
+  box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+}
+
+/* Estilos para tabelas */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table thead th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  padding: 12px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(25, 135, 84, 0.05);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(25, 135, 84, 0.1);
+}
+
+/* Botões de ação */
+.btn-action {
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-size: 12px;
+  margin-right: 5px;
+  transition: all 0.2s;
+}
+
+.btn-action:hover {
+  transform: translateY(-2px);
+}
+
+/* Estilos para botões */
+.btn-custom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 5px;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.btn-custom i {
+  margin-right: 8px;
+}
+
+.btn-success-custom {
+  color: #fff;
+  background-color: #198754;
+  border-color: #198754;
+}
+
+.btn-success-custom:hover {
+  background-color: #157347;
+  border-color: #146c43;
+}
+
+.btn-secondary-custom {
+  color: #fff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-secondary-custom:hover {
+  background-color: #5c636a;
+  border-color: #565e64;
+}
+
+.btn-danger-custom {
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-danger-custom:hover {
+  background-color: #bb2d3b;
+  border-color: #b02a37;
+}
+
+/* Badges de status */
+.status-badge {
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-livre, .badge-ativo {
+  background-color: #198754;
+  color: white;
+}
+
+.badge-ocupada {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.badge-manutencao {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.badge-inativa, .badge-inativo {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Estilos para mensagens de erro */
+.error-feedback, .text-danger {
+  margin-top: 5px;
+  color: #dc3545;
+  font-size: 0.875rem;
+}
+
+/* Estilos para textos de ajuda */
+.help-text {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 5px;
+}
+
+/* Estados vazios */
+.empty-state {
+  text-align: center;
+  padding: 30px;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  color: #dee2e6;
+  margin-bottom: 15px;
+}
+
+.empty-state p {
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+/* Estilos para confirmação de exclusão */
+.delete-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.delete-icon {
+  font-size: 3rem;
+  color: #dc3545;
+  margin-bottom: 1rem;
+}
+
+.delete-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #343a40;
+}
+
+.delete-message {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  color: #495057;
+  line-height: 1.5;
+}
+
+.delete-warning {
+  background-color: #fff5f5;
+  border-left: 4px solid #dc3545;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.25rem;
+}
+
+.delete-warning i {
+  color: #dc3545;
+  margin-right: 0.5rem;
+}
+
+.delete-warning-text {
+  font-weight: 600;
+  color: #dc3545;
+}
+
+.delete-item-name {
+  font-weight: 600;
+  background-color: #f8f9fa;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  margin: 0.5rem 0;
+  display: inline-block;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .form-custom .row {
+    flex-direction: column;
+  }
+  
+  .form-custom .col-md-6 {
+    width: 100%;
+  }
+} 

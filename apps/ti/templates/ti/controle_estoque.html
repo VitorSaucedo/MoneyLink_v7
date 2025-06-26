@@ -1,0 +1,155 @@
+{% extends 'base-plus.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block title %}Controle de Estoque - TI{% endblock %}
+
+{% block body_classes %}bg-body-tertiary ti-module{% endblock %}
+
+{% block addcss_extra %}
+<link rel="stylesheet" href="{% static 'ti/css/controle_estoque.css' %}">
+
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="{% static 'css/darkmode.css' %}">
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+
+{% block header_title %}
+Controle de Estoque - TI
+<!-- Seletor de tema (claro/escuro) -->
+<div class="theme-switch-wrapper ms-3 d-inline-block">
+  <label class="theme-switch" for="checkbox">
+    <input type="checkbox" id="checkbox" />
+    <div class="slider">
+      <i class="bx bx-sun fa-sun"></i>
+      <i class="bx bx-moon fa-moon"></i>
+    </div>
+  </label>
+</div>
+{% endblock %}
+
+{% block pre_content %}
+{% include 'partials/_messages.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="titulo-pagina mb-0"><i class='bx bx-archive me-2'></i>Controle de Estoque de TI</h1>
+    
+    <!-- Seletor de Loja -->
+    <div class="d-flex align-items-center gap-3">
+      <label for="seletor-loja" class="form-label mb-0 fw-bold">Loja:</label>
+      <select id="seletor-loja" class="form-select" style="width: auto; min-width: 150px;">
+        <option value="">Carregando lojas...</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Cards de Contadores de Estoque -->
+  <div class="d-flex flex-row gap-4 mb-4">
+    <!-- Periféricos -->
+    <div class="flex-fill">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-header bg-primary text-white py-3">
+          <h5 class="mb-0 text-center"><i class='bx bx-devices me-2'></i>Periféricos</h5>
+        </div>
+        <div class="card-body text-center" id="perifericos-card-body">
+          <!-- Conteúdo será carregado via JavaScript -->
+          <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Carregando...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Computadores Disponíveis -->
+    <div class="flex-fill">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-header bg-success text-white py-3">
+          <h5 class="mb-0 text-center"><i class='bx bx-laptop me-2'></i>Computadores</h5>
+        </div>
+        <div class="card-body text-center" id="computadores-card-body">
+          <!-- Conteúdo será carregado via JavaScript -->
+          <div class="loading-spinner">
+            <div class="spinner-border text-success" role="status">
+              <span class="visually-hidden">Carregando...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monitores -->
+    <div class="flex-fill">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-header bg-info text-white py-3">
+          <h5 class="mb-0 text-center"><i class='bx bx-desktop me-2'></i>Monitores</h5>
+        </div>
+        <div class="card-body text-center" id="monitores-card-body">
+          <!-- Conteúdo será carregado via JavaScript -->
+          <div class="loading-spinner">
+            <div class="spinner-border text-info" role="status">
+              <span class="visually-hidden">Carregando...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumo Geral -->
+    <div class="flex-fill">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-header bg-warning text-dark py-3">
+          <h5 class="mb-0 text-center"><i class='bx bx-chart-bar me-2'></i>Resumo</h5>
+        </div>
+        <div class="card-body text-center" id="resumo-card-body">
+          <!-- Conteúdo será carregado via JavaScript -->
+          <div class="loading-spinner">
+            <div class="spinner-border text-warning" role="status">
+              <span class="visually-hidden">Carregando...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Seção de Histórico de Movimentações -->
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-12">
+      <div class="card" id="card-historico-movimentacoes">
+        <div class="card-header">
+          <i class='bx bx-history'></i> Histórico de movimentações de periféricos - Sede
+        </div>
+        <div class="card-body" id="historico-card-body">
+          <!-- Conteúdo será carregado via JavaScript -->
+          <div class="loading-spinner text-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Carregando histórico...</span>
+            </div>
+            <p class="mt-2 text-muted">Carregando histórico de movimentações...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block addjs_extra %}
+<!-- Helpers para CSRF e tratamento de erros (CARREGAR PRIMEIRO) -->
+<script src="{% static 'js/ti_csrf_helper.js' %}"></script>
+<script src="{% static 'ti/js/ti_error_handler.js' %}"></script>
+
+<script src="{% static 'ti/js/controle_estoque.js' %}"></script>
+<script src="{% static 'js/darkmode.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,20 @@
+/**
+ * posicao_atendimento_form.css - Estilos para o formulário de posição de atendimento
+ */
+
+.card-header-custom {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+}
+
+.card-header-custom i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+.help-text {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 5px;
+} 

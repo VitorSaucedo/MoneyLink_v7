@@ -1,0 +1,840 @@
+{% extends 'base-plus.html' %}
+{% load static %}
+
+{% block header_title %}
+Administração TI<span class="produto-text"></span>
+<!-- Seletor de tema (claro/escuro) -->
+<div class="theme-switch-wrapper ms-3 d-inline-block">
+  <label class="theme-switch" for="checkbox">
+    <input type="checkbox" id="checkbox" />
+    <div class="slider">
+      <i class="bx bx-sun"></i>
+      <i class="bx bx-moon"></i>
+    </div>
+  </label>
+</div>
+{% endblock %}
+
+{% block addcss_extra %}
+  {# Boxicons para ícones usados no formulário #}
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  {# CSS global para dark mode #}
+  <link rel="stylesheet" href="{% static 'css/darkmode.css' %}">
+  {# Adicionar estilos personalizados para a página #}
+  <link rel="stylesheet" href="{% static 'ti/css/admin.css' %}">
+
+  
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+
+{% block pre_content %}
+{% include 'partials/_messages.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container my-4 app-ti">
+  <div class="d-flex justify-content-between align-items-center mb-4 header-container">
+    <h1 class="titulo-pagina"><i class='bx bxs-cog me-2'></i>Administração de TI</h1>
+  </div>
+
+  <div class="row">
+    <!-- Coluna 1: Infraestrutura -->
+    <div class="col-md-6">
+      <!-- Card Sala -->
+      <div class="card mb-4" id="card-sala">
+        <div class="card-header">
+          <i class='bx bx-door-open'></i> Cadastro de Salas
+        </div>
+        <div class="card-body">
+          <form method="post" action="{% url 'ti:sala_create' %}" id="form-sala" data-ajax="true">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="nome_sala" class="form-label">
+                <i class='bx bx-label'></i>Nome da Sala *
+              </label>
+              <input type="text" id="nome_sala" name="nome" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label for="loja_sala" class="form-label">
+                <i class='bx bx-store'></i>Loja *
+              </label>
+              <select id="loja_sala" name="loja" class="form-select" required>
+                <option value="">-- Selecione uma Loja --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="descricao_sala" class="form-label">
+                <i class='bx bx-align-left'></i>Descrição
+              </label>
+              <textarea id="descricao_sala" name="descricao" class="form-control" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class='bx bx-save'></i> Salvar Sala
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Card Ilha -->
+      <div class="card mb-4" id="card-ilha">
+        <div class="card-header">
+          <i class='bx bx-grid-alt'></i> Cadastro de Ilhas
+        </div>
+        <div class="card-body">
+          <form method="post" action="{% url 'ti:ilha_create' %}" id="form-ilha" data-ajax="true">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="nome_ilha" class="form-label">
+                <i class='bx bx-label'></i>Nome da Ilha *
+              </label>
+              <input type="text" id="nome_ilha" name="nome" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label for="loja_ilha" class="form-label">
+                <i class='bx bx-store'></i>Loja *
+              </label>
+              <select id="loja_ilha" name="loja" class="form-select" required>
+                <option value="">-- Selecione uma Loja --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="sala_ilha" class="form-label">
+                <i class='bx bx-door-open'></i>Sala *
+              </label>
+              <select id="sala_ilha" name="sala" class="form-select" required>
+                <option value="">-- Selecione uma Sala --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="quantidade_pas" class="form-label">
+                <i class='bx bx-calculator'></i>Quantidade de PAs *
+              </label>
+              <input type="number" id="quantidade_pas" name="quantidade_pas" class="form-control" value="1" required>
+            </div>
+            <div class="mb-3">
+              <label for="descricao_ilha" class="form-label">
+                <i class='bx bx-align-left'></i>Descrição
+              </label>
+              <textarea id="descricao_ilha" name="descricao" class="form-control" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class='bx bx-save'></i> Salvar Ilha
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Card Computador -->
+      <div class="card mb-4" id="card-computador">
+        <div class="card-header">
+          <i class='bx bx-laptop'></i> Cadastro de Computadores
+        </div>
+        <div class="card-body">
+          <form method="post" action="{% url 'ti:computador_create' %}" id="form-computador">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="marca_computador" class="form-label">
+                <i class='bx bx-label'></i>Marca do Computador *
+              </label>
+              <input type="text" id="marca_computador" name="marca" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label for="condicao_computador" class="form-label">
+                <i class='bx bx-check-circle'></i>Condição *
+              </label>
+              <select id="condicao_computador" name="condicao" class="form-select" required>
+                <option value="novo">Novo</option>
+                <option value="antigo">Antigo</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="quantidade_computador" class="form-label">
+                <i class='bx bx-calculator'></i>Quantidade *
+              </label>
+              <input type="number" id="quantidade_computador" name="quantidade" class="form-control" min="1" value="1" required>
+            </div>
+            <div class="mb-3">
+              <label for="loja_computador" class="form-label">
+                <i class='bx bx-store'></i>Loja
+              </label>
+              <select id="loja_computador" name="loja" class="form-select">
+                <option value="">-- Selecione uma Loja --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="status_computador" class="form-label">
+                <i class='bx bx-stats'></i>Status *
+              </label>
+              <select id="status_computador" name="status" class="form-select" required>
+                <option value="disponivel">Disponível</option>
+                <option value="em_uso">Em Uso</option>
+                <option value="manutencao">Em Manutenção</option>
+                <option value="inativo">Inativo</option>
+              </select>
+            </div>
+
+            <!-- Campos condicionais para status "Em Uso" -->
+            <div id="campos_em_uso" class="campos-condicionais" style="display: none;">
+              <div class="mb-3">
+                <label for="sala_em_uso" class="form-label">
+                  <i class='bx bx-door-open'></i>Sala *
+                </label>
+                <select id="sala_em_uso" name="sala_em_uso" class="form-select">
+                  <option value="">-- Selecione uma Sala --</option>
+                  <!-- Opções carregadas via JavaScript -->
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label for="ilha_em_uso" class="form-label">
+                  <i class='bx bx-grid-alt'></i>Ilha *
+                </label>
+                <select id="ilha_em_uso" name="ilha_em_uso" class="form-select">
+                  <option value="">-- Primeiro selecione uma sala --</option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label for="pa_em_uso" class="form-label">
+                  <i class='bx bx-desktop'></i>Posição de Atendimento (PA) *
+                </label>
+                <select id="pa_em_uso" name="pa_em_uso" class="form-select">
+                  <option value="">-- Primeiro selecione uma ilha --</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Campos condicionais para status "Em Manutenção" -->
+            <div id="campos_manutencao" class="campos-condicionais" style="display: none;">
+              <div class="mb-3">
+                <label for="observacoes_manutencao" class="form-label">
+                  <i class='bx bx-message-square-detail'></i>Motivo da Manutenção *
+                </label>
+                <textarea id="observacoes_manutencao" name="observacoes_manutencao" class="form-control" rows="3" placeholder="Descreva o problema ou motivo da manutenção"></textarea>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="observacoes_computador" class="form-label">
+                <i class='bx bx-align-left'></i>Observações
+              </label>
+              <textarea id="observacoes_computador" name="observacoes" class="form-control" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class='bx bx-save'></i> Salvar Computador
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Card Monitor -->
+      <div class="card mb-4" id="card-monitor">
+        <div class="card-header">
+          <i class='bx bx-tv'></i> Cadastro de Monitores
+        </div>
+        <div class="card-body">
+          <form method="post" action="{% url 'ti:monitor_create' %}" id="form-monitor" data-ajax="true">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="marca_monitor" class="form-label">
+                <i class='bx bx-label'></i>Marca do Monitor
+              </label>
+              <input type="text" id="marca_monitor" name="marca" class="form-control" placeholder="Ex: Samsung, LG, Dell">
+            </div>
+            <div class="mb-3">
+              <label for="tamanho_monitor" class="form-label">
+                <i class='bx bx-fullscreen'></i>Tamanho
+              </label>
+              <input type="text" id="tamanho_monitor" name="tamanho" class="form-control" placeholder="Ex: 24, 27, 32">
+              <small class="text-muted">Tamanho em polegadas</small>
+            </div>
+            <div class="mb-3">
+              <label for="condicao_monitor" class="form-label">
+                <i class='bx bx-check-circle'></i>Condição *
+              </label>
+              <select id="condicao_monitor" name="condicao" class="form-select" required>
+                <option value="novo">Novo</option>
+                <option value="antigo">Antigo</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="loja_monitor" class="form-label">
+                <i class='bx bx-store'></i>Loja *
+              </label>
+              <select id="loja_monitor" name="loja" class="form-select" required>
+                <option value="">-- Selecione uma Loja --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="status_monitor" class="form-label">
+                <i class='bx bx-stats'></i>Status *
+              </label>
+              <select id="status_monitor" name="status" class="form-select" required>
+                <option value="disponivel">Disponível</option>
+                <option value="em_uso">Em Uso</option>
+                <option value="manutencao">Em Manutenção</option>
+                <option value="inativo">Inativo</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="observacoes_monitor" class="form-label">
+                <i class='bx bx-align-left'></i>Observações
+              </label>
+              <textarea id="observacoes_monitor" name="observacoes" class="form-control" rows="3" placeholder="Observações sobre o monitor"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class='bx bx-save'></i> Salvar Monitor
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coluna 2: Equipamentos e Periféricos -->
+    <div class="col-md-6">
+      <!-- Card Posição de Atendimento (PA) -->
+      <div class="card mb-4" id="card-posicao-atendimento">
+        <div class="card-header">
+          <i class='bx bx-desktop'></i> Cadastro de Posições de Atendimento (PAs)
+        </div>
+        <div class="card-body">
+          <form method="post" action="{% url 'ti:posicao_atendimento_create' %}" id="form-pa">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="loja_pa" class="form-label">
+                <i class='bx bx-store'></i>Loja *
+              </label>
+              <select id="loja_pa" name="loja" class="form-select" required>
+                <option value="">-- Selecione uma Loja --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="sala" class="form-label">
+                <i class='bx bx-door-open'></i>Sala *
+              </label>
+              <select id="sala" name="sala" class="form-select" required>
+                <option value="">-- Selecione uma Sala --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="ilha" class="form-label">
+                <i class='bx bx-grid-alt'></i>Ilha *
+              </label>
+              <select id="ilha" name="ilha" class="form-select" required>
+                <option value="">-- Selecione uma Ilha --</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="numero" class="form-label">
+                <i class='bx bx-hash'></i>Número da PA
+              </label>
+              <input type="text" id="numero" name="numero" class="form-control">
+              <small class="text-muted">Deixe em branco para numeração automática baseada na ilha.</small>
+            </div>
+            <div class="mb-3">
+              <label for="quantidade_pas" class="form-label">
+                <i class='bx bx-calculator'></i>Quantidade de PAs a criar
+              </label>
+              <input type="number" id="quantidade_pas" name="quantidade_pas" class="form-control" value="1" max="12">
+              <small class="text-muted">Número de PAs a serem criadas de uma vez.</small>
+              <small id="quantidade-pas-info" class="text-info d-block mt-1">Selecione uma ilha para ver o máximo disponível</small>
+            </div>
+            <div class="mb-3">
+              <label for="status_pa" class="form-label">
+                <i class='bx bx-info-circle'></i>Status *
+              </label>
+              <select id="status_pa" name="status" class="form-select" required>
+                <option value="livre">Livre</option>
+                <option value="ocupada">Ocupada</option>
+                <option value="manutencao">Em Manutenção</option>
+                <option value="inativa">Inativa</option>
+              </select>
+            </div>
+            <div class="mb-3 full-width">
+              <label for="observacoes_pa" class="form-label">
+                <i class='bx bx-comment-detail'></i>Observações
+              </label>
+              <textarea id="observacoes_pa" name="observacoes" class="form-control" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class='bx bx-save'></i> Salvar PA
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Card Tipo de Periférico -->
+      <div class="card mb-4" id="card-tipo-periferico">
+        <div class="card-header">
+          <i class='bx bx-tag'></i> Cadastro de Tipos de Periféricos
+        </div>
+        <div class="card-body">
+          <form method="post" action="{% url 'ti:tipo_periferico_create' %}" id="form-tipo-periferico" data-ajax="true">
+            {% csrf_token %}
+            <div class="mb-3 full-width">
+              <label for="nome_tipo" class="form-label">
+                <i class='bx bx-label'></i>Nome do Tipo *
+              </label>
+              <input type="text" id="nome_tipo" name="nome" class="form-control" required>
+            </div>
+            <div class="mb-3 full-width">
+              <label for="descricao_tipo" class="form-label">
+                <i class='bx bx-align-left'></i>Descrição
+              </label>
+              <textarea id="descricao_tipo" name="descricao" class="form-control" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class='bx bx-save'></i> Salvar Tipo de Periférico
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Card Cadastro de Ramal -->
+      <div class="card mb-4" id="card-ramal">
+        <div class="card-header">
+          <i class='bx bx-phone'></i> Gestão de Ramais
+        </div>
+        <div class="card-body">
+          <form method="post" action="{% url 'ti:ramal_update' %}" id="form-ramal" data-no-ajax="true">
+            {% csrf_token %}
+            <div class="mb-3 full-width">
+              <label for="funcionario_ramal" class="form-label">
+                <i class='bx bx-user'></i>Funcionário *
+              </label>
+              <select id="funcionario_ramal" name="funcionario_id" class="form-select" required>
+                <option value="">-- Selecione um Funcionário --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3 full-width">
+              <label for="numero_ramal" class="form-label">
+                <i class='bx bx-phone'></i>Número do Ramal *
+              </label>
+              <input type="text" id="numero_ramal" name="ramal" class="form-control" maxlength="4" pattern="[0-9]{4}" title="O ramal deve ter 4 dígitos numéricos" placeholder="Exemplo: 1000" required>
+              <small class="text-muted">O ramal deve ter 4 dígitos e começar a partir do 1000</small>
+              <div id="ramal-feedback" class="invalid-feedback"></div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class='bx bx-save'></i> Salvar Ramal
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Card Cadastro de Chips -->
+      <div class="card mb-4" id="card-chip">
+        <div class="card-header">
+          <i class='bx bx-chip'></i> Cadastro de Chips
+        </div>
+        <div class="card-body">
+          <form method="post" action="{% url 'ti:chip_create' %}" id="form-chip" data-ajax="true">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="numero_chip" class="form-label">
+                <i class='bx bx-hash'></i>Número do Chip *
+              </label>
+              <input type="text" id="numero_chip" name="numero" class="form-control" placeholder="Número do chip" required>
+            </div>
+            <div class="mb-3">
+              <label for="funcionario_chip" class="form-label">
+                <i class='bx bx-user'></i>Funcionário *
+              </label>
+              <select id="funcionario_chip" name="funcionario" class="form-select" required>
+                <option value="">-- Selecione um Funcionário --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="data_entrega_chip" class="form-label">
+                <i class='bx bx-calendar'></i>Data de Entrega *
+              </label>
+              <input type="date" id="data_entrega_chip" name="data_entrega" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label for="status_chip" class="form-label">
+                <i class='bx bx-info-circle'></i>Status
+              </label>
+              <select id="status_chip" name="status" class="form-select">
+                <option value="ativo">Ativo</option>
+                <option value="banido">Banido</option>
+                <option value="livre">Livre</option>
+                <option value="reutilizado">Reutilizado</option>
+                <option value="perdido">Perdido</option>
+                <option value="recarregar">Recarregar</option>
+                <option value="desativado">Desativado</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class='bx bx-save'></i> Salvar Chip
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Card Coordenador de Sala -->
+      <div class="card mb-4" id="card-coordenador-sala">
+        <div class="card-header">
+          <i class='bx bx-user-check'></i> Associar Coordenador/Supervisor à Sala
+        </div>
+        <div class="card-body">
+          <form method="post" action="{% url 'ti:coordenador_sala_create' %}" id="form-coordenador-sala" data-no-ajax="true">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="funcionario_coordenador" class="form-label">
+                <i class='bx bx-user'></i>Funcionário *
+              </label>
+              <select id="funcionario_coordenador" name="funcionario" class="form-select" required>
+                <option value="">-- Selecione um Funcionário --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="loja_coordenador" class="form-label">
+                <i class='bx bx-store'></i>Loja *
+              </label>
+              <select id="loja_coordenador" name="loja" class="form-select" required>
+                <option value="">-- Selecione uma Loja --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="sala_coordenador" class="form-label">
+                <i class='bx bx-door-open'></i>Sala *
+              </label>
+              <select id="sala_coordenador" name="sala" class="form-select" required>
+                <option value="">-- Selecione uma Sala --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="tipo_coordenador" class="form-label">
+                <i class='bx bx-category'></i>Tipo *
+              </label>
+              <select id="tipo_coordenador" name="tipo" class="form-select" required>
+                <option value="">-- Selecione o Tipo --</option>
+                <option value="coordenador">Coordenador</option>
+                <option value="supervisor">Supervisor</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+              <i class='bx bx-save'></i> Associar Coordenador
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Card Cadastrar Periféricos em Lote -->
+      <div class="card mb-4" id="card-periferico">
+        <div class="card-header">
+          <i class='bx bx-devices'></i> Cadastro de Periféricos em Lote
+        </div>
+        <div class="card-body">
+          <form method="post" action="{% url 'ti:periferico_create' %}" id="form-periferico" data-ajax="true" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="id_tipo" class="form-label">
+                <i class='bx bx-category-alt'></i>Tipo *
+              </label>
+              <select name="tipo" id="id_tipo" class="form-select">
+                <option value="">-- Selecione um Tipo --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+              <div class="text-danger mt-1 d-none" id="tipo-errors">
+                <!-- Erros serão exibidos aqui via JavaScript -->
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="id_marca" class="form-label">
+                <i class='bx bx-building'></i>Marca *
+              </label>
+              <input type="text" name="marca" id="id_marca" class="form-control" value="" required>
+              <div class="text-danger mt-1 d-none" id="marca-errors">
+                <!-- Erros serão exibidos aqui via JavaScript -->
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="id_modelo" class="form-label">
+                <i class='bx bx-info-circle'></i>Modelo *
+              </label>
+              <input type="text" name="modelo" id="id_modelo" class="form-control" value="" required>
+              <div class="text-danger mt-1 d-none" id="modelo-errors">
+                <!-- Erros serão exibidos aqui via JavaScript -->
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="id_data_aquisicao" class="form-label">
+                <i class='bx bx-calendar'></i>Data de Aquisição
+              </label>
+              <input type="date" name="data_aquisicao" id="id_data_aquisicao" class="form-control" value="">
+              <div class="text-danger mt-1 d-none" id="data_aquisicao-errors">
+                <!-- Erros serão exibidos aqui via JavaScript -->
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="id_loja_periferico" class="form-label">
+                <i class='bx bx-store'></i>Loja *
+              </label>
+              <select name="loja" id="id_loja_periferico" class="form-select">
+                <option value="">-- Selecione uma Loja --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+              <div class="text-danger mt-1 d-none" id="loja-errors">
+                <!-- Erros serão exibidos aqui via JavaScript -->
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="id_quantidade" class="form-label">
+                <i class='bx bx-hash'></i>Quantidade *
+              </label>
+              <input type="number" name="quantidade" id="id_quantidade" class="form-control" value="1" min="1" required>
+              <div class="text-danger mt-1 d-none" id="quantidade-errors">
+                <!-- Erros serão exibidos aqui via JavaScript -->
+              </div>
+            </div>
+            
+            <div class="d-flex justify-content-start">
+              <button type="button" id="add-to-list-btn" class="btn btn-primary">
+                <i class='bx bx-plus-circle'></i> Adicionar à Lista
+              </button>
+            </div>
+          </form>
+          
+          <form method="post" action="{% url 'ti:periferico_create' %}" id="form-periferico-lote" data-ajax="true" class="d-none">
+            {% csrf_token %}
+            <input type="hidden" name="perifericos_lote" id="perifericos-lote-input" value="[]">
+          </form>
+          
+          <div class="perifericos-pendentes-container mt-4">
+            <h5 class="mb-3"><i class='bx bx-list-check'></i>Periféricos Pendentes</h5>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover" id="perifericos-pendentes-table">
+                <thead>
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Quantidade</th>
+                    <th>Loja</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="perifericos-pendentes-body">
+                  <!-- Periféricos pendentes serão adicionados aqui via JS -->
+                  <tr id="empty-state-row">
+                    <td colspan="6" class="text-center py-3">
+                      <i class='bx bx-info-circle'></i>Nenhum periférico adicionado à lista
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="d-flex justify-content-end mt-3">
+              <button type="button" id="limpar-lista-btn" class="btn btn-outline-danger me-2" disabled>
+                <i class='bx bx-trash'></i> Limpar Lista
+              </button>
+              <button type="submit" form="perifericos-form" name="submit_perifericos_lote" id="save-all-btn" class="btn btn-primary" disabled>
+                <i class='bx bx-save'></i> Salvar Todos (<span id="contagem-pendentes">0</span>)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card de Cadastro de E-mail -->
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-envelope me-2"></i>Cadastrar E-mail
+          </h5>
+        </div>
+        <div class="card-body">
+          <form id="form-email" method="post" action="{% url 'ti:email_create' %}" data-ajax="true">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+              <label for="email_email" class="form-label">E-mail *</label>
+              <input type="email" class="form-control" id="email_email" name="email" required placeholder="email@exemplo.com">
+            </div>
+            
+            <div class="mb-3">
+              <label for="email_senha" class="form-label">Senha *</label>
+              <input type="password" class="form-control" id="email_senha" name="senha" required placeholder="Digite a senha">
+            </div>
+            
+            <div class="mb-3">
+              <label for="email_funcionario" class="form-label">Funcionário</label>
+              <select class="form-select" id="email_funcionario" name="funcionario">
+                <option value="">-- Selecione um Funcionário --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            
+            <div class="mb-3">
+              <label for="email_tipo" class="form-label">Tipo</label>
+              <input type="text" class="form-control" id="email_tipo" name="tipo" placeholder="Ex: Gmail, Hostinger, etc.">
+            </div>
+            
+            <div class="mb-3">
+              <label for="email_status" class="form-label">Status *</label>
+              <select class="form-select" id="email_status" name="status" required>
+                <option value="ativo">Em uso</option>
+                <option value="inativo">sem uso</option>
+                <option value="funcionario_desligado">Func desligado</option>
+                <option value="sem_senha">Sem senha</option>
+                <option value="sem_recuperacao">Sem n° recup</option>
+                <option value="renovado">renovado</option>
+              </select>
+            </div>
+            
+            <div class="mb-3">
+              <label for="email_recuperacao" class="form-label">E-mail de Recuperação</label>
+              <input type="email" class="form-control" id="email_recuperacao" name="email_recuperacao" >
+            </div>
+            
+            <button type="submit" class="btn btn-info w-100">
+              <i class="fas fa-save me-2"></i>Salvar E-mail
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Card Storm -->
+    <div class="col-md-6">
+      <div class="card mb-4" id="card-storm">
+        <div class="card-header">
+          <i class='bx bx-cloud-lightning'></i> Cadastro de Storm
+        </div>
+        <div class="card-body">
+          <form method="post" action="{% url 'ti:storm_create' %}" id="form-storm" data-no-ajax="true">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="funcionario_storm" class="form-label">
+                <i class='bx bx-user'></i>Funcionário *
+              </label>
+              <select id="funcionario_storm" name="funcionario" class="form-select" required>
+                <option value="">-- Selecione um Funcionário --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="email_administrativo_storm" class="form-label">
+                <i class='bx bx-envelope'></i>E-mail Administrativo *
+              </label>
+              <input type="email" id="email_administrativo_storm" name="email_administrativo" class="form-control" required placeholder="email@empresa.com">
+            </div>
+            <div class="mb-3">
+              <label for="situacao_storm" class="form-label">
+                <i class='bx bx-info-circle'></i>Situação *
+              </label>
+              <select id="situacao_storm" name="situacao" class="form-select" required>
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+                <option value="suspenso">Suspenso</option>
+                <option value="bloqueado">Bloqueado</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="usuario_storm" class="form-label">
+                <i class='bx bx-user-circle'></i>Usuário *
+              </label>
+              <input type="text" id="usuario_storm" name="usuario" class="form-control" maxlength="4" pattern="[0-9]{1,4}" title="Máximo 4 números" placeholder="Ex: 1234" required>
+            </div>
+            <div class="mb-3">
+              <label for="senha_storm" class="form-label">
+                <i class='bx bx-lock'></i>Senha *
+              </label>
+              <input type="password" id="senha_storm" name="senha" class="form-control" required placeholder="Digite a senha">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class='bx bx-save'></i> Salvar Storm
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Card Sistema -->
+    <div class="col-md-6">
+      <div class="card mb-4" id="card-sistema">
+        <div class="card-header">
+          <i class='bx bx-desktop'></i> Cadastro de Sistema
+        </div>
+        <div class="card-body">
+          <form method="post" action="{% url 'ti:sistema_create' %}" id="form-sistema" data-no-ajax="true">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="funcionario_sistema" class="form-label">
+                <i class='bx bx-user'></i>Funcionário *
+              </label>
+              <select id="funcionario_sistema" name="funcionario" class="form-select" required>
+                <option value="">-- Selecione um Funcionário --</option>
+                <!-- Opções carregadas via JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="acesso_sistema" class="form-label">
+                <i class='bx bx-key'></i>Acesso *
+              </label>
+              <input type="text" id="acesso_sistema" name="acesso" class="form-control" required placeholder="Ex: nome_sobrenome">
+            </div>
+            <div class="mb-3">
+              <label for="senha_sistema" class="form-label">
+                <i class='bx bx-lock'></i>Senha *
+              </label>
+              <input type="password" id="senha_sistema" name="senha" class="form-control" required placeholder="Digite a senha">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class='bx bx-save'></i> Salvar Sistema
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block addjs_extra %}
+<!-- Helpers para CSRF e tratamento de erros (CARREGAR PRIMEIRO) -->
+<script src="{% static 'js/ti_csrf_helper.js' %}"></script>
+<script src="{% static 'ti/js/ti_error_handler.js' %}"></script>
+
+<!-- Carregar módulos utilitários primeiro -->
+<script src="{% static 'ti/js/admin_utils.js' %}"></script>
+<script src="{% static 'ti/js/admin_notifications.js' %}"></script>
+<script src="{% static 'ti/js/admin_dropdown_updates.js' %}"></script>
+
+<!-- Carregar módulo de carregamento de dados -->
+<script src="{% static 'ti/js/admin_data_loader.js' %}"></script>
+
+<!-- Carregar módulo principal -->
+<script src="{% static 'ti/js/admin.js' %}"></script>
+
+<!-- Carregar módulo de inicialização por último -->
+<script src="{% static 'ti/js/admin_init.js' %}"></script>
+
+<!-- Scripts adicionais -->
+<script src="{% static 'js/darkmode.js' %}"></script>
+{% endblock %}

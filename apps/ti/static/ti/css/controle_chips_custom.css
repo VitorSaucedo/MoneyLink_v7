@@ -1,0 +1,364 @@
+.modern-table-container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+.table-toolbar {
+   background: #198754;
+   padding: 20px 24px;
+   display: flex;
+   justify-content: flex-end;
+   align-items: center;
+ }
+
+.search-container {
+  position: relative;
+}
+
+.search-input {
+  background: rgba(255,255,255,0.95);
+  border: none;
+  border-radius: 25px;
+  padding: 12px 20px 12px 45px;
+  width: 300px;
+  font-size: 14px;
+  color: #333;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  background: #fff;
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 16px;
+}
+
+.table-container {
+  overflow-x: auto;
+  max-height: 75vh;
+}
+
+.modern-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  margin: 0;
+}
+
+.table-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 2px solid #dee2e6;
+  padding: 16px 20px;
+  font-weight: 600;
+  color: #495057;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  white-space: nowrap;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.table-row {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.table-row:hover {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.table-row:nth-child(even) {
+  background-color: #fafbfc;
+}
+
+.table-row:nth-child(even):hover {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+}
+
+.table-cell {
+  padding: 16px 20px;
+  color: #495057;
+  vertical-align: middle;
+  border-right: 1px solid #f1f3f4;
+  /* Garantir larguras fixas para evitar redimensionamento */
+  width: auto;
+  min-width: 100px;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Estilos para os badges de status */
+.status-badge {
+  padding: 6px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  min-width: 70px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Estilos para os setores (somente leitura) */
+.sector-display {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  text-align: center;
+  white-space: nowrap;
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.sector-empty {
+  background: #f5f5f5;
+  color: #9e9e9e;
+  font-style: italic;
+}
+
+/* Estilos para os badges de data */
+.date-badge {
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 500;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  min-width: 85px;
+  text-align: center;
+  white-space: nowrap;
+  background: #f3e5f5;
+  color: #7b1fa2;
+  transition: all 0.2s ease;
+}
+
+.date-badge:hover {
+  background: #e1bee7;
+  transform: translateY(-1px);
+}
+
+.date-empty {
+  background: #f5f5f5;
+  color: #9e9e9e;
+  font-style: italic;
+}
+
+.date-empty:hover {
+  background: #eeeeee;
+}
+
+.date-ban {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.date-ban:hover {
+  background: #ffcdd2;
+}
+
+.status-cell {
+  min-width: 100px;
+  max-width: 120px;
+  text-align: center;
+}
+
+.recarregar-cell {
+  min-width: 120px;
+  max-width: 150px;
+  text-align: center;
+}
+
+.status-ativo {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-banido {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-livre {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.status-reutilizado {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.status-perdido {
+  background: #d6d8db;
+  color: #1b1e21;
+}
+
+.status-recarregar {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-desativado {
+  background: #f8f9fa;
+  color: #6c757d;
+}
+
+
+.table-cell:last-child {
+  border-right: none;
+}
+
+.chip-number {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 15px;
+  min-width: 120px;
+  max-width: 150px;
+}
+
+.employee-name {
+  font-weight: 500;
+  color: #2c3e50;
+  min-width: 150px;
+  max-width: 200px;
+}
+
+.sector-cell {
+  min-width: 120px;
+  max-width: 150px;
+  text-align: center;
+}
+
+.date-cell {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 13px;
+  color: #6c757d;
+  min-width: 100px;
+  max-width: 120px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Estilos antigos de edição removidos - agora usamos badges clicáveis */
+
+/* Estilos para o menu de seleção de status */
+.status-menu {
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 10px;
+  min-width: 200px;
+}
+
+.status-menu h5 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.status-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.status-menu li {
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-bottom: 2px;
+  transition: background-color 0.2s;
+}
+
+.status-menu li:hover {
+  background-color: #f5f5f5;
+}
+
+.status-menu li.active {
+  background-color: #e9ecef;
+}
+
+/* Estilos para notificações */
+.notificacao {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  font-weight: 500;
+  display: none;
+  max-width: 350px;
+  animation: slide-in 0.3s ease-out;
+}
+
+.notificacao-success {
+  background-color: #d4edda;
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.notificacao-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-left: 4px solid #dc3545;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

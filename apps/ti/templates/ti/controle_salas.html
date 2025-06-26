@@ -1,0 +1,226 @@
+{% extends 'base-plus.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block header_title %}
+TI - Controle de Salas, Ilhas e PAs
+<!-- Seletor de tema (claro/escuro) -->
+<div class="theme-switch-wrapper ms-3 d-inline-block">
+  <label class="theme-switch" for="checkbox">
+    <input type="checkbox" id="checkbox" />
+    <div class="slider">
+      <i class="bx bx-sun fa-sun"></i>
+      <i class="bx bx-moon fa-moon"></i>
+    </div>
+  </label>
+</div>
+{% endblock %}
+
+{% block addcss_extra %}
+  {# Boxicons e CSS do app #}
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="{% static 'css/mensagens.css' %}">
+  <link rel="stylesheet" href="{% static 'ti/css/salas.css' %}">
+  {# Adicionar CSS do modo escuro #}
+  <link rel="stylesheet" href="{% static 'css/darkmode.css' %}">
+  
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+
+{% block pre_content %}
+  {% include 'partials/_messages.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container my-4" id="controle-salas-container">
+  <h1 class="titulo-pagina mb-4"><i class='bx bx-building me-2'></i>Controle de Salas, Ilhas e PAs</h1>
+  
+  <!-- Seletor de Loja -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card filtro-loja-container">
+        <div class="card-body">
+          <h6 class="card-title"><i class='bx bx-store me-2'></i>Filtrar por Loja</h6>
+          <form method="GET" id="form-filtro-loja">
+            <div class="input-group">
+              <select name="loja" id="select-loja" class="form-select">
+                <!-- Opções de loja serão carregadas via JavaScript -->
+              </select>
+              <button type="submit" class="btn btn-primary">
+                <i class='bx bx-search'></i>
+              </button>
+            </div>
+          </form>
+          <div class="loja-info-text" id="loja-info-text" style="display: none;">
+            <i class='bx bx-info-circle me-1'></i>
+            Mostrando salas de: <strong id="loja-atual-nome"></strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Container para mensagens de feedback (gerenciado pelo JS) -->
+  <div id="message-container"></div>
+
+  <!-- Token CSRF para requisições AJAX -->
+  {% csrf_token %}
+
+  <!-- Loading inicial -->
+  <div id="loading-inicial" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+    <p class="mt-2">Carregando dados das salas...</p>
+  </div>
+
+  <!-- Container principal das salas (será populado via JavaScript) -->
+  <div class="salas-container" id="salas-container" style="display: none;">
+    <ul class="nav nav-tabs salas-tabs" id="salas-tab" role="tablist">
+      <!-- Abas das salas serão carregadas via JavaScript -->
+    </ul>
+    
+    <!-- Conteúdo das abas das salas -->
+    <div class="tab-content salas-content" id="salas-tab-content">
+      <!-- Conteúdo será carregado via JavaScript -->
+    </div>
+  </div>
+
+  <!-- Estado vazio para quando não há salas -->
+  <div class="empty-state" id="empty-state" style="display: none;">
+    <i class='bx bx-door-open'></i>
+    <h5>Nenhuma sala cadastrada</h5>
+    <p>Adicione salas para começar a organizar seu ambiente.</p>
+    <a href="{% url 'ti:sala_create' %}" class="btn btn-outline-secondary">
+      <i class='bx bx-plus-circle'></i> Adicionar Sala
+    </a>
+  </div>
+  
+  <!-- Botão flutuante Salvar Alterações - oculto por padrão -->
+  <div id="save-changes-button" class="save-changes-container d-none">
+    <div class="pending-count">0</div>
+    <div class="btn-group">
+      <button type="button" class="btn btn-primary save-all-changes-btn">
+        <i class='bx bx-save me-2'></i> Salvar Alterações
+      </button>
+      <button type="button" class="btn btn-outline-secondary cancel-all-changes-btn" title="Cancelar todas as alterações">
+        <i class='bx bx-x'></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmação de Remoção de Periférico -->
+<div class="modal-backdrop d-none" id="confirm-remove-periferico-backdrop"></div>
+<div class="modal d-none" id="confirm-remove-periferico-modal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header modal-header-darkmode modal-header-lightmode">
+        <h5 class="modal-title"><i class='bx bx-trash text-danger me-2'></i> Confirmar Remoção</h5>
+        <button type="button" class="btn-close" aria-label="Close" id="modal-close-btn"></button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja remover o periférico <strong id="modal-periferico-nome"></strong> desta PA?</p>
+        <p class="text-muted small">Esta ação não pode ser desfeita diretamente por aqui.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-cancel-btn">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="modal-confirm-remove-btn">Confirmar Remoção</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Observações de Manutenção -->
+<div class="modal-backdrop d-none" id="manutencao-obs-backdrop"></div>
+<div class="modal d-none" id="manutencao-obs-modal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header modal-header-darkmode modal-header-lightmode">
+        <h5 class="modal-title"><i class='bx bx-comment-edit text-warning me-2'></i> Observações da Manutenção</h5>
+        <button type="button" class="btn-close" aria-label="Close" id="manutencao-obs-modal-close-btn"></button>
+      </div>
+      <div class="modal-body">
+        <p>Por favor, adicione observações para o item <strong id="manutencao-item-nome"></strong> que está sendo colocado em manutenção (opcional).</p>
+        <textarea id="manutencao-observacoes-input" class="form-control" rows="3" placeholder="Digite o motivo da manutenção aqui..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="manutencao-obs-modal-cancel-btn">Cancelar</button>
+        <button type="button" class="btn btn-warning" id="manutencao-obs-modal-save-btn">Salvar Observações</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Periféricos Disponíveis -->
+<div class="perifericos-disponiveis-modal-backdrop d-none" id="perifericos-disponiveis-backdrop"></div>
+<div class="perifericos-disponiveis-modal d-none" id="perifericos-disponiveis-modal">
+  <div class="perifericos-disponiveis-modal-header modal-header-lightmode">
+    <h5><i class='bx bx-devices me-2'></i> <span id="modal-tipo-nome">Periféricos</span> Disponíveis</h5>
+    <button type="button" class="perifericos-disponiveis-modal-close" aria-label="Close" id="perifericos-disponiveis-close">×</button>
+  </div>
+  <div class="perifericos-disponiveis-modal-body">
+    <div id="perifericos-disponiveis-loading" class="text-center py-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="mt-2">Carregando periféricos disponíveis...</p>
+    </div>
+    <div id="perifericos-disponiveis-empty" class="perifericos-disponiveis-empty text-center py-4 d-none">
+      <i class='bx bx-package perifericos-icon-empty'></i>
+      <p class="mt-2">Nenhum periférico disponível deste tipo.</p>
+    </div>
+    <div id="perifericos-disponiveis-error" class="perifericos-disponiveis-error text-center py-4 text-danger d-none">
+      <i class='bx bx-error-circle perifericos-icon-error'></i>
+      <p class="mt-2">Erro ao carregar periféricos disponíveis.</p>
+      <p id="perifericos-disponiveis-error-message" class="small"></p>
+    </div>
+    <div id="perifericos-disponiveis-content" class="perifericos-disponiveis-list">
+      <!-- Lista de periféricos disponíveis será carregada aqui via JavaScript -->
+    </div>
+  </div>
+  <div class="perifericos-disponiveis-modal-footer">
+    <button type="button" class="btn btn-secondary" id="perifericos-disponiveis-cancel">Cancelar</button>
+  </div>
+</div>
+</div>
+
+{% endblock %}
+
+{% block addjs_extra %}
+  <!-- Helpers para CSRF e tratamento de erros (CARREGAR PRIMEIRO) -->
+  <script src="{% static 'js/ti_csrf_helper.js' %}"></script>
+  <script src="{% static 'ti/js/ti_error_handler.js' %}"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{% static 'ti/js/controle_salas.js' %}"></script>
+  <script src="{% static 'ti/js/controle_salas_funcionarios.js' %}"></script>
+  <script src="{% static 'ti/js/controle_salas_perifericos.js' %}"></script>
+  <script src="{% static 'ti/js/controle_salas_computadores.js' %}"></script>
+  <script src="{% static 'ti/js/controle_salas_manutencao.js' %}"></script>
+  <script src="{% static 'ti/js/controle_salas_carregamento.js' %}"></script>
+  {# Modo escuro #}
+  <script src="{% static 'js/darkmode.js' %}"></script>
+  
+  <script>
+    // Script adicional para garantir que apenas o conteúdo ativo seja exibido
+    $(document).ready(function() {
+      // Esconder todos os painéis não ativos
+      $('.tab-pane').not('.active').hide();
+      
+      // Remover pontos pretos das listas
+      $('.nav-tabs').css('list-style', 'none');
+      $('.nav-item').css('list-style', 'none');
+      
+      // Interromper comportamento padrão do Bootstrap Tabs
+      $('button[data-bs-toggle="tab"]').on('click', function(e) {
+        e.preventDefault();
+        return false;
+      });
+      
+      // Adicionar classe para identificar que a página foi carregada e inicializada
+      $('body').addClass('tabs-initialized');
+    });
+  </script>
+{% endblock %}

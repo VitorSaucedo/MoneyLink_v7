@@ -1,0 +1,158 @@
+.email-address {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 15px;
+  cursor: default;
+}
+
+.status-badge {
+  padding: 6px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  min-width: 70px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.status-ativo {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-inativo {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-funcionario_desligado {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-sem_senha {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.status-sem_recuperacao {
+  background: #d6d8db;
+  color: #1b1e21;
+}
+
+.status-renovado {
+  background: #cce5ff;
+  color: #004085;
+}
+
+/* Estilos para notificações */
+.notificacao {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  font-weight: 500;
+  display: none;
+  max-width: 350px;
+  animation: slide-in 0.3s ease-out;
+}
+
+.notificacao-success {
+  background-color: #d4edda;
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.notificacao-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-left: 4px solid #dc3545;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.password-cell {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 12px;
+  color: #6c757d;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: default;
+}
+
+/* Estilos para o menu de seleção de status */
+.status-menu {
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 10px;
+  min-width: 200px;
+}
+
+.status-menu h5 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.status-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.status-menu li {
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-bottom: 2px;
+  transition: background-color 0.2s;
+}
+
+.status-menu li:hover {
+  background-color: #f5f5f5;
+}
+
+.status-menu li.active {
+  background-color: #e9ecef;
+  font-weight: bold;
+}
+
+/* Cursor de mão para indicar que o status é clicável */
+.status-badge {
+  cursor: pointer;
+}
+
+/* Melhorar aparência dos tooltips */
+[title] {
+  position: relative;
+}

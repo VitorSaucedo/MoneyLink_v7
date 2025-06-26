@@ -1,0 +1,104 @@
+{% extends 'base-plus.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block title %}Controle de E-mails - TI{% endblock %}
+
+{% block body_classes %}bg-body-tertiary ti-module{% endblock %}
+
+{% block addcss_extra %}
+<link rel="stylesheet" href="{% static 'ti/css/controle_chips.css' %}">
+<link rel="stylesheet" href="{% static 'ti/css/controle_chips_custom.css' %}">
+<link rel="stylesheet" href="{% static 'ti/css/controle_emails_custom.css' %}">
+
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="{% static 'css/darkmode.css' %}">
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+
+{% block header_title %}
+Controle de E-mails - TI
+<!-- Seletor de tema (claro/escuro) -->
+<div class="theme-switch-wrapper ms-3 d-inline-block">
+  <label class="theme-switch" for="checkbox">
+    <input type="checkbox" id="checkbox" />
+    <div class="slider">
+      <i class="bx bx-sun fa-sun"></i>
+      <i class="bx bx-moon fa-moon"></i>
+    </div>
+  </label>
+</div>
+{% endblock %}
+
+{% block pre_content %}
+{% include 'partials/_messages.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="titulo-pagina mb-0"><i class='bx bx-envelope me-2'></i>Controle de E-mails</h1>
+  </div>
+
+  <!-- CSRF Token para requisições AJAX -->
+  {% csrf_token %}
+
+  <!-- Loading indicator -->
+  <div id="loading-indicator" class="text-center my-4">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+    <p class="mt-2">Carregando dados dos e-mails...</p>
+  </div>
+
+  <!-- Tabela Moderna -->
+  <div class="row" id="table-container" style="display: none;">
+    <div class="col-12">
+      <div class="modern-table-container">
+        <div class="table-toolbar">
+          <div class="search-container">
+            <i class='bx bx-search search-icon'></i>
+            <input type="text" id="search-emails" class="search-input" placeholder="Buscar por ramal, e-mail ou funcionário...">
+          </div>
+        </div>
+        
+        <div class="table-container">
+          <table class="modern-table" id="emails-table">
+            <thead>
+              <tr>
+                <th class="table-header">Ramal</th>
+                <th class="table-header">E-mail</th>
+                <th class="table-header">Funcionário</th>
+                <th class="table-header">Setor</th>
+                <th class="table-header">Senha</th>
+                <th class="table-header">Status</th>
+                <th class="table-header">E-mail Recuperação</th>
+              </tr>
+            </thead>
+            <tbody id="emails-tbody">
+              <!-- Dados serão carregados via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error message container -->
+  <div id="error-container" class="alert alert-danger" style="display: none;">
+    <i class='bx bx-error me-2'></i>
+    <span id="error-message">Erro ao carregar dados</span>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block addjs_extra %}
+<!-- Helpers para CSRF e tratamento de erros (CARREGAR PRIMEIRO) -->
+<script src="{% static 'js/ti_csrf_helper.js' %}"></script>
+<script src="{% static 'ti/js/ti_error_handler.js' %}"></script>
+
+<script src="{% static 'ti/js/controle_emails.js' %}"></script>
+{% endblock %}

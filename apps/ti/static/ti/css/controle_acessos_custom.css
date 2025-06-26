@@ -1,0 +1,229 @@
+.system-selector {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.system-selector label {
+  color: white;
+  font-weight: 500;
+  margin: 0;
+}
+
+.system-select {
+  background: rgba(255,255,255,0.95);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 15px;
+  font-size: 14px;
+  color: #333;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.system-select:focus {
+  outline: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  background: #fff;
+}
+
+.table-toolbar {
+  background: #198754;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ramal-number {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 15px;
+}
+
+.cpf-cell {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.email-cell {
+  color: #0066cc;
+  font-size: 13px;
+}
+
+.status-cell {
+  font-weight: 500;
+}
+
+.status-ativo {
+  color: #28a745;
+}
+
+.status-inativo {
+  color: #dc3545;
+}
+
+.status-suspenso {
+  color: #ffc107;
+}
+
+.location-cell {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.user-cell {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-weight: 600;
+  color: #495057;
+}
+
+.password-cell {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  color: #6c757d;
+}
+
+.password-hidden {
+  color: #adb5bd;
+}
+
+.sistema-table {
+  display: none;
+}
+
+.sistema-table.active {
+  display: table;
+}
+
+/* Estilos para badges de status */
+.status-badge {
+  padding: 6px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  min-width: 70px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.status-ativo {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-inativo {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-desativado {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Menu dropdown para status */
+.status-menu {
+  position: absolute;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  z-index: 1000;
+  min-width: 200px;
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+}
+
+.status-menu h5 {
+  margin: 0;
+  padding: 15px 20px 10px;
+  font-size: 14px;
+  color: #495057;
+  border-bottom: 1px solid #e9ecef;
+  background: #f8f9fa;
+}
+
+.status-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.status-menu li {
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  color: #495057;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.status-menu li:last-child {
+  border-bottom: none;
+}
+
+.status-menu li:hover {
+  background: #f8f9fa;
+  color: #198754;
+}
+
+.status-menu li.active {
+  background: #198754;
+  color: white;
+  font-weight: 600;
+}
+
+.status-menu li.active:hover {
+  background: #157347;
+}
+
+/* Notificações */
+.notificacao {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  z-index: 9999;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  display: none;
+}
+
+.notificacao-success {
+  background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.notificacao-error {
+  background: linear-gradient(135deg, #dc3545, #e74c3c);
+}
+
+/* Estilos para campos editáveis */
+.editable-status {
+  position: relative;
+}
+
+.status-edit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: white;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+}

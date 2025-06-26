@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block addcss_extra %}
+<link rel="stylesheet" href="{% static 'css/geral_forms.css' %}">
+<link rel="stylesheet" href="{% static 'css/mensagens.css' %}">
+<link rel="stylesheet" href="{% static 'ti/css/forms_common.css' %}">
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+
+{% block pre_content %}
+{% include 'partials/_messages.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card delete-container">
+    <div class="card-header bg-danger text-white card-header-custom">
+      <i class="fas fa-exclamation-triangle"></i>
+      <h5 class="card-title mb-0">{{ title }}</h5>
+    </div>
+    <div class="card-body text-center">
+      <div class="delete-icon">
+        <i class="fas fa-trash-alt"></i>
+      </div>
+      
+      <h2 class="delete-title">Confirmação de Exclusão</h2>
+      
+      <p class="delete-message">
+        Você está prestes a excluir o item:
+        <span class="delete-item-name">{{ objeto }}</span>
+      </p>
+      
+      <div class="delete-warning">
+        <p class="mb-0">
+          <i class="fas fa-exclamation-circle"></i>
+          <span class="delete-warning-text">Atenção:</span> 
+          Esta ação não poderá ser desfeita e todos os dados relacionados a este item serão permanentemente removidos.
+        </p>
+      </div>
+      
+      <form method="post">
+        {% csrf_token %}
+        <div class="d-flex justify-content-center gap-3 mt-4">
+          <button type="submit" class="btn btn-danger btn-delete">
+            <i class="fas fa-trash-alt"></i> Confirmar Exclusão
+          </button>
+          <a href="{{ request.META.HTTP_REFERER|default:'javascript:history.back()' }}" class="btn btn-secondary btn-cancel">
+            <i class="fas fa-times"></i> Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block addjs_extra %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+{% endblock %} 

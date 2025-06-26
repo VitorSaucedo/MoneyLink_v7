@@ -463,6 +463,88 @@
       {% endif %}
 
 
+      {# 7. TI #}
+      {% has_access user "CT8" as can_ti_cat %}
+      {% if can_ti_cat %}
+      <li class="sidebar-category">
+        <a href="javascript:void(0)" class="category-toggle">
+          <i class="bx bx-desktop"></i>
+          <span class="menu-label">TI</span>
+          <i class="bx bx-chevron-down category-arrow"></i>
+        </a>
+        <ul class="subcategory">
+          {% has_access user "SCT27" as can_ti_admin %}
+          {% if can_ti_admin %}
+          <li>
+            <a href="{% url 'ti:admin' %}">
+              <i class="bx bx-slider-alt"></i>
+              <span class="menu-label">Painel TI</span>
+            </a>
+          </li>
+          {% endif %}
+          
+          {% has_access user "SCT28" as can_ti_estoque %}
+          {% if can_ti_estoque %}
+          <li>
+            <a href="{% url 'ti:controle_estoque' %}">
+              <i class="bx bx-archive"></i>
+              <span class="menu-label">Controle de Estoque</span>
+            </a>
+          </li>
+          {% endif %}
+
+          {% has_access user "SCT29" as can_ti_salas %}
+          {% if can_ti_salas %}
+          <li>
+            <a href="{% url 'ti:controle_salas' %}">
+              <i class="bx bx-building-house"></i>
+              <span class="menu-label">Controle de Salas</span>
+            </a>
+          </li>
+          {% endif %}
+
+          {# Novo link para Controle de Manutenção #}
+          {% has_access user "SCT_CONTROLE_MANUTENCAO_TI" as can_ti_manutencao %} {# Substitua pela sua tag de permissão real #}
+          {% if can_ti_manutencao or user.is_superuser %}
+          <li>
+            <a href="{% url 'ti:controle_manutencao' %}">
+              <i class="bx bx-wrench"></i>
+              <span class="menu-label">Controle Manutenção</span>
+            </a>
+          </li>
+          {% endif %}
+          
+
+
+          {# Controle de Chips #}
+          <li>
+            <a href="{% url 'ti:controle_chips' %}">
+              <i class="bx bx-chip"></i>
+              <span class="menu-label">Controle de Chips</span>
+            </a>
+          </li>
+
+          {# Controle de E-mails #}
+          <li>
+            <a href="{% url 'ti:controle_emails' %}">
+              <i class="bx bx-envelope"></i>
+              <span class="menu-label">Controle de E-mails</span>
+            </a>
+          </li>
+
+          {# Controle de Acessos #}
+          <li>
+            <a href="{% url 'ti:controle_acessos' %}">
+              <i class="bx bx-key"></i>
+              <span class="menu-label">Controle de Acessos</span>
+            </a>
+          </li>
+
+        </ul>
+      </li>
+      {% endif %}
+
+
 
 
       {# 8. CONFIGURAÇÕES #}

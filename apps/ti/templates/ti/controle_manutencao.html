@@ -1,0 +1,95 @@
+{% extends 'base-plus.html' %}
+{% load static %}
+
+{% block title %}Controle de Manutenção - TI{% endblock %}
+
+{% block addcss_extra %}
+    <link rel="stylesheet" href="{% static 'css/apps/funcionarios/forms/administrativo.css' %}">
+    <link rel="stylesheet" href="{% static 'ti/css/controle_manutencao.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    {# Adicionar CSS do modo escuro #}
+    <link rel="stylesheet" href="{% static 'css/darkmode.css' %}">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+
+{% block header_title %}Controle de Manutenção de Periféricos e Computadores
+<!-- Seletor de tema (claro/escuro) -->
+<div class="theme-switch-wrapper ms-3 d-inline-block">
+  <label class="theme-switch" for="checkbox">
+    <input type="checkbox" id="checkbox" />
+    <div class="slider">
+      <i class="bx bx-sun fa-sun"></i>
+      <i class="bx bx-moon fa-moon"></i>
+    </div>
+  </label>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="titulo-pagina mb-4"><i class='bx bx-wrench me-2'></i>Controle de Manutenção de TI</h1>
+    <div class="card">
+        <div class="card-header">
+            <i class='bx bx-wrench'></i> Periféricos e Computadores em Manutenção
+        </div>
+        <div class="card-body">
+            <!-- Loading indicator -->
+            <div id="loading-indicator" class="text-center">
+                <i class="bx bx-loader-alt bx-spin"></i> Carregando dados...
+            </div>
+            
+            <!-- Lista de Resumo Integrada -->
+            <ul id="integrated-summary-list" class="integrated-summary-list" style="display: none;">
+                <li><span class="item-name">Mouse:</span> <span id="count-mouse" class="item-count">0</span></li>
+                <li><span class="item-name">Mousepad:</span> <span id="count-mousepad" class="item-count">0</span></li>
+                <li><span class="item-name">Teclado:</span> <span id="count-teclado" class="item-count">0</span></li>
+                <li><span class="item-name">Monitor:</span> <span id="count-monitor" class="item-count">0</span></li>
+                <li><span class="item-name">Fone/Headset:</span> <span id="count-fone" class="item-count">0</span></li>
+                <li><span class="item-name">Computador:</span> <span id="count-computador" class="item-count">0</span></li>
+                <li id="outros-perifericos-item" style="display: none;"><span class="item-name">Outros Periféricos:</span> <span id="count-outros" class="item-count">0</span></li>
+                <li class="total-manutencao">
+                    TOTAL EM MANUTENÇÃO:
+                    <span id="count-total" class="item-count">0</span>
+                </li>
+            </ul>
+
+            <!-- Tabela de itens em manutenção -->
+            <div id="table-container" style="display: none;">
+                <table class="table-manutencao">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Marca/Modelo</th>
+                            <th>Sala de Origem</th>
+                            <th>Ilha de Origem</th>
+                            <th>Última Localização (PA)</th>
+                            <th>Observações</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Conteúdo será preenchido via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Mensagem quando não há itens -->
+            <div id="no-items-message" class="text-center" style="display: none;">
+                <p>Nenhum item em manutenção no momento.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block addjs_extra %}
+    <!-- Helpers para CSRF e tratamento de erros (CARREGAR PRIMEIRO) -->
+    <script src="{% static 'js/ti_csrf_helper.js' %}"></script>
+    <script src="{% static 'ti/js/ti_error_handler.js' %}"></script>
+    
+    <script src="{% static 'ti/js/controle_manutencao.js' %}"></script>
+    {# Modo escuro #}
+    <script src="{% static 'js/darkmode.js' %}"></script>
+{% endblock %}

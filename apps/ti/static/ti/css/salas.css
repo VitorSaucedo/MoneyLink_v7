@@ -1,0 +1,2225 @@
+/**
+ * salas.css - Estilos para a página de controle de salas, ilhas e PAs
+ */
+
+/* Estilos para a página de Controle de Salas, Ilhas e PAs */
+
+/* ==========================================
+   CSS para a página de Controle de Salas
+   Baseado no estilo de controle_metas.css
+   Foco: Verde e Azul, com ênfase no Verde
+   ========================================== */
+
+/* ---------- Variáveis de Cores e Sombreamentos ---------- */
+:root {
+    --color-primary-dark: #142650; /* Azul escuro */
+    --color-secondary: #70f611; /* Verde */
+    --color-tertiary: #0bd5f0; /* Azul claro (ciano) */
+    --color-accent: #b4874c; /* Tom terroso */
+    --color-white: #fff;
+    --color-gray: #ddd;
+    --color-light-gray: #f0f0f0;
+    --color-text-dark: #333;
+    --color-text-light: #666;
+    --color-danger: #dc3545;
+    --color-success: #198754; /* Verde escuro para sucesso */
+
+    --box-shadow-light: 0 2px 6px rgba(0,0,0,0.05);
+    --box-shadow-medium: 0 4px 12px rgba(0,0,0,0.1);
+    --box-shadow-card-hover: 0 6px 18px rgba(112, 246, 17, 0.15); /* Sombra verde no hover */
+
+    /* Gradientes com foco no verde */
+    --gradient-primary-green: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary-dark) 100%);
+    --gradient-secondary-green: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-tertiary) 50%, var(--color-secondary) 100%);
+    --gradient-metallic-green-focus: linear-gradient(135deg, #ffffff 0%, var(--color-secondary) 30%, var(--color-tertiary) 50%, var(--color-secondary) 70%, #ffffff 100%);
+    --gradient-card-header: linear-gradient(-45deg, var(--color-secondary), #5cb85c, var(--color-primary-dark), var(--color-secondary)); /* Restaurado: Original com azul */
+
+    /* Animação do Gradiente */
+    --gradient-animation: gradientBG 12s ease infinite;
+}
+
+/* ==========================================
+   Estilos Gerais da Página
+   ========================================== */
+body {
+    background-color: var(--color-light-gray);
+    overflow-x: auto; /* Permite scroll horizontal quando necessário */
+    min-height: 100vh; /* Garante altura mínima da viewport */
+}
+
+.container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    /* Restaurado padrão do Bootstrap - largura responsiva */
+}
+
+.titulo-pagina {
+    color: var(--color-primary-dark);
+    font-weight: 600;
+    border-bottom: 3px solid var(--color-secondary);
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.titulo-pagina i {
+    color: var(--color-secondary);
+    margin-right: 12px;
+}
+
+/* ==========================================
+   Estilos para a estrutura de abas de Salas e Ilhas
+   ========================================== */
+.salas-container {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-gray);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow-light);
+    overflow: visible;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* Removido width: 100% para seguir padrão do Bootstrap */
+}
+
+/* Container de ilhas sem bordas laterais e superior */
+.ilhas-container {
+    background-color: #ffffff;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
+    /* Removido width: 100% para seguir padrão do Bootstrap */
+}
+
+.salas-container:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--box-shadow-card-hover);
+}
+
+.ilhas-container:hover {
+    transform: translateY(-2px);
+}
+
+.salas-tabs {
+    background: var(--gradient-card-header) !important;
+    background-size: 400% 400% !important;
+    animation: var(--gradient-animation) !important;
+    padding: 0.5rem 1rem 0;
+    border-bottom: 1px solid var(--color-gray);
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    /* Removido width: 100% para seguir padrão do Bootstrap */
+}
+
+/* Novo estilo para as abas de ilhas sem aparência de header */
+.ilhas-tabs {
+    background: #ffffff !important;
+    padding: 0.5rem 1rem 0;
+    border: none;
+    border-bottom: 1px solid var(--color-gray);
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    /* Removido width: 100% para seguir padrão do Bootstrap */
+    min-height: 60px;
+}
+
+/* Efeito de brilho metálico apenas nas abas de salas - Ajustado para ser igual ao .pa-header */
+.salas-tabs::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      135deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.05) 40%,
+      rgba(255,255,255,0.3) 50%,
+      rgba(255,255,255,0.05) 60%,
+      rgba(255,255,255,0) 100%
+    );
+    transform: rotate(45deg);
+    transition: all 1.2s ease;
+    z-index: -1;
+}
+
+/* Hover direto no .salas-tabs ativa o brilho */
+.salas-tabs:hover::before {
+    top: 100%;
+    left: 100%;
+}
+
+.salas-content,
+.ilhas-content {
+    padding: 1rem;
+    position: relative;
+    overflow: visible;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(245, 255, 245, 0.8) 100%);
+    /* Removidas limitações de altura para expansão natural */
+    min-width: 1200px; /* Largura mínima para manter consistência visual */
+}
+
+/* Estilo para botões dentro das abas de ilhas - Inativos iguais aos de Salas */
+.ilhas-tabs .nav-link {
+    margin-right: 4px !important;
+    padding: 8px 16px !important;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0 !important;
+    border: 1px solid var(--color-gray) !important; /* Adiciona borda sutil */
+    border-bottom: none !important; /* Remove borda inferior */
+    text-decoration: none !important;
+    /* Estilo INATIVO: Fundo branco, texto escuro */
+    background-color: var(--color-white) !important;
+    color: var(--color-primary-dark) !important;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    text-shadow: none; /* Remove sombra do texto */
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ativo continua com fundo branco */
+.ilhas-tabs .nav-link.active {
+    color: var(--color-white) !important; /* Texto branco na ativa */
+    font-weight: 600;
+    /* Aplicando o gradiente e animação */
+    background: var(--gradient-card-header) !important;
+    background-size: 400% 400% !important;
+    animation: var(--gradient-animation) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 2;
+    border: none !important; /* Remove borda no ativo */
+    box-shadow: 0 -3px 8px rgba(0,0,0,0.05);
+}
+
+/* Hover para ativos - pode apenas manter o estilo ou adicionar leve brilho */
+/* .ilhas-tabs .nav-link:hover.active { */
+/*    filter: brightness(1.1); */
+/* } */
+
+/* Adicionado: Efeito de brilho para botões de ilhas ATIVOS */
+.ilhas-tabs .nav-link.active::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      135deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.05) 40%,
+      rgba(255,255,255,0.3) 50%,
+      rgba(255,255,255,0.05) 60%,
+      rgba(255,255,255,0) 100%
+    );
+    transform: rotate(45deg);
+    transition: all 1.2s ease;
+    z-index: 0; /* Abaixo do conteúdo do botão mas acima do fundo */
+}
+
+/* Adicionado: Ativação do brilho no hover de botões de ilhas ATIVOS (Opcional) */
+/* .ilhas-tabs .nav-link.active:hover::before { */
+/*    top: 100%; */
+/*    left: 100%; */
+/* } */
+
+/* Ícones escuros para botões INATIVOS */
+.ilhas-tabs .nav-link i {
+    color: var(--color-primary-dark) !important; /* Ícone escuro */
+    margin-right: 8px;
+    font-size: 1.1rem;
+}
+
+/* Ícone branco apenas para o botão ATIVO */
+.ilhas-tabs .nav-link.active i {
+    color: var(--color-white) !important; /* Ícone branco no botão ativo */
+}
+
+/* Remover todos os marcadores de lista e ajustar layout das abas */
+ul.nav-tabs {
+    list-style: none !important;
+    list-style-type: none !important;
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    list-style: none;
+    text-decoration: none;
+    /* background-color: rgba(255, 255, 255, 0.1); -- REMOVIDO, AGORA É BRANCO POR PADRÃO */
+    position: relative;
+    overflow: hidden;
+}
+
+ul.nav-tabs li.nav-item {
+    list-style: none !important;
+    list-style-type: none !important;
+    margin-left: 0 !important;
+}
+
+/* Conteúdo das abas - modificação para suporte a animações específicas */
+.tab-pane {
+    /* Por padrão, as abas não devem ser mostradas */
+    display: none;
+}
+
+.tab-pane.active {
+    /* Apenas as abas ativas devem ser exibidas */
+    display: block;
+}
+
+/* Durante a animação, vamos controlar manualmente a visibilidade */
+.tab-pane.animating {
+    display: block;
+}
+
+/* Resolvendo o problema do marcador de lista */
+.nav-tabs::before,
+.nav-tabs::after {
+    display: none !important;
+}
+
+.nav-item::before,
+.nav-item::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Ajustando o layout das abas */
+.salas-tabs .nav-link,
+.ilhas-tabs .nav-link {
+    margin-right: 4px !important;
+    padding: 8px 16px !important;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0 !important;
+    border: none !important;
+    text-decoration: none !important;
+}
+
+/* Estilos para abas (nav-links) */
+.nav-tabs {
+    border-bottom: none;
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.nav-tabs .nav-item {
+    margin-bottom: 0;
+    list-style-type: none;
+}
+
+.nav-tabs .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    /* Cor INATIVA: Escura */
+    color: var(--color-primary-dark) !important; 
+    transition: all 0.3s ease;
+    /* Borda INATIVA */
+    border: 1px solid var(--color-gray) !important;
+    border-bottom: none !important;
+    font-weight: 500;
+    border-radius: 8px 8px 0 0;
+    margin-right: 0.3rem;
+    text-shadow: none; /* Remover sombra do texto */
+    list-style: none;
+    text-decoration: none;
+    /* Fundo INATIVO: Branco */
+    background-color: var(--color-white) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ícones INATIVOS */
+.nav-tabs .nav-link i {
+    margin-right: 8px;
+    font-size: 1.1rem;
+    border-color: transparent;
+    /* Cor do ícone INATIVO: Escura */
+    color: var(--color-primary-dark) !important;
+}
+
+/* Estilo ATIVO: Gradiente, texto branco, brilho */
+.nav-tabs .nav-link.active {
+    /* Cor ATIVA: Branca */
+    color: var(--color-white) !important; 
+    font-weight: 600;
+    /* Fundo ATIVO: Gradiente */
+    background: var(--gradient-card-header) !important;
+    background-size: 400% 400% !important;
+    animation: var(--gradient-animation) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 2;
+    /* Borda ATIVA: Removida */
+    border: none !important;
+}
+
+/* Ícone ATIVO: Branco */
+.nav-tabs .nav-link.active i {
+    color: var(--color-white) !important; /* Ícone branco */
+}
+
+/* Hover para INATIVOS */
+.nav-tabs .nav-link:hover:not(.active) {
+    background-color: #f8f9fa !important; /* Cinza claro no hover */
+    color: var(--color-primary-dark) !important;
+    border-color: #ced4da !important;
+}
+
+/* Efeito de brilho para botões ATIVOS */
+.nav-tabs .nav-link.active::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      135deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.05) 40%,
+      rgba(255,255,255,0.3) 50%,
+      rgba(255,255,255,0.05) 60%,
+      rgba(255,255,255,0) 100%
+    );
+    transform: rotate(45deg);
+    transition: all 1.2s ease;
+    z-index: 0; 
+}
+
+/* Remover brilho dos inativos (se existir de regras anteriores) */
+.nav-tabs .nav-link:not(.active)::before {
+    content: none;
+}
+
+/* Estilos para o conteúdo das abas e animações de transição */
+.tab-content {
+    position: relative;
+    overflow: visible;
+    /* Removidas limitações de altura para expansão natural */
+    transition: none;
+}
+
+/* Estilos específicos para o wrapper de animação de slide */
+.tab-content .slider-wrapper {
+    display: flex;
+    width: 200%;
+    transition: transform 0.5s ease-in-out;
+}
+
+/* Estilos para os painéis de abas durante animação */
+.tab-pane {
+    position: relative;
+    width: 100%;
+    transition: opacity 0.2s ease-in-out;
+    opacity: 1;
+    height: auto;
+}
+
+/* Para garantir que a transição seja suave */
+.tab-pane.transitioning {
+    position: relative;
+    display: block !important;
+    opacity: 1;
+}
+
+/* ==========================================
+   Layout de PAs em duas colunas
+   ========================================== */
+.pa-container {
+    padding: 1rem 0.5rem;
+    /* Removidas limitações de altura para expansão natural */
+    overflow-y: visible;
+    min-width: 1100px; /* Largura mínima para manter consistência visual */
+}
+
+.pa-grid-dual-column {
+    display: flex;
+    gap: 20px;
+    height: auto; /* Alterado para altura automática */
+    overflow: visible; /* Permite visualização completa */
+    min-width: 1000px; /* Largura mínima para manter consistência das colunas */
+}
+
+.pa-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: auto; /* Alterado para altura automática */
+    overflow-y: visible; /* Alterado para mostrar todo o conteúdo */
+    padding-right: 5px; /* Pequeno espaçamento para a scrollbar */
+    min-width: 480px; /* Largura mínima para cada coluna */
+}
+
+/* Estilos responsivos para diferentes tamanhos de tela */
+@media (max-width: 768px) {
+    .pa-grid-dual-column {
+        flex-direction: column; /* Em telas pequenas, empilha as colunas */
+        gap: 15px;
+    }
+    
+    .pa-column {
+        width: 100%;
+    }
+    
+    .container {
+        padding: 0 10px; /* Adiciona padding lateral em telas pequenas */
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .pa-grid-dual-column {
+        gap: 15px; /* Reduz gap em telas médias */
+    }
+}
+
+@media (min-width: 1025px) {
+    .pa-grid-dual-column {
+        gap: 20px; /* Gap padrão para telas grandes */
+    }
+    
+    /* Permite mais de 2 colunas em telas muito grandes se necessário */
+    .pa-container {
+        max-width: none;
+    }
+}
+
+/* Ordenação das PAs agora é controlada pelo JavaScript */
+/* Removendo regras CSS de ordenação para evitar conflitos */
+
+/* ==========================================
+   Estilos para cards de PAs
+   ========================================== */
+.pa-card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-gray);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow-light);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    min-width: 280px; /* Largura mínima para garantir legibilidade */
+    min-height: 200px; /* Altura mínima para garantir visibilidade do conteúdo */
+    margin-bottom: 15px; /* Espaçamento entre cards */
+}
+
+.pa-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--box-shadow-card-hover);
+}
+
+.pa-header {
+    padding: 12px 15px; /* Revertido para padding original menor */
+    background: var(--gradient-card-header) !important; /* Igual administrativo.css (com !important) */
+    background-size: 400% 400% !important; /* Igual administrativo.css (com !important) */
+    animation: var(--gradient-animation) !important; /* Igual administrativo.css (com !important) */
+    color: var(--color-white) !important; /* Igual administrativo.css (com !important) */
+    font-weight: 600; /* Igual administrativo.css */
+    font-size: 1.1em; /* Igual administrativo.css */
+    letter-spacing: 0.5px; /* Igual administrativo.css */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Igual administrativo.css */
+    display: flex;
+    align-items: center; /* Igual administrativo.css */
+    justify-content: space-between; /* Adicionado de volta - para separar title e status-group */
+    position: relative; /* Igual administrativo.css */
+    overflow: hidden; /* Adicionado - Para conter o ::before */
+    z-index: 1; /* Igual administrativo.css */
+}
+
+/* Efeito de brilho idêntico ao administrativo.css */
+.pa-header::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 200%; /* Ajustado de 50% para 200% para cobrir header */
+    height: 200%;
+    background: linear-gradient(
+        135deg, /* Ajustado de to right para 135deg */
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.05) 40%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.05) 60%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(45deg);
+    transition: all 1.2s ease;
+    z-index: -1; /* Atrás do conteúdo */
+}
+
+/* Hover no card pai ativa o brilho no header, igual administrativo.css */
+.pa-card:hover .pa-header::before {
+    top: 100%;
+    left: 100%;
+}
+
+.pa-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    /* gap: 10px; */ /* Removido - não precisa mais de gap para a bolinha */
+}
+
+/* Adicionado: Grupo para status (indicador + texto) */
+.pa-status-group {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espaço entre a bolinha e o texto do status */
+}
+
+.pa-status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 8px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pa-status-indicator:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.pa-status-indicator:active {
+    transform: scale(0.9);
+}
+
+.status-livre {
+    background-color: var(--color-success);
+}
+
+.status-ocupada {
+    background-color: #0d6efd; /* Azul para ocupada - conforme solicitado */
+}
+
+.status-manutencao {
+    background-color: #ffc107; /* Amarelo para manutenção - conforme solicitado */
+}
+
+.status-inativa {
+    background-color: var(--color-danger); /* Vermelho para inativa/vazia - conforme solicitado */
+}
+
+.pa-content {
+    padding: 15px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(245, 250, 245, 0.8) 100%);
+    border-radius: 0 0 10px 10px;
+}
+
+.pa-funcionario {
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    /* display: flex; */ /* Reconfirmar se é necessário aqui ou só no filho */
+    /* justify-content: space-between; */ /* Removido daqui */
+    /* align-items: center; */ /* Mantido se necessário para alinhamento vertical da linha inteira */
+}
+
+/* Estilo para o container específico do nome e botão */
+.pa-funcionario > div:first-child { /* Seleciona a div interna que contém os spans */
+    width: 100%; /* Força a ocupar toda a largura disponível */
+    display: flex; /* Garante que é flex container */
+    justify-content: space-between; /* Mantém para separar nome e botão */
+    align-items: center; /* Mantém para alinhamento vertical */
+}
+
+.pa-funcionario strong {
+    color: var(--color-primary-dark);
+    margin-right: 6px;
+}
+
+/* Estilo para o badge/botão de ramal */
+.ramal-badge {
+  /* display: inline-block; */ /* Removido, pois btn já é inline-block */
+  background-color: var(--color-primary-dark); /* Fundo escuro */
+  color: var(--color-white) !important; /* Texto branco (importante para sobrescrever btn) */
+  padding: 3px 7px !important; /* Ajuste no padding */
+  border-radius: 4px !important;
+  font-size: 0.8em !important;
+  /* margin-left: 5px; */ /* Removido, usando ms-2 do bootstrap */
+  font-weight: bold !important;
+  /* vertical-align: middle; */ /* Removido, btn já alinha */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: none !important; /* Remover borda padrão do botão */
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.ramal-badge:hover {
+  background-color: #1a346b; /* Um pouco mais claro no hover */
+  transform: translateY(-1px);
+}
+
+.ramal-badge:active {
+  transform: translateY(0px);
+}
+
+/* Botão para atribuir funcionário */
+.assign-funcionario-btn {
+  font-size: 0.8em !important;
+  padding: 3px 7px !important;
+  vertical-align: middle;
+}
+
+.assign-funcionario-btn i {
+  vertical-align: text-bottom; /* Alinhar ícone */
+}
+
+/* Container e Dropdown de Funcionários */
+.funcionario-dropdown-menu {
+  /* position: absolute; - Removido, agora é fixed via JS */
+  z-index: 9999; /* Garantir que fique acima de tudo */
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray);
+  border-radius: 8px; /* Aumentado para um visual mais moderno */
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2); /* Sombra mais pronunciada */
+  padding: 10px 0;
+  min-width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  display: none; /* Escondido por padrão */
+  font-size: 1rem;
+}
+
+.funcionario-dropdown-item {
+  padding: 10px 15px; /* Aumentado de 8px para 10px vertical */
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+  display: flex;
+  justify-content: space-between; /* Alinhar nome e ramal */
+  align-items: center;
+  font-size: 0.95rem; /* Ligeiramente aumentado */
+  line-height: 1.5; /* Melhor espaçamento entre linhas */
+  border-bottom: 1px solid rgba(0,0,0,0.05); /* Separador sutil entre itens */
+}
+
+.funcionario-dropdown-item:last-child {
+  border-bottom: none; /* Remove a borda do último item */
+}
+
+.funcionario-dropdown-item:hover {
+  background-color: #f0f8ff; /* Azul mais claro no hover para melhor contraste */
+}
+
+.funcionario-dropdown-item .nome {
+  font-weight: 500; /* Deixar nome em destaque */
+  flex: 1; /* Tomar espaço disponível */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Para nomes muito longos */
+  margin-right: 10px; /* Espaço do nome para ramal (se exibido separado) */
+}
+
+/* Estilo para ramal quando exibido junto ao nome */
+.ramal-inline {
+  font-size: 0.85em;
+  color: #0d6efd; /* Azul para destacar */
+  font-weight: 500;
+  margin-left: 5px;
+  white-space: nowrap;
+}
+
+.funcionario-dropdown-item .ramal {
+  font-size: 0.85em;
+  color: #6c757d; /* Cinza */
+  white-space: nowrap; /* Evitar quebra */
+}
+
+.funcionario-dropdown-item.no-ramal .ramal {
+  font-style: italic;
+}
+
+/* Destacar o item "Nenhum (Desatribuir)" */
+.funcionario-dropdown-item.desatribuir-item {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #dc3545; /* Vermelho para indicar remoção */
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.pa-perifericos {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 6px;
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.pa-perifericos h6 {
+    color: var(--color-primary-dark);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.pa-perifericos h6 i {
+    margin-right: 5px;
+}
+
+.perifericos-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.periferico-tag {
+    display: inline-block;
+    background-color: rgba(112, 246, 17, 0.15); /* Verde claro com transparência */
+    color: var(--color-text-dark);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.85rem;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    border: 1px solid rgba(112, 246, 17, 0.3);
+    transition: all 0.2s ease;
+    position: relative;
+    cursor: pointer;
+}
+
+.periferico-tag:hover {
+    background-color: rgba(112, 246, 17, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-color: rgba(112, 246, 17, 0.5);
+}
+
+/* Estilos para computador */
+.pa-computadores {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.pa-computadores h6 {
+    color: var(--color-primary-dark);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.pa-computadores h6 i {
+    margin-right: 8px;
+    color: var(--color-tertiary);
+}
+
+.computadores-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.computador-tag {
+    display: inline-block;
+    background-color: rgba(11, 213, 240, 0.15); /* Azul claro com transparência */
+    color: var(--color-primary-dark);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.85rem;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    border: 1px solid rgba(11, 213, 240, 0.3);
+    transition: all 0.2s ease;
+    position: relative;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.computador-tag:hover {
+    background-color: rgba(11, 213, 240, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-color: rgba(11, 213, 240, 0.5);
+}
+
+/* ==========================================
+   Estado Vazio (Empty State)
+   ========================================== */
+.empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow-light);
+    margin: 20px 0;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: var(--color-primary-dark);
+    margin-bottom: 15px;
+    opacity: 0.8;
+}
+
+.empty-state h5 {
+    color: var(--color-text-dark);
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: var(--color-text-light);
+    margin-bottom: 20px;
+}
+
+.empty-state .btn {
+    background-color: transparent;
+    color: var(--color-primary-dark);
+    border: 2px solid var(--color-primary-dark);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.empty-state .btn:hover {
+    background-color: var(--color-primary-dark);
+    color: white;
+}
+
+.empty-state .btn i {
+    font-size: 1rem;
+    margin-right: 5px;
+    color: inherit;
+    opacity: 1;
+    margin-bottom: 0;
+}
+
+/* ==========================================
+   Responsividade
+   ========================================== */
+@media (max-width: 992px) {
+    .pa-grid-dual-column {
+        flex-direction: column;
+        height: auto !important; /* Permite altura automática */
+    }
+    
+    .pa-column {
+        height: auto !important;
+        /* Removida limitação de altura para expansão natural */
+        overflow-y: visible !important;
+    }
+    
+    .container {
+        max-width: 100%;
+    }
+    
+    .titulo-pagina {
+        font-size: 1.5rem;
+    }
+    
+    .nav-tabs .nav-link {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .pa-grid-dual-column {
+        flex-direction: column;
+        height: auto !important; /* Permite altura automática */
+    }
+    
+    .pa-column {
+        height: auto !important;
+        /* Removida limitação de altura para expansão natural */
+        overflow-y: visible !important;
+    }
+    
+    .pa-container {
+        /* Removidas limitações de altura para expansão natural em mobile */
+    }
+    
+    .salas-content,
+    .ilhas-content {
+        /* Removidas limitações de altura para expansão natural em mobile */
+    }
+    
+    .tab-content {
+        /* Removidas limitações de altura para expansão natural em mobile */
+    }
+    
+    .pa-card {
+        margin-bottom: 15px;
+    }
+    
+    .titulo-pagina {
+        font-size: 1.2rem;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .titulo-pagina i {
+        display: block;
+        margin: 0 auto 10px;
+    }
+    
+    .nav-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
+    
+    .nav-tabs .nav-link {
+        white-space: nowrap;
+        padding: 0.5rem 0.6rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* ==========================================
+   Animações
+   ========================================== */
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes gradientBGButton {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+}
+
+@keyframes brilho {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+/* ==========================================
+   Menu Dropdown de Status das PAs
+   ========================================== */
+.status-dropdown-menu {
+    position: absolute;
+    z-index: 1000;
+    background-color: #fff;
+    border: 1px solid var(--color-gray);
+    border-radius: 6px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    padding: 8px 0;
+    min-width: 160px;
+}
+
+.status-option {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.status-option:hover {
+    background-color: #f5f5f5;
+}
+
+.status-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.status-text {
+    font-size: 0.9rem;
+    color: var(--color-text-dark);
+}
+
+.status-option.ocupada .status-color {
+    background-color: #0d6efd; /* Azul */
+}
+
+.status-option.manutencao .status-color {
+    background-color: #ffc107; /* Amarelo */
+}
+
+.status-option.inativa .status-color {
+    background-color: #dc3545; /* Vermelho */
+}
+
+/* ==========================================
+   Estilos para o Modal de Confirmação
+   ========================================== */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040; /* Abaixo do modal, acima do resto */
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none; /* Escondido por padrão */
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050; /* Acima do backdrop */
+    display: none; /* Escondido por padrão */
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    outline: 0;
+    /* Centralização */
+    display: flex; /* Usa flex para centralizar o .modal-dialog */
+    align-items: center; /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+}
+
+/* Classe para mostrar o modal e o backdrop */
+.modal.show,
+.modal-backdrop.show {
+    display: flex; /* Ou block para o backdrop se preferir */
+}
+
+.modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 0.5rem; /* Pequena margem */
+    pointer-events: none;
+    max-width: 500px; /* Largura máxima padrão */
+}
+
+.modal.show .modal-dialog {
+    pointer-events: auto; /* Habilita eventos no modal visível */
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background-color: var(--color-white);
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 10px; /* Igual aos cards */
+    outline: 0;
+    box-shadow: var(--box-shadow-medium);
+}
+
+.modal-header {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--color-gray);
+    border-top-left-radius: calc(10px - 1px); /* Ajuste para borda */
+    border-top-right-radius: calc(10px - 1px);
+    /* Aplicando o gradiente e animação do card-header */
+    background: var(--gradient-card-header) !important;
+    background-size: 400% 400% !important;
+    animation: var(--gradient-animation) !important;
+    color: var(--color-white) !important; /* Cor do texto para contraste */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    position: relative; /* Para o efeito de brilho */
+    z-index: 1;
+}
+
+/* Efeito de brilho similar ao card-header (versão legada) */
+.modal-header::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      135deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.05) 40%,
+      rgba(255,255,255,0.3) 50%,
+      rgba(255,255,255,0.05) 60%,
+      rgba(255,255,255,0) 100%
+    );
+    transform: rotate(45deg);
+    transition: all 1.2s ease;
+    z-index: -1;
+}
+
+.modal:hover .modal-header::before {
+    top: 100%;
+    left: 100%;
+}
+
+/* Classe específica para headers de modal com efeito de brilho contido - tema claro */
+.modal-header-lightmode {
+    position: relative;
+    overflow: hidden; /* Importante para conter o efeito de brilho */
+}
+
+/* Estilos para ícones e elementos do modal de periféricos disponíveis */
+.perifericos-icon-empty {
+    font-size: 2rem;
+    color: #999;
+}
+
+.perifericos-icon-error {
+    font-size: 2rem;
+}
+
+/* Utility classes */
+.d-none {
+    display: none;
+}
+
+/* Classes para elementos vazios e estados de erro */
+.perifericos-disponiveis-empty,
+.perifericos-disponiveis-error {
+    padding: 1.5rem 0;
+    text-align: center;
+}
+
+/* Menus dinâmicos gerados via JavaScript */
+/* Menu de ações para periféricos */
+.periferico-action-menu {
+    position: absolute;
+    z-index: 1050;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    padding: 5px 0;
+    min-width: 180px;
+}
+
+.periferico-action-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.periferico-action-item.hover {
+    background-color: #f5f5f5;
+}
+
+
+
+.periferico-action-item.remove-action {
+    color: #dc3545;
+}
+
+.periferico-action-item.remove-action.disabled {
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.periferico-action-item.remove-action.disabled:hover {
+    background-color: transparent !important;
+}
+
+/* Estilos para periféricos desabilitados */
+.periferico-tag.disabled {
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+    pointer-events: none;
+}
+
+.periferico-tag.disabled:hover {
+    background-color: transparent !important;
+    transform: none !important;
+}
+
+.periferico-status-menu {
+    position: absolute;
+    z-index: 1050;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    padding: 5px 0;
+    min-width: 200px;
+}
+
+.periferico-status-header {
+    padding: 8px 12px;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 5px;
+}
+
+.periferico-status-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.periferico-status-item.hover {
+    background-color: #f5f5f5;
+}
+
+
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.status-manutencao {
+    background-color: #ffc107;
+}
+
+.status-disponivel {
+    background-color: #198754;
+}
+
+/* Menu de ações para computadores */
+.computador-action-menu {
+    position: absolute;
+    z-index: 1050;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    padding: 5px 0;
+    min-width: 180px;
+}
+
+.computador-action-option {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.computador-action-option.hover {
+    background-color: #f5f5f5;
+}
+
+.computador-action-option.remove-action {
+    color: #dc3545;
+}
+
+.computador-status-menu {
+    position: absolute;
+    z-index: 1050;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    padding: 5px 0;
+    min-width: 200px;
+}
+
+.computador-status-header {
+    padding: 8px 12px;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 5px;
+}
+
+.computador-status-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.computador-status-item.hover {
+    background-color: #f5f5f5;
+}
+
+.modal-header-lightmode::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.05) 40%,
+        rgba(255,255,255,0.3) 50%,
+        rgba(255,255,255,0.05) 60%,
+        rgba(255,255,255,0) 100%
+    );
+    z-index: 1;
+    transition: all 0.8s ease;
+}
+
+.modal-header-lightmode:hover::before {
+    left: 100%;
+}
+
+.modal-header .btn-close {
+    padding: 0.5rem;
+    margin: -0.5rem -0.5rem -0.5rem auto;
+    background: transparent;
+    border: 0;
+    opacity: 0.8; /* Aumenta opacidade para branco */
+    transition: opacity 0.2s ease;
+    filter: brightness(0) invert(1); /* Inverte cor para branco */
+}
+.modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+.modal-title {
+    margin-bottom: 0;
+    line-height: 1.5;
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    color: var(--color-white); /* Garante cor do título */
+}
+
+.modal-title i {
+    color: var(--color-white); /* Cor do ícone no header */
+}
+
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1.25rem;
+    color: var(--color-text-dark);
+    border-bottom-right-radius: calc(10px - 1px);
+    border-bottom-left-radius: calc(10px - 1px);
+}
+
+.modal-footer {
+    display: flex;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: flex-end; /* Alinha botões à direita */
+    padding: 0.75rem 1.25rem;
+    background-color: #f8f9fa;
+    border-top: 1px solid var(--color-gray);
+    border-bottom-right-radius: calc(10px - 1px);
+    border-bottom-left-radius: calc(10px - 1px);
+}
+
+.modal-footer > * {
+    margin: 0.25rem; /* Espaçamento entre botões */
+}
+
+/* Botões no modal */
+.modal-footer .btn {
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    font-weight: 600; /* Mais forte */
+    transition: all 0.3s ease;
+    border: none; /* Remove borda padrão */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    cursor: pointer; /* Adicionado cursor pointer */
+}
+
+.modal-footer .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.modal-footer .btn:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.modal-footer .btn-secondary {
+    background-color: #6c757d;
+    /* border-color: #6c757d; */ /* Removido */
+    color: white;
+}
+.modal-footer .btn-secondary:hover {
+    background-color: #5a6268;
+    /* border-color: #545b62; */ /* Removido */
+}
+
+/* Botão principal (Confirmar) com estilo verde */
+.modal-footer .btn-danger { /* Mantendo a classe, mas sobrescrevendo estilo */
+    background: var(--gradient-secondary-green) !important;
+    background-size: 300% 300% !important;
+    animation: gradientBGButton 10s ease infinite !important;
+    color: var(--color-primary-dark) !important;
+    /* border-color: var(--color-success); */ /* Removido */
+}
+/*.modal-footer .btn-danger:hover {*/
+    /* background-color: #157347; */ /* Usar transform/shadow */
+    /* border-color: #146c43; */ /* Removido */
+/*}*/
+
+/* Ajuste de Responsividade para Modal */
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        width: calc(100% - 1rem); /* Usa quase toda largura */
+        max-width: none;
+    }
+    .modal-footer {
+        justify-content: center; /* Centraliza botões em telas pequenas */
+    }
+}
+
+/* Estilos movidos do HTML */
+.pa-container {
+  margin: 15px 0;
+}
+
+.pa-grid-dual-column {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Estilo para informações adicionais do funcionário */
+.funcionario-info {
+  font-size: 0.8rem !important;
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px dashed rgba(0,0,0,0.1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.funcionario-cargo,
+.funcionario-departamento {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.funcionario-cargo i,
+.funcionario-departamento i {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* Adicionado: Efeito de brilho para botões de SALAS inativos */
+.salas-tabs .nav-link:not(.active)::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      135deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.05) 40%,
+      rgba(255,255,255,0.3) 50%,
+      rgba(255,255,255,0.05) 60%,
+      rgba(255,255,255,0) 100%
+    );
+    transform: rotate(45deg);
+    transition: all 1.2s ease;
+    z-index: 0; /* Abaixo do conteúdo do botão mas acima do fundo */
+}
+
+/* Adicionado: Ativação do brilho no hover de botões de SALAS inativos */
+.salas-tabs .nav-link:not(.active):hover::before {
+    top: 100%;
+    left: 100%;
+}
+
+/* ==========================================
+   Estilos para Gerenciamento de Computadores
+   ========================================== */
+
+/* Botão principal para atribuir computador quando nenhum existe */
+.assign-computador-btn-main {
+    font-weight: 500;
+    padding: 0.3rem 0.7rem; /* Menor padding */
+    font-size: 0.85em; /* Fonte um pouco menor */
+}
+
+.assign-computador-btn-main i {
+    font-size: 1em; /* Ajustar tamanho do ícone */
+}
+
+/* Botão para adicionar outro computador */
+.add-computador-btn {
+    font-size: 0.8em;
+    padding: 0.2rem 0.5rem;
+}
+
+/* Ícone de remoção na tag do computador */
+.computador-tag .remove-computador-btn {
+    color: var(--color-danger);
+    opacity: 0.7;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    font-size: 1.1em; /* Um pouco maior para facilitar o clique */
+}
+
+.computador-tag .remove-computador-btn:hover {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+/* Dropdown de Computadores Disponíveis */
+.computador-dropdown-menu {
+    /* position: absolute; - Removido, agora é fixed via JS */
+    z-index: 999999 !important; /* Valor muito alto para garantir que fique acima de tudo */
+    background-color: var(--color-white);
+    border: 1px solid var(--color-gray);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    padding: 0; /* Removido padding geral, será por item/header */
+    min-width: 320px; /* Largura mínima aumentada */
+    max-height: 450px; /* Altura máxima do dropdown, pode ser ajustada pelo JS */
+    overflow-y: auto !important; /* Garantir que o scroll seja mostrado quando necessário */
+    display: none; /* Escondido por padrão */
+    font-size: 1rem;
+    /* Evitar que seja cortado pelo fim da tela */
+    margin-bottom: 0;
+    /* Scrollbar bonita */
+    scrollbar-width: thin;
+    scrollbar-color: #0d6efd #f0f0f0;
+}
+
+.computador-dropdown-menu .p-2.text-muted {
+    padding: 10px 15px !important;
+}
+
+/* Estilização da scrollbar para Chrome/Edge/Safari */
+.computador-dropdown-menu::-webkit-scrollbar {
+    width: 8px;
+}
+
+.computador-dropdown-menu::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+
+.computador-dropdown-menu::-webkit-scrollbar-thumb {
+    background-color: #0d6efd;
+    border-radius: 4px;
+    border: 2px solid #f0f0f0;
+}
+
+.computador-dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background-color: #0a58ca;
+}
+
+/* Estilo do header de marca no layout simplificado */
+.computador-marca-dropdown {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+    background-color: white;
+    position: relative;
+}
+
+.computador-marca-dropdown:hover {
+    background-color: #f0f8ff;
+}
+
+.computador-marca-dropdown .nome {
+    font-weight: 500;
+}
+
+.computador-marca-dropdown .badge {
+    font-size: 0.8em;
+    padding: 4px 8px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+/* Estilo para mensagem informativa no topo do dropdown */
+.dropdown-info-message {
+    padding: 8px 15px;
+    font-size: 0.9em;
+    color: #666;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 5px;
+    background-color: #f8f9fa;
+}
+
+.dropdown-info-message i {
+    margin-right: 5px;
+    color: #0d6efd;
+}
+
+/* ==========================================
+   Estilos para Periféricos Faltantes
+   ========================================== */
+.perifericos-faltantes {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background-color: rgba(255, 193, 7, 0.1);
+    border-radius: 6px;
+    border: 1px dashed rgba(255, 193, 7, 0.5);
+}
+
+.perifericos-faltantes h6 {
+    color: #856404;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.perifericos-faltantes h6 i {
+    color: #856404;
+    margin-right: 5px;
+}
+
+.perifericos-faltantes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.periferico-faltante-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+}
+
+.periferico-faltante-nome {
+    font-weight: 500;
+    color: #333;
+}
+
+.add-periferico-btn {
+    font-size: 0.8em;
+    padding: 2px 8px;
+    border-color: #ffc107;
+    color: #856404;
+}
+
+.add-periferico-btn:hover {
+    background-color: #ffc107;
+    color: #fff;
+    border-color: #e0a800;
+}
+
+/* Modal para listar periféricos disponíveis */
+.perifericos-disponiveis-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1049;
+    display: none;
+}
+
+.perifericos-disponiveis-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1050;
+    display: none;
+    overflow: hidden;
+}
+
+.perifericos-disponiveis-modal-header {
+    padding: 15px;
+    background: linear-gradient(-45deg, var(--color-secondary), var(--color-success), var(--color-secondary));
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.perifericos-disponiveis-modal-header h5 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.perifericos-disponiveis-modal-close {
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    opacity: 0.8;
+}
+
+.perifericos-disponiveis-modal-close:hover {
+    opacity: 1;
+}
+
+.perifericos-disponiveis-modal-body {
+    padding: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.perifericos-disponiveis-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.periferico-disponivel-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: rgba(240, 240, 240, 0.5);
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    transition: all 0.2s ease;
+}
+
+.periferico-disponivel-item:hover {
+    background-color: rgba(240, 240, 240, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.periferico-disponivel-info {
+    flex: 1;
+}
+
+.periferico-disponivel-marca {
+    font-weight: 600;
+    color: #333;
+}
+
+.periferico-disponivel-modelo {
+    font-size: 0.85em;
+    color: #666;
+}
+
+.atribuir-periferico-btn {
+    padding: 4px 10px;
+    font-size: 0.85em;
+    background-color: var(--color-primary-dark);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.atribuir-periferico-btn:hover {
+    background-color: #1a346b;
+    transform: translateY(-1px);
+}
+
+.perifericos-disponiveis-modal-footer {
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#salas-tab-content {
+  /* Removidas limitações de altura e largura para expansão natural */
+}
+
+/* ==========================================
+   Estilos para botões de ação/interatividade 
+   ========================================== */
+.assign-funcionario-btn {
+    cursor: pointer;
+}
+
+.add-periferico-btn {
+    cursor: pointer;
+}
+
+.assign-computador-btn-main {
+    cursor: pointer;
+}
+
+/* Botão flutuante Salvar Alterações */
+.save-changes-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  animation: fadeInUp 0.5s ease;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  border-radius: 50px;
+  background: #fff;
+  padding: 5px 10px 5px 5px;
+  transition: all 0.3s ease;
+}
+
+.save-changes-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+.save-changes-container .pending-count {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #dc3545;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.save-all-changes-btn {
+  border-radius: 50px;
+  padding: 8px 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  background: var(--gradient-card-header) !important;
+  background-size: 400% 400% !important;
+  animation: var(--gradient-animation) !important;
+  color: white !important;
+  border: none;
+  box-shadow: 0 4px 10px rgba(112, 246, 17, 0.2);
+}
+
+.save-all-changes-btn:hover {
+  box-shadow: 0 6px 15px rgba(112, 246, 17, 0.3);
+  transform: translateY(-5px);
+}
+
+.save-all-changes-btn i {
+  font-size: 1.2rem;
+}
+
+/* Estado pendente para periféricos */
+.periferico-pendente {
+  background-color: #f8f9fa;
+  border: 2px dashed #0d6efd;
+  opacity: 0.8;
+  position: relative;
+}
+
+.periferico-pendente::after {
+  content: "(Pendente)";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: #0d6efd;
+  font-style: italic;
+}
+
+/* Animação para o botão de salvar */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilo para a caixa de notificação de pendências */
+.pending-changes-notification {
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.pending-changes-notification i {
+  color: #ffc107;
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+
+
+/* Transformação para periféricos pendentes */
+.perifericos-list .periferico-tag.pendente {
+  border: 2px dashed #0d6efd;
+  background: linear-gradient(45deg, rgba(13, 110, 253, 0.05) 0%, rgba(13, 110, 253, 0.1) 100%);
+  animation: pulseBorder 2s infinite;
+  opacity: 0.85;
+}
+
+@keyframes pulseBorder {
+  0% { border-color: #0d6efd; }
+  50% { border-color: #00b3ff; }
+  100% { border-color: #0d6efd; }
+}
+
+
+
+.save-changes-container .btn-group {
+  display: flex;
+}
+
+.cancel-all-changes-btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border-color: #ced4da;
+  color: #6c757d;
+  transition: all 0.3s ease;
+}
+
+.cancel-all-changes-btn:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.cancel-all-changes-btn i {
+  font-size: 1.2rem;
+}
+
+/* Ajustar o botão "Salvar Alterações" para o novo layout com grupo */
+.save-all-changes-btn {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+
+
+/* Animação de progresso para o botão de salvar */
+.save-all-changes-btn.saving {
+  position: relative;
+  overflow: hidden;
+}
+
+.save-all-changes-btn.saving::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background-color: rgba(255,255,255,0.7);
+  animation: progress-animation 1.5s infinite ease-in-out;
+}
+
+@keyframes progress-animation {
+  0% {
+    width: 0;
+    left: 0;
+  }
+  50% {
+    width: 100%;
+    left: 0;
+  }
+  100% {
+    width: 0;
+    left: 100%;
+  }
+}
+
+/* Melhorar a visualização dos itens adicionados */
+.periferico-disponivel-item.adicionado {
+  background-color: rgba(0, 123, 255, 0.05);
+  border-left: 4px solid #0d6efd;
+  transition: all 0.2s ease;
+}
+
+/* Permitir altura natural em todos os containers de tabs */
+.tab-content {
+  /* Removidas limitações de altura para expansão natural */
+}
+
+.salas-content, 
+.ilhas-content {
+  /* Removidas limitações de altura para expansão natural */
+}
+
+/* Adicionar regra para evitar saltos abruptos durante transições */
+.tab-pane.active {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0.7; }
+  to { opacity: 1; }
+}
+
+/* ===== Estilos para o Seletor de Loja ===== */
+.filtro-loja-container {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.filtro-loja-container:hover {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.filtro-loja-container .card-title {
+  color: #495057;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.filtro-loja-container .form-select {
+  border: 2px solid #ced4da;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.filtro-loja-container .form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.filtro-loja-container .btn {
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.filtro-loja-container .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.loja-info-text {
+  background-color: rgba(13, 110, 253, 0.1);
+  border-left: 4px solid #0d6efd;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0 6px 6px 0;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.loja-info-text strong {
+  color: #0d6efd;
+}
+
+/* Responsividade para dispositivos móveis */
+@media (max-width: 768px) {
+  .filtro-loja-container {
+    margin-bottom: 1.5rem;
+  }
+  
+  .filtro-loja-container .input-group {
+    flex-wrap: wrap;
+  }
+  
+  .filtro-loja-container .form-select {
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+  }
+  
+  .filtro-loja-container .btn {
+    width: 100%;
+    border-radius: 8px;
+  }
+}
+
+/* ===== Fim dos Estilos para o Seletor de Loja ===== */
+
+/* ==========================================
+   Estilos para Botões Desabilitados de Usuários Restritos
+   ========================================== */
+
+/* Botões desabilitados - remover cursor pointer e aplicar estilos visuais */
+.btn:disabled,
+.btn.disabled,
+button:disabled,
+button.disabled {
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+    pointer-events: none !important;
+}
+
+/* Específico para botões de periféricos e computadores desabilitados */
+.assign-periferico-btn:disabled,
+.assign-periferico-btn.disabled,
+.assign-computador-btn-main:disabled,
+.assign-computador-btn-main.disabled {
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+    pointer-events: none !important;
+    background-color: #e9ecef !important;
+    border-color: #ced4da !important;
+    color: #6c757d !important;
+}
+
+/* Remover hover effects de botões desabilitados */
+.btn:disabled:hover,
+.btn.disabled:hover,
+.assign-periferico-btn:disabled:hover,
+.assign-periferico-btn.disabled:hover,
+.assign-computador-btn-main:disabled:hover,
+.assign-computador-btn-main.disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    background-color: #e9ecef !important;
+    border-color: #ced4da !important;
+    color: #6c757d !important;
+}
+
+/* Ícones de remoção - desabilitar para usuários restritos */
+.remove-periferico-btn.disabled,
+.remove-computador-btn.disabled {
+    cursor: not-allowed !important;
+    opacity: 0.3 !important;
+    pointer-events: none !important;
+}
+
+
+
+/* ===== Fim dos Estilos para Botões Desabilitados ===== */
