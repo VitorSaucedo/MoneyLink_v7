@@ -34,7 +34,8 @@ from .models import (
     Email,
     Storm,
     Sistema,
-    CoordenadorSala
+    CoordenadorSala,
+    Ramal
 )
 from .forms import (
     TipoPerifericoForm,
@@ -344,6 +345,7 @@ def admin(request):
         'computadores_list': Computador.objects.filter(status='disponivel', **filtro_loja),
         'lojas_list': lojas,
         'empresas_list': Empresa.objects.filter(status=True),
+        'ramais_list': Ramal.objects.filter(funcionario__isnull=True).order_by('numero'),
     }
     
     # Formulários
@@ -3147,7 +3149,7 @@ def api_post_atribuir_funcionario_pa(request):
             funcionario_data = {
                 'id': funcionario.id,
                 'nome_completo': funcionario.nome_completo,
-                'ramal': funcionario.ramal or '',
+                'ramal': funcionario.ramal_ti.numero if hasattr(funcionario, 'ramal_ti') and funcionario.ramal_ti else '',
                 'empresa': funcionario.empresa.nome if funcionario.empresa else '',
                 'setor': funcionario.setor.nome if funcionario.setor else ''
             }
@@ -3202,183 +3204,6 @@ def api_post_atribuir_funcionario_pa(request):
             build_response_data(False, error=f'Erro interno: {str(e)}'),
             status=500
         )
-
-
-# Views para Ramais
-@login_required
-def ramal_list(request):
-    # Implementar a listagem de ramais
-    # Aqui você pode adaptar de acordo com o modelo real usado para ramais no seu sistema
-    ramais = []  # Substituir por uma consulta real ao modelo de ramais
-    context = {
-        'ramais': ramais
-    }
-    return render(request, 'apps/ti/admin.html', context)
-
-@require_POST
-@login_required
-def api_post_verificar_ramal(request):
-    """API para verificar se um ramal já está em uso por outro funcionário"""
-    import json
-    import logging
-    logger = logging.getLogger(__name__)
-
-    try:
-        data = json.loads(request.body)
-        ramal = data.get('ramal')
-        funcionario_id = data.get('funcionario_id')
-        
-        # Validação básica
-        if not ramal or not funcionario_id:
-            return JsonResponse({
-                'success': False, 
-                'error': 'Ramal e ID do funcionário são obrigatórios'
-            })
-        
-        # Verificar se o ramal já está atribuído a outro funcionário
-        funcionario_com_ramal = Funcionario.objects.filter(
-            ramal=ramal
-        ).exclude(
-            id=funcionario_id
-        ).first()
-        
-        if funcionario_com_ramal:
-            # Ramal já está em uso por outro funcionário
-            return JsonResponse({
-                'success': True,
-                'existe': True,
-                'funcionario_nome': funcionario_com_ramal.nome_completo,
-                'funcionario_id': funcionario_com_ramal.id
-            })
-        else:
-            # Ramal está disponível ou pertence ao funcionário atual
-            return JsonResponse({
-                'success': True,
-                'existe': False
-            })
-            
-    except json.JSONDecodeError:
-        return JsonResponse({
-            'success': False,
-            'error': 'Dados JSON inválidos'
-        }, status=400)
-    except Exception as e:
-        logger.error(f"Erro ao verificar ramal: {str(e)}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
-
-@login_required
-def ramal_create(request):
-    """View para criar/atribuir ramal a um funcionário"""
-    if request.method == 'POST':
-        try:
-            funcionario_id = request.POST.get('funcionario_id')
-            ramal = request.POST.get('ramal')
-            
-            # Validação básica
-            if not funcionario_id or not ramal:
-                messages.error(request, 'Funcionário e ramal são obrigatórios.')
-                return redirect('ti:admin')
-            
-            # Buscar o funcionário
-            funcionario = Funcionario.objects.get(id=funcionario_id)
-            
-            # Verificar se o ramal já está em uso por outro funcionário
-            funcionario_com_ramal = Funcionario.objects.filter(
-                ramal=ramal
-            ).exclude(
-                id=funcionario_id
-            ).first()
-            
-            if funcionario_com_ramal:
-                messages.error(
-                    request, 
-                    f'O ramal {ramal} já está atribuído ao funcionário {funcionario_com_ramal.nome_completo}.'
-                )
-                return redirect('ti:admin')
-            
-            # Atualizar o ramal do funcionário
-            funcionario.ramal = ramal
-            funcionario.save()
-            
-            messages.success(
-                request, 
-                f'Ramal {ramal} atribuído com sucesso ao funcionário {funcionario.nome_completo}!'
-            )
-            
-        except Funcionario.DoesNotExist:
-            messages.error(request, 'Funcionário não encontrado.')
-        except Exception as e:
-            messages.error(request, f'Erro ao atribuir ramal: {str(e)}')
-        
-        return redirect('ti:admin')
-    
-    # Se não for POST, redirecionar para admin
-    return redirect('ti:admin')
-
-@login_required
-def ramal_update(request):
-    # Implementar atualização geral de ramais
-    if request.method == 'POST':
-        funcionario_id = request.POST.get('funcionario_id')
-        ramal = request.POST.get('ramal')
-        
-        if funcionario_id and ramal:
-            try:
-                # Buscar o funcionário e atualizar o campo ramal
-                funcionario = get_object_or_404(Funcionario, id=funcionario_id)
-                funcionario.ramal = ramal
-                funcionario.save()
-                
-                messages.success(request, f'Ramal {ramal} atribuído com sucesso ao funcionário {funcionario.nome_completo}!')
-            except Exception as e:
-                messages.error(request, f'Erro ao atualizar ramal: {str(e)}')
-        else:
-            messages.error(request, 'Dados incompletos para atualizar o ramal.')
-            
-        return redirect('ti:admin')
-    
-    return redirect('ti:admin')
-
-@login_required
-def ramal_edit(request, pk):
-    # Implementar edição de ramal específico
-    # ramal = get_object_or_404(Ramal, pk=pk)
-    if request.method == 'POST':
-        # form = RamalForm(request.POST, instance=ramal)
-        # if form.is_valid():
-        #     form.save()
-        #     messages.success(request, 'Ramal atualizado com sucesso!')
-        #     return redirect('ti:ramal_list')
-        messages.success(request, 'Ramal atualizado com sucesso!')
-        return redirect('ti:admin')
-    else:
-        # form = RamalForm(instance=ramal)
-        pass
-    
-    context = {
-        # 'form': form,
-        # 'ramal': ramal
-    }
-    return render(request, 'apps/ti/admin.html', context)
-
-@login_required
-def ramal_delete(request, pk):
-    # Implementar exclusão de ramal
-    # ramal = get_object_or_404(Ramal, pk=pk)
-    if request.method == 'POST':
-        # ramal.delete()
-        messages.success(request, 'Ramal excluído com sucesso!')
-        return redirect('ti:admin')
-    
-    context = {
-        # 'ramal': ramal
-        'title': 'Excluir Ramal',
-        'objeto': 'Ramal'
-    }
-    return render(request, 'apps/ti/confirm_delete.html', context)
 
 # Views para Computadores
 @login_required
@@ -4237,6 +4062,7 @@ def api_get_admin_dashboard_data(request):
                     sala__in=Sala.objects.filter(**filtro_loja)
                 ).values('id', 'numero', 'sala__nome', 'ilha__nome')),
                 'lojas': list(Loja.objects.filter(status=True).values('id', 'nome').order_by('nome')),
+                'ilhas': list(Ilha.objects.filter(sala__in=Sala.objects.filter(**filtro_loja)).values('id', 'nome')),
             },
             'loja_selecionada': loja_selecionada
         }
@@ -6051,7 +5877,7 @@ def api_get_controle_acessos_dados(request):
                 'funcionario': {
                     'nome_completo': storm.funcionario.nome_completo if storm.funcionario else None,
                     'cpf': storm.funcionario.cpf if storm.funcionario else None,
-                    'ramal': storm.funcionario.ramal if storm.funcionario else None,
+                    'ramal': storm.funcionario.ramal_ti.numero if storm.funcionario and storm.funcionario.ramal_ti else None,
                 },
                 'email_administrativo': storm.email_administrativo,
                 'situacao': storm.situacao,
@@ -6163,23 +5989,37 @@ def api_get_chips_data(request):
         }, status=405)
     
     try:
+        print("🔄 Iniciando carregamento de chips...")
+        
         # Obter filtros da requisição
         filtros = {
             'status': request.GET.get('status', '').strip(),
             'search': request.GET.get('search', '').strip()
         }
+        print(f"📋 Filtros aplicados: {filtros}")
         
         # Query base com relacionamentos otimizados
-        chips_queryset = Chip.objects.select_related('ramal', 'setor').all()
+        chips_queryset = Chip.objects.select_related('funcionario', 'funcionario__setor', 'funcionario__ramal_ti', 'setor').all()
+        print(f"📊 Total de chips no banco: {chips_queryset.count()}")
         
         # Aplicar filtros
         chips_queryset = _aplicar_filtros_chips(chips_queryset, filtros)
+        print(f"📊 Chips após filtros: {chips_queryset.count()}")
         
         # Ordenar por número
         chips_queryset = chips_queryset.order_by('numero')
         
         # Serializar dados
-        chips_data = [_serializar_chip(chip) for chip in chips_queryset]
+        chips_data = []
+        for chip in chips_queryset:
+            try:
+                chip_serializado = _serializar_chip(chip)
+                chips_data.append(chip_serializado)
+            except Exception as e:
+                print(f"❌ Erro ao serializar chip {chip.id}: {e}")
+                continue
+        
+        print(f"✅ Chips serializados com sucesso: {len(chips_data)}")
         
         response_data = {
             'success': True,
@@ -6194,6 +6034,7 @@ def api_get_chips_data(request):
         return JsonResponse(response_data)
         
     except Exception as e:
+        print(f"❌ Erro geral na API de chips: {e}")
         return JsonResponse({
             'success': False,
             'message': f'Erro ao carregar chips: {str(e)}'
@@ -6207,7 +6048,7 @@ def _aplicar_filtros_chips(queryset, filtros):
     if filtros['search']:
         queryset = queryset.filter(
             Q(numero__icontains=filtros['search']) |
-            Q(ramal__nome_completo__icontains=filtros['search']) |
+            Q(funcionario__nome_completo__icontains=filtros['search']) |
             Q(setor__nome_completo__icontains=filtros['search'])
         )
     
@@ -6215,17 +6056,71 @@ def _aplicar_filtros_chips(queryset, filtros):
 
 def _serializar_chip(chip):
     """Serializa um objeto Chip para JSON."""
-    return {
-        'id': chip.id,
-        'numero': chip.numero,
-        'status': chip.get_status_display(),
-        'status_value': chip.status,
-        'ramal': chip.ramal.nome_completo if chip.ramal else '-',
-        'setor': chip.ramal.setor.nome if chip.ramal and chip.ramal.setor else '-',
-        'data_entrega': chip.data_entrega.strftime('%d/%m/%Y') if chip.data_entrega else '-',
-        'data_criacao_recarga': chip.data_criacao_recarga.strftime('%d/%m/%Y') if chip.data_criacao_recarga else '-',
-        'data_banimento': chip.data_banimento.strftime('%d/%m/%Y') if chip.data_banimento else '-',
-    }
+    try:
+        # Obter informações do ramal através da propriedade
+        ramal_info = None
+        ramal_numero = '-'
+        try:
+            ramal_info = chip.ramal
+            ramal_numero = ramal_info.numero if ramal_info else '-'
+        except Exception as e:
+            print(f"Erro ao obter ramal para chip {chip.id}: {e}")
+            ramal_numero = '-'
+        
+        # Obter informações do funcionário
+        funcionario_nome = '-'
+        try:
+            funcionario_nome = chip.funcionario.nome_completo if chip.funcionario else '-'
+        except Exception as e:
+            print(f"Erro ao obter funcionário para chip {chip.id}: {e}")
+            funcionario_nome = '-'
+        
+        # Obter informações do setor - primeiro através do funcionário, depois através do campo setor do chip
+        setor_nome = '-'
+        try:
+            if chip.funcionario and hasattr(chip.funcionario, 'setor') and chip.funcionario.setor:
+                setor_nome = chip.funcionario.setor.nome
+            elif hasattr(chip, 'setor') and chip.setor:
+                setor_nome = chip.setor.nome_completo if hasattr(chip.setor, 'nome_completo') else str(chip.setor)
+        except Exception as e:
+            print(f"Erro ao obter setor para chip {chip.id}: {e}")
+            setor_nome = '-'
+        
+        # Formatar datas com tratamento de erro
+        def formatar_data_segura(data_obj):
+            try:
+                return data_obj.strftime('%d/%m/%Y') if data_obj else '-'
+            except:
+                return '-'
+        
+        return {
+            'id': chip.id,
+            'numero': chip.numero,
+            'status': chip.get_status_display() if hasattr(chip, 'get_status_display') else str(chip.status),
+            'status_value': chip.status,
+            'ramal': ramal_numero,
+            'funcionario': funcionario_nome,
+            'setor': setor_nome,
+            'data_entrega': formatar_data_segura(getattr(chip, 'data_entrega', None)),
+            'data_criacao_recarga': formatar_data_segura(getattr(chip, 'data_criacao_recarga', None)),
+            'data_banimento': formatar_data_segura(getattr(chip, 'data_banimento', None)),
+        }
+    
+    except Exception as e:
+        print(f"Erro completo ao serializar chip {chip.id if hasattr(chip, 'id') else 'desconhecido'}: {e}")
+        # Retornar um objeto básico em caso de erro
+        return {
+            'id': getattr(chip, 'id', 0),
+            'numero': getattr(chip, 'numero', 'N/A'),
+            'status': 'Erro',
+            'status_value': 'erro',
+            'ramal': '-',
+            'funcionario': '-',
+            'setor': '-',
+            'data_entrega': '-',
+            'data_criacao_recarga': '-',
+            'data_banimento': '-',
+        }
 
 @login_required
 def api_post_chip_create(request):
@@ -6607,3 +6502,104 @@ def api_get_tipos_perifericos(request):
             'success': False,
             'message': f'Erro ao carregar tipos de periféricos: {str(e)}'
         }, status=500)
+
+@login_required
+@require_POST
+def api_post_associar_ramal_funcionario(request):
+    try:
+        data = json.loads(request.body)
+        ramal_numero = data.get('ramal_numero')
+        funcionario_id = data.get('funcionario_id')
+
+        if not ramal_numero or not funcionario_id:
+            return JsonResponse({'success': False, 'error': 'Ramal e Funcionário são obrigatórios.'}, status=400)
+        
+        if not ramal_numero.isdigit() or len(ramal_numero) != 4:
+            return JsonResponse({'success': False, 'error': 'O ramal deve conter exatamente 4 dígitos numéricos.'}, status=400)
+
+        funcionario = Funcionario.objects.get(id=funcionario_id)
+
+        # Verifica se o funcionário já possui um ramal
+        if hasattr(funcionario, 'ramal_ti') and funcionario.ramal_ti is not None:
+            return JsonResponse({'success': False, 'error': f'O funcionário {funcionario.nome_completo} já possui o ramal {funcionario.ramal_ti.numero}.'}, status=400)
+            
+        # Tenta encontrar o ramal. Se não existir, cria um novo.
+        ramal, created = Ramal.objects.get_or_create(numero=ramal_numero)
+        
+        # Se o ramal não foi criado agora e já tem um funcionário, significa que está em uso
+        if not created and ramal.funcionario is not None:
+            return JsonResponse({'success': False, 'error': f'O ramal {ramal.numero} já está associado ao funcionário {ramal.funcionario.nome_completo}.'}, status=400)
+
+        ramal.funcionario = funcionario
+        ramal.save()
+        
+        return JsonResponse({'success': True, 'message': f'Ramal {ramal.numero} associado a {funcionario.nome_completo} com sucesso!'})
+
+    except Funcionario.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Funcionário não encontrado.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': f'Ocorreu um erro inesperado: {str(e)}'}, status=500)
+
+
+@login_required
+@require_POST
+def api_verificar_ramal(request):
+    """API para verificar se um ramal já está em uso por outro funcionário"""
+    if request.method == 'POST':
+        import json
+        import logging
+        logger = logging.getLogger(__name__)
+
+        try:
+            data = json.loads(request.body)
+            ramal = data.get('ramal')
+            funcionario_id = data.get('funcionario_id')
+            
+            # Validação básica
+            if not ramal or not funcionario_id:
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Ramal e ID do funcionário são obrigatórios'
+                })
+            
+            # Verificar se o ramal já está atribuído a outro funcionário
+            try:
+                ramal_obj = Ramal.objects.get(numero=ramal)
+                
+                # Se o ramal existe e está associado a um funcionário diferente
+                if ramal_obj.funcionario and str(ramal_obj.funcionario.id) != funcionario_id:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'O ramal {ramal} já está associado ao funcionário {ramal_obj.funcionario.nome_completo}',
+                        'em_uso': True,
+                        'funcionario': {
+                            'id': ramal_obj.funcionario.id,
+                            'nome': ramal_obj.funcionario.nome_completo
+                        }
+                    })
+                # Se o ramal existe mas está associado ao mesmo funcionário ou a nenhum
+                else:
+                    return JsonResponse({
+                        'success': True,
+                        'em_uso': False,
+                        'message': 'Ramal disponível para uso'
+                    })
+            except Ramal.DoesNotExist:
+                # Se o ramal não existe, está disponível
+                return JsonResponse({
+                    'success': True,
+                    'em_uso': False,
+                    'message': 'Ramal disponível para uso'
+                })
+                
+        except Exception as e:
+            logger.error(f"Erro ao verificar ramal: {str(e)}", exc_info=True)
+            return JsonResponse({
+                'success': False,
+                'error': f'Erro ao verificar ramal: {str(e)}'
+            }, status=500)
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Método não permitido'
+    }, status=405)

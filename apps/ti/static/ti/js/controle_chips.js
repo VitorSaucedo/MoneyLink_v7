@@ -8,8 +8,14 @@ $(document).ready(function() {
             url: '/ti/api/chips-data/',
             type: 'GET',
             success: function(response) {
+                console.log('📊 Resposta da API recebida:', response);
+                
                 if (response.success) {
-                    popularTabela(response.chips);
+                    // Verificar se os dados existem e são válidos
+                    const chips = response.data && response.data.chips ? response.data.chips : [];
+                    console.log('📋 Chips encontrados:', chips.length, chips);
+                    
+                    popularTabela(chips);
                     $('#loading-indicator').hide();
                     $('#table-container').show();
                 } else {
@@ -17,6 +23,7 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
+                console.error('❌ Erro na requisição:', xhr.responseText);
                 mostrarErro('Erro ao carregar dados: ' + error);
             }
         });
@@ -24,6 +31,7 @@ $(document).ready(function() {
     
     // Função para mostrar erro
     function mostrarErro(mensagem) {
+        console.error('🚨 Erro:', mensagem);
         $('#loading-indicator').hide();
         $('#error-message').text(mensagem);
         $('#error-container').show();
@@ -31,8 +39,16 @@ $(document).ready(function() {
     
     // Função para popular a tabela com os dados
     function popularTabela(chips) {
+        console.log('🔄 Populando tabela com:', chips);
+        
         var tbody = $('#chips-tbody');
         tbody.empty();
+        
+        // Validar se chips é um array
+        if (!Array.isArray(chips)) {
+            console.error('❌ Dados não são um array:', typeof chips, chips);
+            chips = []; // Usar array vazio como fallback
+        }
         
         if (chips.length === 0) {
             tbody.append(`
@@ -59,7 +75,7 @@ $(document).ready(function() {
     function criarLinhaChip(chip) {
         var ramal = chip.ramal || '-';
         var numero = formatarNumeroChip(chip.numero);
-        var funcionario = chip.ramal || '-';
+        var funcionario = chip.funcionario || '-';
         var setor = chip.setor || 'Sem setor';
         var setorClass = (chip.setor && chip.setor !== '-') ? 'sector-display' : 'sector-display sector-empty';
         

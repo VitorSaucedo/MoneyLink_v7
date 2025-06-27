@@ -22,10 +22,6 @@ Administração TI<span class="produto-text"></span>
   <link rel="stylesheet" href="{% static 'css/darkmode.css' %}">
   {# Adicionar estilos personalizados para a página #}
   <link rel="stylesheet" href="{% static 'ti/css/admin.css' %}">
-
-  
-  <!-- jQuery -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {% endblock %}
 
 {% block pre_content %}
@@ -123,6 +119,40 @@ Administração TI<span class="produto-text"></span>
             </div>
             <button type="submit" class="btn btn-primary w-100">
               <i class='bx bx-save'></i> Salvar Ilha
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Card Associar Ramal a Funcionário -->
+      <div class="card mb-4" id="card-associar-ramal">
+        <div class="card-header">
+          <i class='bx bx-phone-call'></i> Associar Ramal a Funcionário
+        </div>
+        <div class="card-body">
+          <form id="form-associar-ramal">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="select-funcionario-ramal" class="form-label">
+                <i class='bx bx-user'></i> Funcionário *
+              </label>
+              <select id="select-funcionario-ramal" class="form-select" required>
+                <option value="">-- Selecione um Funcionário --</option>
+                {% for funcionario in funcionarios_list %}
+                  {% if not funcionario.ramal_ti %}
+                    <option value="{{ funcionario.id }}">{{ funcionario.nome_completo }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="input-ramal-numero" class="form-label">
+                <i class='bx bx-dialpad'></i> Número do Ramal *
+              </label>
+              <input type="text" id="input-ramal-numero" class="form-control" required maxlength="4" pattern="[0-9]{4}" title="O ramal deve ter 4 dígitos numéricos." placeholder="Digite os 4 dígitos do ramal">
+            </div>
+            <button type="button" id="btn-associar-ramal" class="btn btn-primary w-100">
+              <i class='bx bx-link-alt'></i> Associar Ramal
             </button>
           </form>
         </div>
@@ -398,38 +428,6 @@ Administração TI<span class="produto-text"></span>
         </div>
       </div>
       
-      <!-- Card Cadastro de Ramal -->
-      <div class="card mb-4" id="card-ramal">
-        <div class="card-header">
-          <i class='bx bx-phone'></i> Gestão de Ramais
-        </div>
-        <div class="card-body">
-          <form method="post" action="{% url 'ti:ramal_update' %}" id="form-ramal" data-no-ajax="true">
-            {% csrf_token %}
-            <div class="mb-3 full-width">
-              <label for="funcionario_ramal" class="form-label">
-                <i class='bx bx-user'></i>Funcionário *
-              </label>
-              <select id="funcionario_ramal" name="funcionario_id" class="form-select" required>
-                <option value="">-- Selecione um Funcionário --</option>
-                <!-- Opções carregadas via JavaScript -->
-              </select>
-            </div>
-            <div class="mb-3 full-width">
-              <label for="numero_ramal" class="form-label">
-                <i class='bx bx-phone'></i>Número do Ramal *
-              </label>
-              <input type="text" id="numero_ramal" name="ramal" class="form-control" maxlength="4" pattern="[0-9]{4}" title="O ramal deve ter 4 dígitos numéricos" placeholder="Exemplo: 1000" required>
-              <small class="text-muted">O ramal deve ter 4 dígitos e começar a partir do 1000</small>
-              <div id="ramal-feedback" class="invalid-feedback"></div>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">
-              <i class='bx bx-save'></i> Salvar Ramal
-            </button>
-          </form>
-        </div>
-      </div>
-      
       <!-- Card Cadastro de Chips -->
       <div class="card mb-4" id="card-chip">
         <div class="card-header">
@@ -450,7 +448,9 @@ Administração TI<span class="produto-text"></span>
               </label>
               <select id="funcionario_chip" name="funcionario" class="form-select" required>
                 <option value="">-- Selecione um Funcionário --</option>
-                <!-- Opções carregadas via JavaScript -->
+                {% for funcionario in funcionarios_list %}
+                  <option value="{{ funcionario.id }}">{{ funcionario.nome_completo }}</option>
+                {% endfor %}
               </select>
             </div>
             <div class="mb-3">
@@ -494,7 +494,9 @@ Administração TI<span class="produto-text"></span>
               </label>
               <select id="funcionario_coordenador" name="funcionario" class="form-select" required>
                 <option value="">-- Selecione um Funcionário --</option>
-                <!-- Opções carregadas via JavaScript -->
+                {% for funcionario in funcionarios_list %}
+                  <option value="{{ funcionario.id }}">{{ funcionario.nome_completo }}</option>
+                {% endfor %}
               </select>
             </div>
             <div class="mb-3">
@@ -590,7 +592,9 @@ Administração TI<span class="produto-text"></span>
               </label>
               <select name="loja" id="id_loja_periferico" class="form-select">
                 <option value="">-- Selecione uma Loja --</option>
-                <!-- Opções carregadas via JavaScript -->
+                {% for loja in lojas_list %}
+                  <option value="{{ loja.id }}">{{ loja.nome }}</option>
+                {% endfor %}
               </select>
               <div class="text-danger mt-1 d-none" id="loja-errors">
                 <!-- Erros serão exibidos aqui via JavaScript -->
@@ -685,7 +689,9 @@ Administração TI<span class="produto-text"></span>
               <label for="email_funcionario" class="form-label">Funcionário</label>
               <select class="form-select" id="email_funcionario" name="funcionario">
                 <option value="">-- Selecione um Funcionário --</option>
-                <!-- Opções carregadas via JavaScript -->
+                {% for funcionario in funcionarios_list %}
+                  <option value="{{ funcionario.id }}">{{ funcionario.nome_completo }}</option>
+                {% endfor %}
               </select>
             </div>
             
@@ -734,7 +740,9 @@ Administração TI<span class="produto-text"></span>
               </label>
               <select id="funcionario_storm" name="funcionario" class="form-select" required>
                 <option value="">-- Selecione um Funcionário --</option>
-                <!-- Opções carregadas via JavaScript -->
+                {% for funcionario in funcionarios_list %}
+                  <option value="{{ funcionario.id }}">{{ funcionario.nome_completo }}</option>
+                {% endfor %}
               </select>
             </div>
             <div class="mb-3">
@@ -790,7 +798,9 @@ Administração TI<span class="produto-text"></span>
               </label>
               <select id="funcionario_sistema" name="funcionario" class="form-select" required>
                 <option value="">-- Selecione um Funcionário --</option>
-                <!-- Opções carregadas via JavaScript -->
+                {% for funcionario in funcionarios_list %}
+                  <option value="{{ funcionario.id }}">{{ funcionario.nome_completo }}</option>
+                {% endfor %}
               </select>
             </div>
             <div class="mb-3">
@@ -817,24 +827,21 @@ Administração TI<span class="produto-text"></span>
 {% endblock %}
 
 {% block addjs_extra %}
-<!-- Helpers para CSRF e tratamento de erros (CARREGAR PRIMEIRO) -->
-<script src="{% static 'js/ti_csrf_helper.js' %}"></script>
-<script src="{% static 'ti/js/ti_error_handler.js' %}"></script>
+  <!-- jQuery (deve ser carregado primeiro) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- Carregar módulos utilitários primeiro -->
-<script src="{% static 'ti/js/admin_utils.js' %}"></script>
-<script src="{% static 'ti/js/admin_notifications.js' %}"></script>
-<script src="{% static 'ti/js/admin_dropdown_updates.js' %}"></script>
-
-<!-- Carregar módulo de carregamento de dados -->
-<script src="{% static 'ti/js/admin_data_loader.js' %}"></script>
-
-<!-- Carregar módulo principal -->
-<script src="{% static 'ti/js/admin.js' %}"></script>
-
-<!-- Carregar módulo de inicialização por último -->
-<script src="{% static 'ti/js/admin_init.js' %}"></script>
-
-<!-- Scripts adicionais -->
-<script src="{% static 'js/darkmode.js' %}"></script>
+  <!-- SweetAlert2 para notificações -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <!-- Scripts da aplicação -->
+  <script src="{% static 'js/darkmode.js' %}"></script>
+  <script src="{% static 'ti/js/admin_utils.js' %}"></script>
+  <script src="{% static 'ti/js/admin_notifications.js' %}"></script>
+  <script src="{% static 'ti/js/admin_dropdown_updates.js' %}"></script>
+  <script src="{% static 'ti/js/admin_data_loader.js' %}"></script>
+  <script src="{% static 'ti/js/admin_init.js' %}"></script>
+  <script src="{% static 'ti/js/admin.js' %}"></script>
+  
+  {# Adicionar outros scripts que possam existir no projeto base #}
+  {{ block.super }}
 {% endblock %}

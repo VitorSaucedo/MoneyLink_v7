@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
         statusComputador.dispatchEvent(new Event('change'));
     }
     
-    // Carregar ilhas quando uma sala for selecionada no formulário de computador
+    // Carregar ilhas quando uma sala for selecionada no formulário de computador (usando função centralizada)
     if (salaEmUso && ilhaEmUso) {
         salaEmUso.addEventListener('change', function() {
             const salaId = this.value;
@@ -43,51 +43,60 @@ document.addEventListener('DOMContentLoaded', function() {
                 paEmUso.innerHTML = '<option value="">-- Primeiro selecione uma ilha --</option>';
             }
             
-            if (salaId) {
-                // Carregar ilhas da sala selecionada via API
-                fetch(`/ti/api/ilhas-por-sala/${salaId}/`)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.ilhas.forEach(ilha => {
-                            const option = document.createElement('option');
-                            option.value = ilha.id;
-                            option.textContent = ilha.nome;
-                            ilhaEmUso.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Erro ao carregar ilhas:', error));
+            if (window.TIAdminUtils && window.TIAdminUtils.carregarIlhasPorSala) {
+                window.TIAdminUtils.carregarIlhasPorSala(salaId, ilhaEmUso);
+            } else {
+                // Fallback para compatibilidade
+                if (salaId) {
+                    fetch(`/ti/api/ilhas-por-sala/${salaId}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.ilhas.forEach(ilha => {
+                                const option = document.createElement('option');
+                                option.value = ilha.id;
+                                option.textContent = ilha.nome;
+                                ilhaEmUso.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error('Erro ao carregar ilhas:', error));
+                }
             }
         });
     }
     
-    // Carregar PAs quando uma ilha for selecionada no formulário de computador
+    // Carregar PAs quando uma ilha for selecionada no formulário de computador (usando função centralizada)
     if (ilhaEmUso && paEmUso) {
         ilhaEmUso.addEventListener('change', function() {
             const ilhaId = this.value;
+            const lojaId = window.TIAdminUtils ? window.TIAdminUtils.getSelectedLojaAdmin() : null;
             
             // Limpar opções atuais de PA
             paEmUso.innerHTML = '<option value="">-- Selecione uma PA --</option>';
             
-            if (ilhaId) {
-                // Carregar PAs da ilha selecionada via API
-                fetch(`/ti/api/listar-posicoes-atendimento/?ilha=${ilhaId}&status=livre&page_size=100`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.results && data.results.length > 0) {
-                            data.results.forEach(pa => {
+            if (window.TIAdminUtils && window.TIAdminUtils.carregarPAsPorIlha) {
+                window.TIAdminUtils.carregarPAsPorIlha(ilhaId, paEmUso, lojaId);
+            } else {
+                // Fallback para compatibilidade
+                if (ilhaId) {
+                    fetch(`/ti/api/listar-posicoes-atendimento/?ilha=${ilhaId}&status=livre&page_size=100`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.results && data.results.length > 0) {
+                                data.results.forEach(pa => {
+                                    const option = document.createElement('option');
+                                    option.value = pa.id;
+                                    option.textContent = `PA ${pa.numero}`;
+                                    paEmUso.appendChild(option);
+                                });
+                            } else {
                                 const option = document.createElement('option');
-                                option.value = pa.id;
-                                option.textContent = `PA ${pa.numero}`;
+                                option.value = '';
+                                option.textContent = '-- Nenhuma PA disponível nesta ilha --';
                                 paEmUso.appendChild(option);
-                            });
-                        } else {
-                            const option = document.createElement('option');
-                            option.value = '';
-                            option.textContent = '-- Nenhuma PA disponível nesta ilha --';
-                            paEmUso.appendChild(option);
-                        }
-                    })
-                    .catch(error => console.error('Erro ao carregar PAs:', error));
+                            }
+                        })
+                        .catch(error => console.error('Erro ao carregar PAs:', error));
+                }
             }
         });
     }
@@ -449,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicialização
     atualizarContador();
 
-    // Filtrar salas por loja selecionada no formulário de Ilha
+    // Filtrar salas por loja selecionada no formulário de Ilha (usando função centralizada)
     const lojaIlhaSelect = document.getElementById('loja_ilha');
     const salaIlhaSelect = document.getElementById('sala_ilha');
     
@@ -457,30 +466,33 @@ document.addEventListener('DOMContentLoaded', function() {
         lojaIlhaSelect.addEventListener('change', function() {
             const lojaId = this.value;
             
-            if (lojaId) {
-                // Carregar salas da loja selecionada via API
-                fetch(`/ti/api/salas-por-loja/${lojaId}/`)
-                    .then(response => response.json())
-                    .then(data => {
-                        salaIlhaSelect.innerHTML = '<option value="">-- Selecione uma Sala --</option>';
-                        
-                        data.salas.forEach(sala => {
-                            const option = document.createElement('option');
-                            option.value = sala.id;
-                            option.textContent = sala.nome;
-                            option.setAttribute('data-loja', lojaId);
-                            salaIlhaSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Erro ao carregar salas:', error));
+            if (window.TIAdminUtils && window.TIAdminUtils.carregarSalasPorLoja) {
+                window.TIAdminUtils.carregarSalasPorLoja(lojaId, salaIlhaSelect);
             } else {
-                // Resetar o select de salas
-                salaIlhaSelect.innerHTML = '<option value="">-- Selecione uma Sala --</option>';
+                // Fallback para compatibilidade
+                if (lojaId) {
+                    fetch(`/ti/api/salas-por-loja/${lojaId}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            salaIlhaSelect.innerHTML = '<option value="">-- Selecione uma Sala --</option>';
+                            
+                            data.salas.forEach(sala => {
+                                const option = document.createElement('option');
+                                option.value = sala.id;
+                                option.textContent = sala.nome;
+                                option.setAttribute('data-loja', lojaId);
+                                salaIlhaSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error('Erro ao carregar salas:', error));
+                } else {
+                    salaIlhaSelect.innerHTML = '<option value="">-- Selecione uma Sala --</option>';
+                }
             }
         });
     }
     
-    // Filtrar salas por loja selecionada no formulário de PA
+    // Filtrar salas por loja selecionada no formulário de PA (usando função centralizada)
     const lojaPASelect = document.getElementById('loja_pa');
     const salaPASelect = document.getElementById('sala');
     const ilhaPASelect = document.getElementById('ilha');
@@ -489,25 +501,28 @@ document.addEventListener('DOMContentLoaded', function() {
         lojaPASelect.addEventListener('change', function() {
             const lojaId = this.value;
             
-            if (lojaId) {
-                // Carregar salas da loja selecionada via API
-                fetch(`/ti/api/salas-por-loja/${lojaId}/`)
-                    .then(response => response.json())
-                    .then(data => {
-                        salaPASelect.innerHTML = '<option value="">-- Selecione uma Sala --</option>';
-                        
-                        data.salas.forEach(sala => {
-                            const option = document.createElement('option');
-                            option.value = sala.id;
-                            option.textContent = sala.nome;
-                            option.setAttribute('data-loja', lojaId);
-                            salaPASelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Erro ao carregar salas:', error));
+            if (window.TIAdminUtils && window.TIAdminUtils.carregarSalasPorLoja) {
+                window.TIAdminUtils.carregarSalasPorLoja(lojaId, salaPASelect);
             } else {
-                // Resetar o select de salas
-                salaPASelect.innerHTML = '<option value="">-- Selecione uma Sala --</option>';
+                // Fallback para compatibilidade
+                if (lojaId) {
+                    fetch(`/ti/api/salas-por-loja/${lojaId}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            salaPASelect.innerHTML = '<option value="">-- Selecione uma Sala --</option>';
+                            
+                            data.salas.forEach(sala => {
+                                const option = document.createElement('option');
+                                option.value = sala.id;
+                                option.textContent = sala.nome;
+                                option.setAttribute('data-loja', lojaId);
+                                salaPASelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error('Erro ao carregar salas:', error));
+                } else {
+                    salaPASelect.innerHTML = '<option value="">-- Selecione uma Sala --</option>';
+                }
             }
             
             // Limpar também a seleção da ilha
@@ -517,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Filtrar salas por loja selecionada no formulário de Coordenador
+    // Filtrar salas por loja selecionada no formulário de Coordenador (usando função centralizada)
     const lojaCoordenadorSelect = document.getElementById('loja_coordenador');
     const salaCoordenadorSelect = document.getElementById('sala_coordenador');
     
@@ -525,25 +540,28 @@ document.addEventListener('DOMContentLoaded', function() {
         lojaCoordenadorSelect.addEventListener('change', function() {
             const lojaId = this.value;
             
-            if (lojaId) {
-                // Carregar salas da loja selecionada via API
-                fetch(`/ti/api/salas-por-loja/${lojaId}/`)
-                    .then(response => response.json())
-                    .then(data => {
-                        salaCoordenadorSelect.innerHTML = '<option value="">-- Selecione uma Sala --</option>';
-                        
-                        data.salas.forEach(sala => {
-                            const option = document.createElement('option');
-                            option.value = sala.id;
-                            option.textContent = sala.nome;
-                            option.setAttribute('data-loja', lojaId);
-                            salaCoordenadorSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Erro ao carregar salas:', error));
+            if (window.TIAdminUtils && window.TIAdminUtils.carregarSalasPorLoja) {
+                window.TIAdminUtils.carregarSalasPorLoja(lojaId, salaCoordenadorSelect);
             } else {
-                // Resetar o select de salas
-                salaCoordenadorSelect.innerHTML = '<option value="">-- Selecione uma Sala --</option>';
+                // Fallback para compatibilidade
+                if (lojaId) {
+                    fetch(`/ti/api/salas-por-loja/${lojaId}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            salaCoordenadorSelect.innerHTML = '<option value="">-- Selecione uma Sala --</option>';
+                            
+                            data.salas.forEach(sala => {
+                                const option = document.createElement('option');
+                                option.value = sala.id;
+                                option.textContent = sala.nome;
+                                option.setAttribute('data-loja', lojaId);
+                                salaCoordenadorSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error('Erro ao carregar salas:', error));
+                } else {
+                    salaCoordenadorSelect.innerHTML = '<option value="">-- Selecione uma Sala --</option>';
+                }
             }
         });
     }

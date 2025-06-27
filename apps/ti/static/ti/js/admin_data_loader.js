@@ -209,87 +209,99 @@ window.TIAdminDataLoader = {
   },
   
   /**
-   * Carrega salas por loja
+   * Carrega salas baseadas na loja selecionada (usando função centralizada)
+   * @param {string} lojaId - ID da loja
+   * @param {string} formId - ID do formulário (opcional)
    */
   loadSalasByLoja: function(lojaId, formId) {
-    const self = this;
-    
-    if (!lojaId) {
-      this.clearSalasDropdowns(formId);
-      return;
-    }
-
-    const cacheKey = `salas_${lojaId}`;
-    if (this.cache[cacheKey]) {
-      this.populateSalasDropdowns(this.cache[cacheKey], formId);
-      return;
-    }
-
-    $.ajax({
-      url: `${this.urls.salas}${lojaId}/`,
-      method: 'GET',
-      headers: {
-        'X-CSRFToken': this.getCSRFToken()
-      },
-      dataType: 'json',
-      success: function(response) {
-        // A API retorna {data: {salas: [...]}} então acessamos response.data.salas
-        const salas = response.data?.salas || [];
-        self.cache[cacheKey] = salas;
-        self.populateSalasDropdowns(salas, formId);
-        console.log('✅ Salas carregadas com sucesso:', salas.length, 'salas encontradas');
-      },
-      error: function(xhr, status, error) {
-        console.error('❌ Erro ao carregar salas:', error);
-        // Fallback para dados vazios em caso de erro
-        const fallbackSalas = [];
-        self.cache[cacheKey] = fallbackSalas;
-        self.populateSalasDropdowns(fallbackSalas, formId);
-        self.showError('Erro ao carregar salas. Verifique sua conexão e tente novamente.');
+    if (window.TIAdminUtils && window.TIAdminUtils.carregarSalasPorLoja) {
+      const $salaSelect = formId ? $(`#${formId} select[name="sala"]`) : $('select[name="sala"]');
+      window.TIAdminUtils.carregarSalasPorLoja(lojaId, $salaSelect);
+    } else {
+      // Fallback para compatibilidade
+      const self = this;
+      
+      if (!lojaId) {
+        this.clearSalasDropdowns(formId);
+        return;
       }
-    });
+
+      const cacheKey = `salas_${lojaId}`;
+      if (this.cache[cacheKey]) {
+        this.populateSalasDropdowns(this.cache[cacheKey], formId);
+        return;
+      }
+
+      $.ajax({
+        url: `${this.urls.salas}${lojaId}/`,
+        method: 'GET',
+        headers: {
+          'X-CSRFToken': this.getCSRFToken()
+        },
+        dataType: 'json',
+        success: function(response) {
+          const salas = response.data?.salas || [];
+          self.cache[cacheKey] = salas;
+          self.populateSalasDropdowns(salas, formId);
+          console.log('✅ Salas carregadas com sucesso:', salas.length, 'salas encontradas');
+        },
+        error: function(xhr, status, error) {
+          console.error('❌ Erro ao carregar salas:', error);
+          const fallbackSalas = [];
+          self.cache[cacheKey] = fallbackSalas;
+          self.populateSalasDropdowns(fallbackSalas, formId);
+          self.showError('Erro ao carregar salas. Verifique sua conexão e tente novamente.');
+        }
+      });
+    }
   },
   
   /**
-   * Carrega ilhas por sala
+   * Carrega ilhas baseadas na sala selecionada (usando função centralizada)
+   * @param {string} salaId - ID da sala
+   * @param {string} formId - ID do formulário (opcional)
    */
   loadIlhasBySala: function(salaId, formId) {
-    const self = this;
-    
-    if (!salaId) {
-      this.clearIlhasDropdowns(formId);
-      return;
-    }
-
-    const cacheKey = `ilhas_${salaId}`;
-    if (this.cache[cacheKey]) {
-      this.populateIlhasDropdowns(this.cache[cacheKey], formId);
-      return;
-    }
-
-    $.ajax({
-      url: `${this.urls.ilhas}${salaId}/`,
-      method: 'GET',
-      headers: {
-        'X-CSRFToken': this.getCSRFToken()
-      },
-      dataType: 'json',
-      success: function(response) {
-        // A API retorna {ilhas: [...]} então acessamos response.ilhas
-        const ilhas = response.ilhas || [];
-        self.cache[cacheKey] = ilhas;
-        self.populateIlhasDropdowns(ilhas, formId);
-        console.log('✅ Ilhas carregadas com sucesso:', ilhas.length, 'ilhas encontradas');
-      },
-      error: function(xhr, status, error) {
-        console.error('❌ Erro ao carregar ilhas:', error);
-        // Fallback para dados vazios em caso de erro
-        const fallbackIlhas = [];
-        self.cache[cacheKey] = fallbackIlhas;
-        self.populateIlhasDropdowns(fallbackIlhas, formId);
-        self.showError('Erro ao carregar ilhas. Verifique sua conexão e tente novamente.');
+    if (window.TIAdminUtils && window.TIAdminUtils.carregarIlhasPorSala) {
+      const $ilhaSelect = formId ? $(`#${formId} select[name="ilha"]`) : $('select[name="ilha"]');
+      window.TIAdminUtils.carregarIlhasPorSala(salaId, $ilhaSelect);
+    } else {
+      // Fallback para compatibilidade
+      const self = this;
+      
+      if (!salaId) {
+        this.clearIlhasDropdowns(formId);
+        return;
       }
-    });
+
+      const cacheKey = `ilhas_${salaId}`;
+      if (this.cache[cacheKey]) {
+        this.populateIlhasDropdowns(this.cache[cacheKey], formId);
+        return;
+      }
+
+      $.ajax({
+        url: `${this.urls.ilhas}${salaId}/`,
+        method: 'GET',
+        headers: {
+          'X-CSRFToken': this.getCSRFToken()
+        },
+        dataType: 'json',
+        success: function(response) {
+          const ilhas = response.ilhas || [];
+          self.cache[cacheKey] = ilhas;
+          self.populateIlhasDropdowns(ilhas, formId);
+          console.log('✅ Ilhas carregadas com sucesso:', ilhas.length, 'ilhas encontradas');
+        },
+        error: function(xhr, status, error) {
+          console.error('❌ Erro ao carregar ilhas:', error);
+          const fallbackIlhas = [];
+          self.cache[cacheKey] = fallbackIlhas;
+          self.populateIlhasDropdowns(fallbackIlhas, formId);
+          self.showError('Erro ao carregar ilhas. Verifique sua conexão e tente novamente.');
+        }
+      });
+    }
   },
   
   /**

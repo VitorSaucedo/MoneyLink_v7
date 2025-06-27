@@ -23,6 +23,19 @@ function getSelectedLoja() {
 }
 
 $(document).ready(function() {
+  console.log('🚀 Inicializando admin.js');
+  
+  // =============================
+  // Verificação de Dependências e Elementos DOM
+  // =============================
+  console.log('🔍 Verificando dependências disponíveis:', {
+    TIAdminUtils: !!window.TIAdminUtils,
+    TIAdminNotifications: !!window.TIAdminNotifications,
+    TIAdminDropdowns: !!window.TIAdminDropdowns,
+    jQuery: !!window.jQuery,
+    version: window.jQuery ? window.jQuery.fn.jquery : 'N/A'
+  });
+
   // =============================
   // Nota: As funcionalidades principais de admin foram movidas para módulos especializados:
   // - admin_utils.js: funções utilitárias e AJAX
@@ -49,6 +62,112 @@ $(document).ready(function() {
   adjustWidths();
   $(window).on('resize', adjustWidths);
   
+  // ======================================
+  // Lógica para Associação de Ramal
+  // ======================================
+  
+  // Aguardar um pouco para garantir que o DOM esteja completamente carregado
+  setTimeout(function() {
+    const btnAssociarRamal = document.getElementById('btn-associar-ramal');
+    const formAssociarRamal = document.getElementById('form-associar-ramal');
+    const selectFuncionario = document.getElementById('select-funcionario-ramal');
+    const inputRamal = document.getElementById('input-ramal-numero');
+    
+    console.log('🔍 Verificando elementos do formulário de associar ramal:', {
+      btnAssociarRamal: !!btnAssociarRamal,
+      formAssociarRamal: !!formAssociarRamal,
+      selectFuncionario: !!selectFuncionario,
+      inputRamal: !!inputRamal,
+      totalFuncionarios: selectFuncionario ? selectFuncionario.options.length - 1 : 0
+    });
+
+    if (btnAssociarRamal && formAssociarRamal && selectFuncionario && inputRamal) {
+      console.log('✅ Todos os elementos encontrados, configurando evento do botão');
+      
+      // Remover qualquer listener anterior para evitar duplicação
+      btnAssociarRamal.removeEventListener('click', handleAssociarRamal);
+      
+      // Função para lidar com o clique do botão
+      function handleAssociarRamal() {
+        console.log('🔄 Botão Associar Ramal clicado');
+        
+        const funcionarioId = selectFuncionario.value;
+        const ramalNumero = inputRamal.value;
+
+        console.log('📋 Dados do formulário:', {
+          funcionarioId: funcionarioId,
+          ramalNumero: ramalNumero
+        });
+
+        if (!funcionarioId || !ramalNumero) {
+          alert('Por favor, selecione um funcionário e digite um ramal.');
+          return;
+        }
+        
+        if (!/^\d{4}$/.test(ramalNumero)) {
+          alert('O ramal deve conter exatamente 4 dígitos numéricos.');
+          return;
+        }
+
+        // Obter token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Desabilitar botão durante a requisição
+        btnAssociarRamal.disabled = true;
+        btnAssociarRamal.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Associando...';
+
+        console.log('🚀 Enviando requisição para associar ramal');
+
+        fetch('/ti/api/associar-ramal-funcionario/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+              funcionario_id: funcionarioId,
+              ramal_numero: ramalNumero
+            })
+          })
+          .then(response => {
+            console.log('📥 Resposta recebida:', response.status);
+            return response.json();
+          })
+          .then(data => {
+            console.log('📊 Dados da resposta:', data);
+            
+            if (data.success) {
+              alert(data.message);
+              // Remove o funcionário da lista e limpa os campos
+              const optionToRemove = selectFuncionario.querySelector(`option[value="${funcionarioId}"]`);
+              if (optionToRemove) {
+                optionToRemove.remove();
+              }
+              selectFuncionario.value = '';
+              inputRamal.value = '';
+            } else {
+              alert('Erro: ' + data.error);
+            }
+          })
+          .catch(error => {
+            console.error('❌ Erro na requisição:', error);
+            alert('Ocorreu um erro de comunicação com o servidor.');
+          })
+          .finally(() => {
+            // Reabilitar botão
+            btnAssociarRamal.disabled = false;
+            btnAssociarRamal.innerHTML = '<i class="bx bx-link-alt"></i> Associar Ramal';
+          });
+      }
+      
+      // Adicionar o event listener
+      btnAssociarRamal.addEventListener('click', handleAssociarRamal);
+      
+    } else {
+      console.warn('⚠️ Elementos do formulário de associar ramal não encontrados');
+    }
+  }, 500); // Aguardar 500ms para garantir que tudo carregou
+  
   // ===============================
   // Carregamento de Ilhas por Sala
   // ===============================
@@ -58,25 +177,15 @@ $(document).ready(function() {
   const $quantidadePasInput = $('#quantidade_pas');
   const ilhasInfo = {}; // Armazena informações das ilhas
   
-  // Função para carregar ilhas por sala (usando módulo utilitário)
-  function carregarIlhasPorSala(salaId, targetSelect, callback) {
-    if (window.TIAdminUtils && window.TIAdminUtils.carregarIlhasPorSala) {
-      window.TIAdminUtils.carregarIlhasPorSala(salaId, targetSelect, callback);
-    } else {
-      console.warn('Módulo TIAdminUtils não disponível para carregar ilhas');
-    }
-  }
+  // Função removida - agora usa TIAdminUtils.carregarIlhasPorSala
   
   if ($salaSelect.length && $ilhaSelect.length) {
     // Evento de mudança na seleção de sala (usando função centralizada)
     $salaSelect.off('change.ilhas').on('change.ilhas', function() {
       const salaId = $(this).val();
       
-      if (salaId) {
-        // Usar função do módulo de utils para carregar ilhas
-        if (window.TIAdminUtils && window.TIAdminUtils.carregarIlhasPorSala) {
-          window.TIAdminUtils.carregarIlhasPorSala(salaId, $ilhaSelect);
-        }
+      if (window.TIAdminUtils && window.TIAdminUtils.carregarIlhasPorSala) {
+        window.TIAdminUtils.carregarIlhasPorSala(salaId, $ilhaSelect);
       } else {
         $ilhaSelect.empty().html('<option value="">-- Selecione uma Ilha --</option>');
       }
@@ -290,7 +399,9 @@ $(document).ready(function() {
       if (!salaId) return;
       
       // Usar função centralizada para carregar ilhas
-      carregarIlhasPorSala(salaId, $ilhaEmUso);
+      if (window.TIAdminUtils && window.TIAdminUtils.carregarIlhasPorSala) {
+        window.TIAdminUtils.carregarIlhasPorSala(salaId, $ilhaEmUso);
+      }
     });
     
           // Carregar PAs quando a ilha for selecionada
@@ -305,9 +416,9 @@ $(document).ready(function() {
       // Obter loja selecionada se houver
       const lojaId = getSelectedLoja();
       
-      // Usar função do módulo de dropdowns para carregar PAs
-      if (window.TIAdminDropdowns && window.TIAdminDropdowns.carregarPAsPorIlha) {
-        window.TIAdminDropdowns.carregarPAsPorIlha(ilhaId, $paEmUso, lojaId);
+      // Usar função centralizada para carregar PAs
+      if (window.TIAdminUtils && window.TIAdminUtils.carregarPAsPorIlha) {
+        window.TIAdminUtils.carregarPAsPorIlha(ilhaId, $paEmUso, lojaId);
       }
     });
     
@@ -354,7 +465,7 @@ $(document).ready(function() {
       }
     };
 
-    // Função para verificar se o ramal já existe
+    // Função para verificar se o ramal já existe (usando módulo centralizado)
     const verificarRamalExistente = function() {
       const ramal = $ramalInput.val().trim();
       const funcionarioId = $funcionarioSelect.val();
@@ -370,11 +481,31 @@ $(document).ready(function() {
         return;
       }
 
-      // Mostrar indicador de carregamento
+      // Usar função centralizada se disponível
+      if (window.TIAdminUtils && window.TIAdminUtils.verificarRamalExistente) {
+        window.TIAdminUtils.verificarRamalExistente(ramal, funcionarioId)
+          .then(function(data) {
+            if (data.existe === true) {
+              $ramalInput.addClass('is-invalid');
+              $ramalFeedback.text('Este ramal já está atribuído ao funcionário ' + data.funcionario_nome);
+              $ramalFeedback.show();
+              toggleSubmitButton(false);
+            } else {
+              $ramalInput.addClass('is-valid');
+              toggleSubmitButton(true);
+            }
+          })
+          .catch(function(error) {
+            console.error('Erro ao verificar ramal:', error);
+            toggleSubmitButton(true);
+          });
+        return;
+      }
+
+      // Fallback para compatibilidade
       $ramalInput.addClass('is-loading');
-      toggleSubmitButton(false); // Desabilitar durante verificação
+      toggleSubmitButton(false);
       
-      // Verificar ramal via API
       $.ajax({
         url: '/ti/api/verificar-ramal/',
         method: 'POST',
@@ -388,17 +519,14 @@ $(document).ready(function() {
         }),
         dataType: 'json',
         success: function(data) {
-          // Remover indicador de carregamento
           $ramalInput.removeClass('is-loading');
           
           if (data.existe === true) {
-            // Ramal já existe - feedback negativo
             $ramalInput.addClass('is-invalid');
             $ramalFeedback.text('Este ramal já está atribuído ao funcionário ' + data.funcionario_nome);
             $ramalFeedback.show();
             toggleSubmitButton(false);
           } else {
-            // Ramal disponível - feedback positivo
             $ramalInput.addClass('is-valid');
             toggleSubmitButton(true);
           }
@@ -406,7 +534,7 @@ $(document).ready(function() {
         error: function(xhr, status, error) {
           console.error('Erro ao verificar ramal:', error);
           $ramalInput.removeClass('is-loading');
-          toggleSubmitButton(true); // Em caso de erro, permite tentativa
+          toggleSubmitButton(true);
         }
       });
     };

@@ -35,13 +35,6 @@ urlpatterns = [
     path('perifericos/editar/<int:pk>/', views.periferico_update, name='periferico_update'),
     path('perifericos/excluir/<int:pk>/', views.periferico_delete, name='periferico_delete'),
     
-    # URLs para Ramais
-    path('ramais/', views.ramal_list, name='ramal_list'),
-    path('ramais/cadastrar/', views.ramal_create, name='ramal_create'),
-    path('ramais/atualizar/', views.ramal_update, name='ramal_update'),
-    path('ramais/editar/<int:pk>/', views.ramal_edit, name='ramal_edit'),
-    path('ramais/excluir/<int:pk>/', views.ramal_delete, name='ramal_delete'),
-    
     # URLs para Coordenadores de Sala
     path('coordenadores-sala/cadastrar/', views.coordenador_sala_create, name='coordenador_sala_create'),
     
@@ -110,7 +103,6 @@ urlpatterns = [
     
     # URLs para gerenciamento de ramais
     # path('ramal/update/', views.ramal_update, name='ramal_update'),
-    path('api/verificar-ramal/', views.api_post_verificar_ramal, name='api_verificar_ramal'),
 
     # Nova rota para atribuições em lote
     path('api/atribuicoes-perifericos/cadastrar-lote/', views.api_post_cadastrar_atribuicoes_perifericos_lote, name='api_cadastrar_atribuicoes_lote'),
@@ -167,4 +159,10 @@ urlpatterns = [
     path('api/ajax/monitor/cadastrar/', views.api_post_monitor_create, name='api_ajax_monitor_create'),
     path('api/ajax/chip/cadastrar/', views.api_post_chip_create, name='api_ajax_chip_create'),
     path('api/ajax/email/cadastrar/', views.api_post_email_create, name='api_ajax_email_create'),
+
+    # API para associar ramal a funcionário
+    path('api/associar-ramal-funcionario/', views.api_post_associar_ramal_funcionario, name='api_associar_ramal_funcionario'),
+    
+    # API para verificar se um ramal já está em uso
+    path('api/verificar-ramal/', views.api_verificar_ramal, name='api_verificar_ramal'),
 ]

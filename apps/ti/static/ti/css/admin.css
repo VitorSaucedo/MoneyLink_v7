@@ -836,11 +836,6 @@ button[type="submit"]:active {
     margin-right: var(--spacing-sm);
 }
 
-/* Classe de especificidade para o app TI */
-.app-ti {
-    /* Garante que os estilos sejam aplicados corretamente */
-}
-
 .app-ti .card,
 .app-ti .form-control,
 .app-ti .form-select,

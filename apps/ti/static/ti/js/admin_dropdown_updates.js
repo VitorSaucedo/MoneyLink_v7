@@ -36,47 +36,39 @@ function updateAdminDropdowns() {
 
 // Função para atualizar dropdown de salas nas páginas de admin
 function updateAdminSalasDropdown(lojaId) {
-  if (!lojaId) return;
+  const $salaSelect = $('select[name="sala"]');
   
-  $.ajax({
-    url: `/ti/api/salas-por-loja/${lojaId}/`,
-    type: 'GET',
-    success: function(data) {
-      if (data.salas) {
-        const $selects = $('#sala, #sala_em_uso, select[name="sala"]');
-        $selects.each(function() {
-          const $select = $(this);
-          const currentVal = $select.val();
-          
-          // Limpar todas as opções exceto a primeira
-          $select.find('option').not(':first').remove();
-          
-          $.each(data.salas, function(index, sala) {
-            // Verificar se a opção já existe para evitar duplicação
-            if ($select.find('option[value="' + sala.id + '"]').length === 0) {
-              $select.append(`<option value="${sala.id}">${sala.nome}</option>`);
-            }
-          });
-          
-          // Manter seleção se ainda existir
-          if (currentVal) {
-            $select.val(currentVal);
-          }
-        });
-        
-        // Limpar dropdowns dependentes quando as salas são atualizadas
-        $('#ilha, #ilha_em_uso, select[name="ilha"]').each(function() {
-          $(this).empty().html('<option value="">-- Selecione uma Ilha --</option>');
-        });
-      }
-    },
-    error: function(xhr, status, error) {
-      console.error('Erro ao carregar salas para admin:', error);
-      if (window.TIAdminNotifications) {
-        window.TIAdminNotifications.showAdminNotification('error', 'Erro ao carregar lista de salas');
-      }
+  if (window.TIAdminUtils && window.TIAdminUtils.carregarSalasPorLoja) {
+    window.TIAdminUtils.carregarSalasPorLoja(lojaId, $salaSelect);
+  } else {
+    // Fallback para compatibilidade
+    if (!lojaId) {
+      $salaSelect.empty().append('<option value="">-- Selecione uma Sala --</option>');
+      return;
     }
-  });
+    
+    $.ajax({
+      url: '/ti/api/salas-por-loja/',
+      type: 'GET',
+      data: {
+        loja_id: lojaId
+      },
+      dataType: 'json',
+      success: function(response) {
+        $salaSelect.empty().append('<option value="">-- Selecione uma Sala --</option>');
+        
+        if (response.success && response.data && response.data.length > 0) {
+          $.each(response.data, function(index, sala) {
+            $salaSelect.append(`<option value="${sala.id}">${sala.nome}</option>`);
+          });
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error('Erro ao carregar salas:', error);
+        $salaSelect.empty().append('<option value="">-- Erro ao carregar salas --</option>');
+      }
+    });
+  }
 }
 
 // Função para atualizar dropdown de periféricos disponíveis
@@ -175,38 +167,48 @@ function updateAdminMonitoresDropdown(lojaId) {
 
 // Função para carregar PAs por ilha (movida do admin.js)
 function carregarPAsPorIlha(ilhaId, targetSelect, lojaId) {
-  if (!ilhaId || !targetSelect || !targetSelect.length) return;
+  const $paSelect = $('#pa_em_uso, select[name="pa"], select[name="pa_em_uso"]');
   
-  // Limpar e resetar dropdown de PAs
-  targetSelect.empty().html('<option value="">-- Selecione uma PA --</option>');
-  
-  // Buscar PAs da ilha selecionada
-  $.ajax({
-    url: '/ti/api/listar-posicoes-atendimento/',
-    type: 'GET',
-    data: {
-      ilha: ilhaId,
-      loja: lojaId,
-      per_page: 100 // Usar um valor alto para garantir que todas as PAs sejam retornadas
-    },
-    dataType: 'json',
-    success: function(data) {
-      if (data.success && data.data) {
-        $.each(data.data, function(index, pa) {
-          // Verificar se a opção já existe para evitar duplicação
-          if (targetSelect.find('option[value="' + pa.id + '"]').length === 0) {
-            const $option = $('<option></option>');
-            $option.val(pa.id);
-            $option.text('PA ' + pa.numero);
-            targetSelect.append($option);
-          }
-        });
-      }
-    },
-    error: function(error) {
-      console.error('Erro ao carregar PAs:', error);
+  if (window.TIAdminUtils && window.TIAdminUtils.carregarPAsPorIlha) {
+    window.TIAdminUtils.carregarPAsPorIlha(ilhaId, $paSelect, lojaId);
+  } else {
+    // Fallback para compatibilidade
+    if (!ilhaId) {
+      $paSelect.empty().append('<option value="">-- Selecione uma PA --</option>');
+      return;
     }
-  });
+    
+    const requestData = {
+      ilha: ilhaId,
+      per_page: 100
+    };
+    
+    if (lojaId) {
+      requestData.loja = lojaId;
+    }
+    
+    $.ajax({
+      url: '/ti/api/listar-posicoes-atendimento/',
+      type: 'GET',
+      data: requestData,
+      dataType: 'json',
+      success: function(response) {
+        $paSelect.empty().append('<option value="">-- Selecione uma PA --</option>');
+        
+        if (response.success && response.data && response.data.length > 0) {
+          $.each(response.data, function(index, pa) {
+            $paSelect.append(`<option value="${pa.id}">PA ${pa.numero}</option>`);
+          });
+        } else {
+          $paSelect.append('<option value="">-- Nenhuma PA disponível --</option>');
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error('Erro ao carregar PAs:', error);
+        $paSelect.empty().append('<option value="">-- Erro ao carregar PAs --</option>');
+      }
+    });
+  }
 }
 
 // Função para obter informações detalhadas de uma ilha

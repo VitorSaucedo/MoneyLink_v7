@@ -351,11 +351,10 @@ class AtribuicaoMonitorPAForm(forms.ModelForm):
 class ChipForm(forms.ModelForm):
     class Meta:
         model = Chip
-        fields = ['numero', 'funcionario', 'ramal', 'setor', 'status', 'data_entrega', 'data_banimento']
+        fields = ['numero', 'funcionario', 'setor', 'status', 'data_entrega', 'data_banimento']
         widgets = {
             'numero': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Número do chip'}),
             'funcionario': forms.Select(attrs={'class': 'form-select'}),
-            'ramal': forms.Select(attrs={'class': 'form-select'}),
             'setor': forms.Select(attrs={'class': 'form-select'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
             'data_entrega': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
@@ -364,7 +363,6 @@ class ChipForm(forms.ModelForm):
         labels = {
             'numero': 'Número do Chip',
             'funcionario': 'Funcionário',
-            'ramal': 'Ramal (Funcionário)',
             'setor': 'Setor (Funcionário)',
             'status': 'Status',
             'data_entrega': 'Data de Entrega',
@@ -375,9 +373,19 @@ class ChipForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Filtrar funcionários ativos
         self.fields['funcionario'].queryset = Funcionario.objects.filter(status=True).order_by('nome_completo')
-        self.fields['ramal'].queryset = Funcionario.objects.filter(status=True).order_by('nome_completo')
         self.fields['setor'].queryset = Funcionario.objects.filter(status=True).order_by('nome_completo')
 
+    def save(self, commit=True):
+        email_obj = super().save(commit=False)
+        
+        # Se um funcionário foi selecionado, atribuir automaticamente ramal e setor
+        if self.cleaned_data.get('funcionario'):
+            funcionario = self.cleaned_data['funcionario']
+            email_obj.setor = funcionario
+        
+        if commit:
+            email_obj.save()
+        return email_obj
 
 class CoordenadorSalaForm(forms.ModelForm):
     class Meta:
@@ -444,7 +452,6 @@ class EmailForm(forms.ModelForm):
         # Se um funcionário foi selecionado, atribuir automaticamente ramal e setor
         if self.cleaned_data.get('funcionario'):
             funcionario = self.cleaned_data['funcionario']
-            email_obj.ramal = funcionario
             email_obj.setor = funcionario
         
         if commit:

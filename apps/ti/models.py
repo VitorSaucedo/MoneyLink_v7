@@ -340,7 +340,13 @@ class AtribuicaoMonitorPA(models.Model):
 class Chip(models.Model):
     numero = models.CharField(max_length=50, unique=True, verbose_name="Número")
     funcionario = models.ForeignKey(Funcionario, on_delete=models.CASCADE, null=True, blank=True, related_name='chips_funcionario', verbose_name="Funcionário")
-    ramal = models.ForeignKey(Funcionario, on_delete=models.SET_NULL, null=True, blank=True, related_name='chips_ramal', verbose_name="Ramal (Funcionário)")
+    
+    @property
+    def ramal(self):
+        if self.funcionario and hasattr(self.funcionario, 'ramal_ti'):
+            return self.funcionario.ramal_ti
+        return None
+
     setor = models.ForeignKey(Funcionario, on_delete=models.SET_NULL, null=True, blank=True, related_name='chips_setor', verbose_name="Setor (Funcionário)")
     
     status_choices = [
@@ -367,7 +373,12 @@ class Chip(models.Model):
         ordering = ['numero']
 
 class Email(models.Model):
-    ramal = models.ForeignKey(Funcionario, on_delete=models.SET_NULL, null=True, blank=True, related_name='emails_ramal', verbose_name="Ramal (Funcionário)")
+    @property
+    def ramal(self):
+        if self.funcionario and hasattr(self.funcionario, 'ramal_ti'):
+            return self.funcionario.ramal_ti
+        return None
+        
     funcionario = models.ForeignKey(Funcionario, on_delete=models.CASCADE, null=True, blank=True, related_name='emails_funcionario', verbose_name="Funcionário")
     email = models.EmailField(unique=True, verbose_name="Email")
     senha = models.CharField(max_length=255, verbose_name="Senha")
@@ -433,8 +444,10 @@ class Storm(models.Model):
     
     @property
     def ramal(self):
-        """Retorna o ramal do funcionário"""
-        return self.funcionario.ramal if self.funcionario else None
+        """Retorna o ramal do funcionário através da nova relação"""
+        if self.funcionario and hasattr(self.funcionario, 'ramal_ti'):
+            return self.funcionario.ramal_ti
+        return None
     
     class Meta:
         verbose_name = 'Storm - Acesso'
@@ -503,3 +516,32 @@ class CoordenadorSala(models.Model):
         verbose_name_plural = 'Coordenadores/Supervisores de Salas'
         ordering = ['sala__nome', 'funcionario__nome_completo']
         unique_together = ('funcionario', 'sala', 'tipo')  # Um funcionário não pode ter o mesmo tipo de coordenação na mesma sala
+
+class Ramal(models.Model):
+    numero = models.CharField(max_length=20, unique=True, verbose_name="Número do Ramal")
+    funcionario = models.OneToOneField(
+        Funcionario, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='ramal_ti', 
+        verbose_name="Funcionário"
+    )
+    setor = models.ForeignKey(
+        Setor, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='ramais_ti', 
+        verbose_name="Setor"
+    )
+
+    def __str__(self):
+        if self.funcionario:
+            return f"{self.numero} - {self.funcionario.nome_completo}"
+        return f"{self.numero} - (Disponível)"
+
+    class Meta:
+        verbose_name = 'Ramal'
+        verbose_name_plural = 'Ramais'
+        ordering = ['numero']

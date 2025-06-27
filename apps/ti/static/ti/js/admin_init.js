@@ -49,8 +49,12 @@ $(document).ready(function() {
   // Configurar eventos específicos de administração
   setupAdminEvents();
   
-  // Configurar campos condicionais
-  setupConditionalFields();
+  // Configurar campos condicionais usando função centralizada
+  if (window.TIAdminUtils && window.TIAdminUtils.setupConditionalFields) {
+    window.TIAdminUtils.setupConditionalFields();
+  } else {
+    setupConditionalFields(); // Fallback
+  }
   
   // Configurar interceptação de formulários
   setupFormInterception();
@@ -110,8 +114,14 @@ function setupAdminEvents() {
   });
 }
 
-// Função para validar formulários de ramal (específico de admin)
+// Função para validar formulários de ramal (usa função centralizada)
 function validateAdminRamalForm($form, event) {
+  // Usar função centralizada se disponível
+  if (window.TIAdminUtils && window.TIAdminUtils.validateAdminRamalForm) {
+    return window.TIAdminUtils.validateAdminRamalForm($form, event);
+  }
+  
+  // Fallback para compatibilidade
   const $ramalInput = $form.find('#numero_ramal, input[name="numero_ramal"]');
   const $funcionarioSelect = $form.find('#funcionario_ramal, select[name="funcionario_ramal"]');
   
@@ -143,8 +153,14 @@ function validateAdminRamalForm($form, event) {
   return true;
 }
 
-// Função para validar formulários de computador (específico de admin)
+// Função para validar formulários de computador (usa função centralizada)
 function validateAdminComputadorForm($form, event) {
+  // Usar função centralizada se disponível
+  if (window.TIAdminUtils && window.TIAdminUtils.validateAdminComputadorForm) {
+    return window.TIAdminUtils.validateAdminComputadorForm($form, event);
+  }
+  
+  // Fallback para compatibilidade
   const $statusSelect = $form.find('#status_computador, select[name="status_computador"]');
   
   if ($statusSelect.length) {
@@ -180,8 +196,14 @@ function validateAdminComputadorForm($form, event) {
   return true;
 }
 
-// Função para verificar se ramal já existe (movida do admin.js)
+// Função para verificar se ramal já existe (usa função centralizada)
 function verificarRamalExistente(ramal, funcionarioId, callback) {
+  // Usar função centralizada se disponível
+  if (window.TIAdminUtils && window.TIAdminUtils.verificarRamalExistente) {
+    return window.TIAdminUtils.verificarRamalExistente(ramal, funcionarioId, callback);
+  }
+  
+  // Fallback para compatibilidade
   if (!ramal || !funcionarioId) {
     if (callback) callback(null);
     return;

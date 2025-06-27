@@ -1,15 +1,165 @@
 /**
- * admin_utils.js - Utilitários específicos para funcionalidades de administração do TI
+ * admin_utils.js - Funções utilitárias centralizadas para as páginas de administração do TI
  * 
- * Funções auxiliares e utilitários específicos para as páginas de administração
+ * Contém funções auxiliares reutilizáveis para as funcionalidades de administração
+ * Versão refatorada para eliminar duplicações de código
  */
 
-// Função utilitária para obter a loja selecionada (específica para admin)
+// Função para obter a loja selecionada nas páginas de admin
 function getSelectedLojaAdmin() {
   return $('select[name="loja"]').val() || 
          $('#loja_selecionada').val() || 
          $('[data-loja-id]').data('loja-id') || 
          new URLSearchParams(window.location.search).get('loja');
+}
+
+// Função centralizada para carregar ilhas por sala (consolidada de múltiplos arquivos)
+function carregarIlhasPorSala(salaId, targetSelect, callback) {
+  if (!salaId) {
+    if (targetSelect) {
+      targetSelect.empty().html('<option value="">-- Selecione uma Ilha --</option>');
+    }
+    if (callback) callback([]);
+    return;
+  }
+
+  const $targetSelect = targetSelect ? $(targetSelect) : $('#ilha, select[name="ilha"]');
+  
+  // Mostrar loading
+  $targetSelect.empty().html('<option value="">Carregando ilhas...</option>');
+
+  $.ajax({
+    url: `/ti/api/ilhas-por-sala/${salaId}/`,
+    type: 'GET',
+    headers: {
+      'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+    },
+    dataType: 'json',
+    success: function(response) {
+      const ilhas = response.ilhas || [];
+      
+      // Limpar e adicionar opção padrão
+      $targetSelect.empty().html('<option value="">-- Selecione uma Ilha --</option>');
+      
+      // Adicionar ilhas
+      ilhas.forEach(function(ilha) {
+        $targetSelect.append(`<option value="${ilha.id}" data-quantidade-pas="${ilha.quantidade_pas || 0}">${ilha.nome}</option>`);
+      });
+      
+      if (callback) callback(ilhas);
+    },
+    error: function(xhr, status, error) {
+      console.error('Erro ao carregar ilhas:', error);
+      $targetSelect.empty().html('<option value="">Erro ao carregar ilhas</option>');
+      
+      if (window.TIAdminNotifications) {
+        window.TIAdminNotifications.showAdminNotification('error', 'Erro ao carregar ilhas');
+      }
+      
+      if (callback) callback([]);
+    }
+  });
+}
+
+// Função centralizada para carregar PAs por ilha (consolidada de múltiplos arquivos)
+function carregarPAsPorIlha(ilhaId, targetSelect, lojaId, callback) {
+  if (!ilhaId || !targetSelect) {
+    if (targetSelect) {
+      $(targetSelect).empty().html('<option value="">-- Selecione uma PA --</option>');
+    }
+    if (callback) callback([]);
+    return;
+  }
+
+  const $targetSelect = $(targetSelect);
+  
+  // Mostrar loading
+  $targetSelect.empty().html('<option value="">Carregando PAs...</option>');
+
+  $.ajax({
+    url: '/ti/api/listar-posicoes-atendimento/',
+    type: 'GET',
+    data: {
+      ilha: ilhaId,
+      loja: lojaId,
+      per_page: 100
+    },
+    headers: {
+      'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+    },
+    dataType: 'json',
+    success: function(data) {
+      const pas = data.success && data.data ? data.data : [];
+      
+      // Limpar e adicionar opção padrão
+      $targetSelect.empty().html('<option value="">-- Selecione uma PA --</option>');
+      
+      // Adicionar PAs
+      pas.forEach(function(pa) {
+        $targetSelect.append(`<option value="${pa.id}">PA ${pa.numero}</option>`);
+      });
+      
+      if (callback) callback(pas);
+    },
+    error: function(xhr, status, error) {
+      console.error('Erro ao carregar PAs:', error);
+      $targetSelect.empty().html('<option value="">Erro ao carregar PAs</option>');
+      
+      if (window.TIAdminNotifications) {
+        window.TIAdminNotifications.showAdminNotification('error', 'Erro ao carregar PAs');
+      }
+      
+      if (callback) callback([]);
+    }
+  });
+}
+
+// Função centralizada para carregar salas por loja (consolidada de múltiplos arquivos)
+function carregarSalasPorLoja(lojaId, targetSelect, callback) {
+  if (!lojaId) {
+    if (targetSelect) {
+      $(targetSelect).empty().html('<option value="">-- Selecione uma Sala --</option>');
+    }
+    if (callback) callback([]);
+    return;
+  }
+
+  const $targetSelect = targetSelect ? $(targetSelect) : $('select[name="sala"]');
+  
+  // Mostrar loading
+  $targetSelect.empty().html('<option value="">Carregando salas...</option>');
+
+  $.ajax({
+    url: `/ti/api/salas-por-loja/${lojaId}/`,
+    type: 'GET',
+    headers: {
+      'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+    },
+    dataType: 'json',
+    success: function(response) {
+      const salas = response.data && response.data.salas ? response.data.salas : [];
+      
+      // Limpar e adicionar opção padrão
+      $targetSelect.empty().html('<option value="">-- Selecione uma Sala --</option>');
+      
+      // Adicionar salas
+      salas.forEach(function(sala) {
+        $targetSelect.append(`<option value="${sala.id}" data-loja="${sala.loja_id}">${sala.nome}</option>`);
+      });
+      
+      if (callback) callback(salas);
+    },
+    error: function(xhr, status, error) {
+      console.error('Erro ao carregar salas:', error);
+      $targetSelect.empty().html('<option value="">Erro ao carregar salas</option>');
+      
+      if (window.TIAdminNotifications) {
+        window.TIAdminNotifications.showAdminNotification('error', 'Erro ao carregar salas');
+      }
+      
+      if (callback) callback([]);
+    }
+  });
 }
 
 // Função para ajustes de layout responsivo nas páginas de admin
@@ -109,9 +259,148 @@ function carregarIlhasPorSala(salaId, targetSelect, callback) {
   });
 }
 
+// ===== FUNÇÕES DE VALIDAÇÃO CENTRALIZADAS =====
+
 // Função para validar formato de ramal
 function validarFormatoRamal(ramal) {
   return /^\d{4}$/.test(ramal);
+}
+
+// Função centralizada para verificar se ramal já existe (consolidada de múltiplos arquivos)
+function verificarRamalExistente(ramal, funcionarioId, callback) {
+  if (!ramal || !funcionarioId) {
+    if (callback) callback(null);
+    return;
+  }
+  
+  $.ajax({
+    url: '/ti/api/verificar-ramal/',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+    },
+    data: JSON.stringify({
+      ramal: ramal,
+      funcionario_id: funcionarioId
+    }),
+    dataType: 'json',
+    success: function(data) {
+      if (callback) callback(data);
+    },
+    error: function(xhr, status, error) {
+      console.error('Erro ao verificar ramal:', error);
+      if (callback) callback(null);
+    }
+  });
+}
+
+// Função centralizada para validar formulários de ramal (consolidada de múltiplos arquivos)
+function validateAdminRamalForm($form, event) {
+  const $ramalInput = $form.find('#numero_ramal, input[name="numero_ramal"]');
+  const $funcionarioSelect = $form.find('#funcionario_ramal, select[name="funcionario_ramal"]');
+  
+  if ($ramalInput.length && $funcionarioSelect.length) {
+    const ramal = $ramalInput.val().trim();
+    const funcionarioId = $funcionarioSelect.val();
+    
+    if (!ramal || !funcionarioId) {
+      if (event) event.preventDefault();
+      
+      if (window.TIAdminNotifications) {
+        window.TIAdminNotifications.showAdminNotification('error', 'Preencha todos os campos obrigatórios');
+      }
+      
+      return false;
+    }
+    
+    if (!validarFormatoRamal(ramal)) {
+      if (event) event.preventDefault();
+      
+      if (window.TIAdminNotifications) {
+        window.TIAdminNotifications.showAdminValidationNotification('numero_ramal', 'O ramal deve ter exatamente 4 dígitos numéricos');
+      }
+      
+      return false;
+    }
+  }
+  
+  return true;
+}
+
+// Função centralizada para validar formulários de computador (consolidada de múltiplos arquivos)
+function validateAdminComputadorForm($form, event) {
+  const $statusSelect = $form.find('#status_computador, select[name="status_computador"]');
+  
+  if ($statusSelect.length) {
+    const status = $statusSelect.val();
+    
+    if (status === 'em_uso') {
+      const $paSelect = $form.find('#pa_em_uso, select[name="pa_em_uso"]');
+      
+      if ($paSelect.length && !$paSelect.val()) {
+        if (event) event.preventDefault();
+        
+        if (window.TIAdminNotifications) {
+          window.TIAdminNotifications.showAdminNotification('error', 'Selecione uma Posição de Atendimento para computadores em uso');
+        }
+        
+        return false;
+      }
+    } else if (status === 'manutencao') {
+      const $obsTextarea = $form.find('#observacoes_manutencao, textarea[name="observacoes_manutencao"]');
+      
+      if ($obsTextarea.length && !$obsTextarea.val().trim()) {
+        if (event) event.preventDefault();
+        
+        if (window.TIAdminNotifications) {
+          window.TIAdminNotifications.showAdminNotification('error', 'Informe o motivo da manutenção');
+        }
+        
+        return false;
+      }
+    }
+  }
+  
+  return true;
+}
+
+// Função centralizada para configurar campos condicionais (consolidada de múltiplos arquivos)
+function setupConditionalFields() {
+  // Configurar campos condicionais do status do computador
+  const $statusComputador = $('#status_computador');
+  const $camposEmUso = $('#campos_em_uso');
+  const $camposManutencao = $('#campos_manutencao');
+  
+  if ($statusComputador.length) {
+    function atualizarCamposCondicionais() {
+      const status = $statusComputador.val();
+      
+      // Esconder todos os campos condicionais primeiro
+      $('.campos-condicionais').hide();
+      
+      // Resetar validação visual
+      $('#pa_em_uso, #observacoes_manutencao').removeClass('is-invalid');
+      
+      if (status === 'em_uso') {
+        $camposEmUso.show();
+        $('#pa_em_uso').prop('required', true);
+        $('#observacoes_manutencao').prop('required', false);
+      } else if (status === 'manutencao') {
+        $camposManutencao.show();
+        $('#observacoes_manutencao').prop('required', true);
+        $('#pa_em_uso').prop('required', false);
+      } else {
+        $('#pa_em_uso, #observacoes_manutencao').prop('required', false);
+      }
+    }
+    
+    // Atualizar ao carregar a página
+    atualizarCamposCondicionais();
+    
+    // Atualizar quando o status mudar
+    $statusComputador.on('change', atualizarCamposCondicionais);
+  }
 }
 
 // Função para desabilitar/habilitar botão de submit
@@ -404,15 +693,29 @@ window.submitFormAjaxCustom = submitFormAjaxCustom;
 
 // Exportar funções para uso global
 window.TIAdminUtils = {
+  // Funções básicas
   getSelectedLojaAdmin: getSelectedLojaAdmin,
   adjustAdminWidths: adjustAdminWidths,
   initAdminBehaviors: initAdminBehaviors,
+  
+  // Funções de carregamento de dados (centralizadas)
   carregarIlhasPorSala: carregarIlhasPorSala,
+  carregarPAsPorIlha: carregarPAsPorIlha,
+  carregarSalasPorLoja: carregarSalasPorLoja,
+  
+  // Funções de validação (centralizadas)
   validarFormatoRamal: validarFormatoRamal,
+  verificarRamalExistente: verificarRamalExistente,
+  validateAdminRamalForm: validateAdminRamalForm,
+  validateAdminComputadorForm: validateAdminComputadorForm,
+  setupConditionalFields: setupConditionalFields,
+  
+  // Funções de formulários
   toggleSubmitButton: toggleSubmitButton,
   getFormAjaxUrl: getFormAjaxUrl,
   getSuccessMessage: getSuccessMessage,
   shouldUseAjax: shouldUseAjax,
   parseAjaxError: parseAjaxError,
-  formAjaxUrls: formAjaxUrls
+  submitFormAjax: submitFormAjax,
+  submitFormAjaxCustom: submitFormAjaxCustom
 };
