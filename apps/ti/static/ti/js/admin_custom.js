@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Cadastro em lote de periféricos
     const addToListBtn = document.getElementById('add-to-list-btn');
-    const perifericos_form = document.getElementById('perifericos-form');
+    const perifericos_form = document.getElementById('form-periferico');
     const perifericos_lote_input = document.getElementById('perifericos-lote-input');
     const perifericos_pendentes_body = document.getElementById('perifericos-pendentes-body');
     const empty_state_row = document.getElementById('empty-state-row');
@@ -241,24 +241,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const contagem_pendentes = document.getElementById('contagem-pendentes');
     
     // Formulário de inputs
-    const perifericos_form_inputs = document.getElementById('perifericos-form-inputs');
+    const perifericos_form_inputs = document.getElementById('form-periferico');
     
     // Inputs para adicionar novos periféricos
-    const tipo_input = document.querySelector('#perifericos-form-inputs [name="tipo"]');
-    const marca_input = document.querySelector('#perifericos-form-inputs [name="marca"]');
-    const modelo_input = document.querySelector('#perifericos-form-inputs [name="modelo"]');
-    const data_aquisicao_input = document.querySelector('#perifericos-form-inputs [name="data_aquisicao"]');
-    const loja_input = document.querySelector('#perifericos-form-inputs [name="loja"]');
-    const quantidade_input = document.querySelector('#perifericos-form-inputs [name="quantidade"]');
+    const tipo_input = document.querySelector('#form-periferico [name="tipo"]');
+    const marca_input = document.querySelector('#form-periferico [name="marca"]');
+    const modelo_input = document.querySelector('#form-periferico [name="modelo"]');
+    const data_aquisicao_input = document.querySelector('#form-periferico [name="data_aquisicao"]');
+    const loja_input = document.querySelector('#form-periferico [name="loja"]');
+    const quantidade_input = document.querySelector('#form-periferico [name="quantidade"]');
     
-    // Prevenir submit do formulário de inputs (que deve apenas adicionar à lista)
-    if (perifericos_form_inputs) {
-        perifericos_form_inputs.addEventListener('submit', function(event) {
-            event.preventDefault();
-            adicionarPerifericos();
-            return false;
-        });
-    }
+    // Debug: verificar se os elementos foram encontrados
+    console.log('🔍 Debug - Elementos do cadastro de periféricos em lotes:', {
+        addToListBtn: !!addToListBtn,
+        perifericos_form: !!perifericos_form,
+        perifericos_lote_input: !!perifericos_lote_input,
+        perifericos_pendentes_body: !!perifericos_pendentes_body,
+        empty_state_row: !!empty_state_row,
+        limpar_lista_btn: !!limpar_lista_btn,
+        save_all_btn: !!save_all_btn,
+        contagem_pendentes: !!contagem_pendentes,
+        perifericos_form_inputs: !!perifericos_form_inputs,
+        tipo_input: !!tipo_input,
+        marca_input: !!marca_input,
+        modelo_input: !!modelo_input,
+        data_aquisicao_input: !!data_aquisicao_input,
+        loja_input: !!loja_input,
+        quantidade_input: !!quantidade_input
+    });
     
     // Lista de periféricos pendentes
     let perifericos_pendentes = [];
@@ -293,36 +303,44 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Função para validar os inputs do formulário
     function validarInputs() {
+        console.log('🔍 Validando inputs do formulário de periféricos');
+        
         if (!tipo_input || !tipo_input.value) {
+            console.log('❌ Tipo não selecionado');
             alert('Por favor, selecione o tipo de periférico.');
             if (tipo_input) tipo_input.focus();
             return false;
         }
         
         if (!marca_input || !marca_input.value) {
+            console.log('❌ Marca não informada');
             alert('Por favor, informe a marca do periférico.');
             if (marca_input) marca_input.focus();
             return false;
         }
         
         if (!modelo_input || !modelo_input.value) {
+            console.log('❌ Modelo não informado');
             alert('Por favor, informe o modelo do periférico.');
             if (modelo_input) modelo_input.focus();
             return false;
         }
         
         if (!loja_input || !loja_input.value) {
+            console.log('❌ Loja não selecionada');
             alert('Por favor, selecione a loja.');
             if (loja_input) loja_input.focus();
             return false;
         }
         
         if (!quantidade_input || !quantidade_input.value || parseInt(quantidade_input.value) < 1) {
+            console.log('❌ Quantidade inválida');
             alert('Por favor, informe uma quantidade válida (maior que zero).');
             if (quantidade_input) quantidade_input.focus();
             return false;
         }
         
+        console.log('✅ Todos os inputs são válidos');
         return true;
     }
     
@@ -334,7 +352,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Função para adicionar um periférico à lista de pendentes
     function adicionarPerifericos() {
-        if (!validarInputs()) return;
+        console.log('🔄 Função adicionarPerifericos() chamada');
+        
+        if (!validarInputs()) {
+            console.log('❌ Validação falhou');
+            return;
+        }
+        
+        console.log('✅ Validação passou, criando novo periférico');
         
         const novo_periferico = {
             tipo_id: parseInt(tipo_input.value),
@@ -347,8 +372,12 @@ document.addEventListener('DOMContentLoaded', function() {
             quantidade: parseInt(quantidade_input.value)
         };
         
+        console.log('📋 Novo periférico criado:', novo_periferico);
+        
         // Adicionar à lista
         perifericos_pendentes.push(novo_periferico);
+        
+        console.log('📊 Lista de periféricos pendentes atualizada:', perifericos_pendentes);
         
         // Atualizar tabela
         renderizarPerifericos();
@@ -364,6 +393,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Focar no tipo para próximo cadastro
         if (tipo_input) tipo_input.focus();
+        
+        console.log('✅ Periférico adicionado com sucesso');
     }
     
     // Função para renderizar os periféricos na tabela
@@ -443,8 +474,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Validação do formulário de envio da lista
-    if (perifericos_form) {
-        perifericos_form.addEventListener('submit', function(event) {
+    const form_periferico_lote = document.getElementById('form-periferico-lote');
+    if (form_periferico_lote) {
+        form_periferico_lote.addEventListener('submit', function(event) {
             if (perifericos_pendentes.length === 0) {
                 event.preventDefault();
                 alert('Não há periféricos para salvar.');
@@ -452,6 +484,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             return true;
+        });
+    }
+    
+    // Prevenir submit do formulário de inputs (que deve apenas adicionar à lista)
+    if (perifericos_form_inputs) {
+        perifericos_form_inputs.addEventListener('submit', function(event) {
+            event.preventDefault();
+            console.log('🔄 Formulário de periféricos submetido, chamando adicionarPerifericos()');
+            adicionarPerifericos();
+            return false;
         });
     }
     

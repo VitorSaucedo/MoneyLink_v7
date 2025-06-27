@@ -171,8 +171,11 @@ window.TIAdminDataLoader = {
   loadTiposPeriferico: function() {
     const self = this;
     
+    console.log('🔄 Carregando tipos de periféricos...');
+    
     // Se já está em cache, usar dados do cache
     if (this.cache.tipos_perifericos) {
+      console.log('✅ Usando tipos de periféricos do cache:', this.cache.tipos_perifericos.length, 'tipos');
       this.populateTiposPerifericoDropdown(this.cache.tipos_perifericos);
       return;
     }
@@ -186,6 +189,8 @@ window.TIAdminDataLoader = {
       },
       dataType: 'json',
       success: function(response) {
+        console.log('📥 Resposta da API de tipos de periféricos:', response);
+        
         // A API retorna {data: {tipos_perifericos: [...]}} então acessamos response.data.tipos_perifericos
         const tipos = response.data?.tipos_perifericos || [];
         // Converter formato da API para o formato esperado pelo dropdown
@@ -198,7 +203,8 @@ window.TIAdminDataLoader = {
         console.log('✅ Tipos de periféricos carregados com sucesso:', tiposFormatados.length, 'tipos encontrados');
       },
       error: function(xhr, status, error) {
-        console.error('❌ Erro ao carregar tipos de periférico:', error);
+        console.error('❌ Erro ao carregar tipos de periféricos:', error);
+        console.error('📊 Detalhes do erro:', {xhr, status, error});
         // Fallback para dados vazios em caso de erro
         const fallbackTipos = [];
         self.cache.tipos_perifericos = fallbackTipos;
@@ -358,16 +364,23 @@ window.TIAdminDataLoader = {
    * Popula dropdown de tipos de periféricos
    */
   populateTiposPerifericoDropdown: function(tipos) {
+    console.log('🔄 Populando dropdown de tipos de periféricos com:', tipos.length, 'tipos');
+    
     const $select = $('#id_tipo');
+    
+    console.log('🔍 Procurando select com ID id_tipo:', $select.length > 0);
     
     if ($select.length) {
       const currentValue = $select.val();
+      
+      console.log('📋 Valor atual do select:', currentValue);
       
       // Limpar opções existentes (exceto a primeira)
       $select.find('option:not(:first)').remove();
       
       // Adicionar novas opções
       tipos.forEach(function(tipo) {
+        console.log('➕ Adicionando opção:', tipo.value, '-', tipo.text);
         $select.append(`<option value="${tipo.value}">${tipo.text}</option>`);
       });
       
@@ -375,6 +388,10 @@ window.TIAdminDataLoader = {
       if (currentValue) {
         $select.val(currentValue);
       }
+      
+      console.log('✅ Dropdown de tipos de periféricos populado com sucesso');
+    } else {
+      console.warn('⚠️ Select com ID id_tipo não encontrado');
     }
   },
   
@@ -500,8 +517,11 @@ window.TIAdminDataLoader = {
 
 // Inicializar quando o documento estiver pronto
 $(document).ready(function() {
+  console.log('🚀 Documento pronto, aguardando para inicializar TIAdminDataLoader...');
+  
   // Aguardar um pouco para garantir que outros módulos foram carregados
   setTimeout(function() {
+    console.log('🔄 Inicializando TIAdminDataLoader...');
     window.TIAdminDataLoader.init();
   }, 100);
 });

@@ -18,8 +18,14 @@ $(document).ready(function() {
                 $('#error-container').hide();
             },
             success: function(response) {
+                console.log('📊 Resposta da API de e-mails recebida:', response);
+                
                 if (response.success) {
-                    popularTabela(response.emails);
+                    // A API retorna os dados em response.data.emails
+                    const emails = response.data && response.data.emails ? response.data.emails : [];
+                    console.log('📧 E-mails encontrados:', emails.length, emails);
+                    
+                    popularTabela(emails);
                     $('#loading-indicator').hide();
                     $('#table-container').show();
                 } else {
@@ -27,6 +33,7 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
+                console.error('❌ Erro na requisição de e-mails:', xhr.responseText);
                 mostrarErro('Erro ao carregar dados: ' + error);
             }
         });
@@ -34,8 +41,16 @@ $(document).ready(function() {
     
     // Função para popular a tabela com os dados
     function popularTabela(emails) {
+        console.log('🔄 Populando tabela de e-mails com:', emails);
+        
         var tbody = $('#emails-tbody');
         tbody.empty();
+        
+        // Validar se emails é um array
+        if (!Array.isArray(emails)) {
+            console.error('❌ Dados de e-mails não são um array:', typeof emails, emails);
+            emails = []; // Usar array vazio como fallback
+        }
         
         if (emails.length === 0) {
             tbody.append(`
@@ -82,6 +97,7 @@ $(document).ready(function() {
     
     // Função para mostrar erro
     function mostrarErro(mensagem) {
+        console.error('🚨 Erro no controle de e-mails:', mensagem);
         $('#loading-indicator').hide();
         $('#table-container').hide();
         $('#error-message').text(mensagem);
@@ -159,7 +175,9 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    popularTabela(response.emails);
+                    // A API retorna os dados em response.data.emails
+                    const emails = response.data && response.data.emails ? response.data.emails : [];
+                    popularTabela(emails);
                 } else {
                     mostrarErro('Erro na busca: ' + response.message);
                 }

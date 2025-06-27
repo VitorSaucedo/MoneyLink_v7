@@ -618,7 +618,7 @@ Administração TI<span class="produto-text"></span>
             </div>
           </form>
           
-          <form method="post" action="{% url 'ti:periferico_create' %}" id="form-periferico-lote" data-ajax="true" class="d-none">
+          <form method="post" action="{% url 'ti:periferico_create' %}" id="form-periferico-lote" data-ajax="true">
             {% csrf_token %}
             <input type="hidden" name="perifericos_lote" id="perifericos-lote-input" value="[]">
           </form>
@@ -652,7 +652,7 @@ Administração TI<span class="produto-text"></span>
               <button type="button" id="limpar-lista-btn" class="btn btn-outline-danger me-2" disabled>
                 <i class='bx bx-trash'></i> Limpar Lista
               </button>
-              <button type="submit" form="perifericos-form" name="submit_perifericos_lote" id="save-all-btn" class="btn btn-primary" disabled>
+              <button type="submit" form="form-periferico-lote" name="submit_perifericos_lote" id="save-all-btn" class="btn btn-primary" disabled>
                 <i class='bx bx-save'></i> Salvar Todos (<span id="contagem-pendentes">0</span>)
               </button>
             </div>
@@ -841,6 +841,7 @@ Administração TI<span class="produto-text"></span>
   <script src="{% static 'ti/js/admin_data_loader.js' %}"></script>
   <script src="{% static 'ti/js/admin_init.js' %}"></script>
   <script src="{% static 'ti/js/admin.js' %}"></script>
+  <script src="{% static 'ti/js/admin_custom.js' %}"></script>
   
   {# Adicionar outros scripts que possam existir no projeto base #}
   {{ block.super }}

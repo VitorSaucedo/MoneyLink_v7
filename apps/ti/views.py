@@ -5117,25 +5117,39 @@ def api_get_emails_data(request):
         }, status=405)
     
     try:
+        print("🔄 Iniciando carregamento de e-mails...")
+        
         # Obter parâmetros de busca
         filtros = {
             'search': request.GET.get('search', '').strip(),
             'status': request.GET.get('status', '').strip()
         }
+        print(f"📋 Filtros aplicados: {filtros}")
         
         # Query base com relacionamentos otimizados
         emails_queryset = Email.objects.select_related(
-            'ramal', 'funcionario', 'setor'
+            'funcionario', 'funcionario__ramal_ti', 'setor'
         ).all()
+        print(f"📊 Total de e-mails no banco: {emails_queryset.count()}")
         
         # Aplicar filtros
         emails_queryset = _aplicar_filtros_emails(emails_queryset, filtros)
+        print(f"📊 E-mails após filtros: {emails_queryset.count()}")
         
         # Ordenar por e-mail
         emails_queryset = emails_queryset.order_by('email')
         
         # Preparar dados para JSON
-        emails_data = [_serializar_email(email) for email in emails_queryset]
+        emails_data = []
+        for email in emails_queryset:
+            try:
+                email_serializado = _serializar_email(email)
+                emails_data.append(email_serializado)
+            except Exception as e:
+                print(f"❌ Erro ao serializar e-mail {email.id}: {e}")
+                continue
+        
+        print(f"✅ E-mails serializados com sucesso: {len(emails_data)}")
         
         response_data = {
             'success': True,
@@ -5150,6 +5164,7 @@ def api_get_emails_data(request):
         return JsonResponse(response_data)
         
     except Exception as e:
+        print(f"❌ Erro geral na API de e-mails: {e}")
         return JsonResponse({
             'success': False,
             'message': f'Erro ao carregar e-mails: {str(e)}'
@@ -5160,8 +5175,8 @@ def _aplicar_filtros_emails(queryset, filtros):
     if filtros['search']:
         queryset = queryset.filter(
             Q(email__icontains=filtros['search']) |
-            Q(ramal__nome_completo__icontains=filtros['search']) |
             Q(funcionario__nome_completo__icontains=filtros['search']) |
+            Q(funcionario__ramal_ti__numero__icontains=filtros['search']) |
             Q(setor__nome_completo__icontains=filtros['search'])
         )
     
@@ -5172,57 +5187,77 @@ def _aplicar_filtros_emails(queryset, filtros):
 
 def _serializar_email(email):
     """Serializa um objeto Email para JSON."""
-    # Determinar ramal
-    ramal_info = _obter_ramal_info(email)
-    
-    # Determinar funcionário principal
-    funcionario_nome = _obter_funcionario_nome(email)
-    
-    # Determinar setor
-    setor_nome = _obter_setor_nome(email)
-    
-    return {
-        'id': email.id,
-        'email': email.email,
-        'status': email.get_status_display(),
-        'status_value': email.status,
-        'ramal': ramal_info or '-',
-        'funcionario': funcionario_nome,
-        'setor': setor_nome,
-        'senha': email.senha if email.senha else None,
-        'email_recuperacao': email.email_recuperacao or '-',
-        'data_criacao': email.data_criacao.strftime('%d/%m/%Y %H:%M') if email.data_criacao else '-',
-    }
-
-def _obter_ramal_info(email):
-    """Obtém informações do ramal do e-mail."""
-    if not email.ramal:
-        return None
-    
     try:
-        from apps.funcionarios.models import Funcionario
-        funcionario = Funcionario.objects.get(id=email.ramal.id)
-        return getattr(funcionario, 'ramal', None)
-    except Exception:
-        return None
-
-def _obter_funcionario_nome(email):
-    """Obtém o nome do funcionário associado ao e-mail."""
-    if email.funcionario:
-        return email.funcionario.nome_completo
-    elif email.ramal:
-        return email.ramal.nome_completo
-    return '-'
-
-def _obter_setor_nome(email):
-    """Obtém o nome do setor associado ao e-mail."""
-    if email.funcionario and hasattr(email.funcionario, 'setor') and email.funcionario.setor:
-        return email.funcionario.setor.nome
-    elif email.ramal and hasattr(email.ramal, 'setor') and email.ramal.setor:
-        return email.ramal.setor.nome
-    elif email.setor:
-        return email.setor.nome_completo
-    return '-'
+        # Obter ramal de forma segura
+        ramal_numero = '-'
+        try:
+            if email.funcionario and hasattr(email.funcionario, 'ramal_ti') and email.funcionario.ramal_ti:
+                ramal_numero = email.funcionario.ramal_ti.numero
+        except Exception as e:
+            print(f"Erro ao obter ramal para e-mail {email.id}: {e}")
+        
+        # Obter nome do funcionário
+        funcionario_nome = '-'
+        try:
+            if email.funcionario:
+                funcionario_nome = email.funcionario.nome_completo
+        except Exception as e:
+            print(f"Erro ao obter funcionário para e-mail {email.id}: {e}")
+        
+        # Obter setor
+        setor_nome = '-'
+        try:
+            if email.funcionario and hasattr(email.funcionario, 'setor') and email.funcionario.setor:
+                setor_nome = email.funcionario.setor.nome
+            elif email.setor:
+                setor_nome = email.setor.nome_completo
+        except Exception as e:
+            print(f"Erro ao obter setor para e-mail {email.id}: {e}")
+        
+        # Formatar data
+        data_criacao_formatada = '-'
+        try:
+            if email.data_criacao:
+                data_criacao_formatada = email.data_criacao.strftime('%d/%m/%Y %H:%M')
+        except Exception as e:
+            print(f"Erro ao formatar data para e-mail {email.id}: {e}")
+        
+        # Obter status
+        status_display = '-'
+        try:
+            status_display = email.get_status_display() if hasattr(email, 'get_status_display') else str(email.status)
+        except Exception as e:
+            print(f"Erro ao obter status para e-mail {email.id}: {e}")
+            status_display = str(email.status) if hasattr(email, 'status') else '-'
+        
+        return {
+            'id': email.id,
+            'email': email.email or '-',
+            'status': status_display,
+            'status_value': email.status,
+            'ramal': ramal_numero,
+            'funcionario': funcionario_nome,
+            'setor': setor_nome,
+            'senha': email.senha if email.senha else None,
+            'email_recuperacao': email.email_recuperacao or '-',
+            'data_criacao': data_criacao_formatada,
+        }
+    
+    except Exception as e:
+        print(f"Erro completo ao serializar e-mail {email.id if hasattr(email, 'id') else 'desconhecido'}: {e}")
+        # Retornar um objeto básico em caso de erro
+        return {
+            'id': getattr(email, 'id', 0),
+            'email': getattr(email, 'email', 'N/A'),
+            'status': 'Erro',
+            'status_value': 'erro',
+            'ramal': '-',
+            'funcionario': '-',
+            'setor': '-',
+            'senha': None,
+            'email_recuperacao': '-',
+            'data_criacao': '-',
+        }
 
 @login_required
 def api_post_email_create(request):
