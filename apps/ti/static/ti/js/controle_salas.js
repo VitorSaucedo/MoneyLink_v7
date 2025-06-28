@@ -27,7 +27,7 @@ window.usuarioRestrito = DJANGO_CONFIG.usuarioRestrito;
 
 const CONFIG = {
   urls: {
-    atualizarStatus: '/ti/atualizar_status_pa/'
+    atualizarStatus: '/ti/api/atualizar-status-pa/'
   },
   classes: {
     salaTab: '#salas-tab .nav-link',
@@ -278,12 +278,17 @@ function atualizarStatusPA(paId, novoStatus, paCard) {
   $.ajax({
     url: CONFIG.urls.atualizarStatus,
     method: 'POST',
-    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-    data: {
-      pa_id: paId,
-      status: novoStatus,
-      csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+    headers: { 
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val(),
+      'Content-Type': 'application/json; charset=utf-8'
     },
+    data: JSON.stringify({
+      pa_id: paId,
+      status: novoStatus
+    }),
+    contentType: 'application/json; charset=utf-8',
+    dataType: 'json',
     success: function(response) {
       if (response.success) {
         atualizarVisualizacaoStatusPA(paCard, novoStatus);
@@ -599,6 +604,13 @@ function adicionarBotaoRecarga() {
 // =============================================================================
 
 function setupLojaFilter() {
+  // Verificar se o carregamento otimizado está ativo
+  if (window.modoCarregamento === 'otimizado') {
+    console.log('Filtro de loja delegado para o sistema de carregamento otimizado');
+    return; // O sistema de carregamento cuidará do filtro
+  }
+  
+  // Fallback para o método tradicional (se o carregamento otimizado não estiver disponível)
   $('#select-loja').on('change', function() {
     const lojaId = $(this).val();
     const url = new URL(window.location.href);
@@ -746,32 +758,46 @@ const EventHandlers = {
 
 $(document).ready(function() {
   try {
-    setupLojaFilter();
-    initializeTabState();
-    EventHandlers.init();
-    adicionarBotaoRecarga();
-    
-    // Executar organização do layout
-    organizarLayoutPAs();
+    // Aguardar inicialização do carregamento otimizado
     setTimeout(() => {
       try {
-        organizarLayoutPAs();
+        setupLojaFilter();
+        
+        // Só inicializar estado das abas se não estivermos usando carregamento otimizado
+        if (window.modoCarregamento !== 'otimizado') {
+          initializeTabState();
+          adicionarBotaoRecarga();
+          
+          // Executar organização do layout
+          organizarLayoutPAs();
+          setTimeout(() => {
+            try {
+              organizarLayoutPAs();
+            } catch (error) {
+              console.error('Erro ao organizar layout das PAs (timeout):', error);
+            }
+          }, CONFIG.animation.duration);
+        }
+        
+        EventHandlers.init();
+        
+        // Adicionar eventos para reorganizar PAs
+        document.addEventListener('DOMContentLoaded', () => {
+          try {
+            if (window.modoCarregamento !== 'otimizado') {
+              organizarLayoutPAs();
+            }
+          } catch (error) {
+            console.error('Erro ao organizar layout das PAs (DOMContentLoaded):', error);
+          }
+        });
       } catch (error) {
-        console.error('Erro ao organizar layout das PAs (timeout):', error);
+        console.error('Erro durante a inicialização do controle de salas:', error);
+        mostrarMensagem('Erro ao inicializar a página. Recarregue a página.', 'error');
       }
-    }, CONFIG.animation.duration);
-    
-    // Adicionar eventos para reorganizar PAs
-    document.addEventListener('DOMContentLoaded', () => {
-      try {
-        organizarLayoutPAs();
-      } catch (error) {
-        console.error('Erro ao organizar layout das PAs (DOMContentLoaded):', error);
-      }
-    });
+    }, 200); // Aguardar carregamento otimizado inicializar
   } catch (error) {
-    console.error('Erro durante a inicialização do controle de salas:', error);
-    mostrarMensagem('Erro ao inicializar a página. Recarregue a página.', 'error');
+    console.error('Erro crítico na inicialização:', error);
   }
 });
 
@@ -785,5 +811,6 @@ Object.assign(window, {
   organizarLayoutPAs,
   adjustResponsiveLayout,
   atualizarStatusPA,
-  atualizarVisualizacaoStatusPA
+  atualizarVisualizacaoStatusPA,
+  EventHandlers
 });

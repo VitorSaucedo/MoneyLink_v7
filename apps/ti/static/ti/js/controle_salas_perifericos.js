@@ -12,7 +12,7 @@ const PERIFERICOS_CONFIG = {
   urls: {
     perifericosDisponiveis: '/ti/api/perifericos-disponiveis-por-tipo/',
     atribuirPeriferico: '/ti/atribuicoes-perifericos/cadastrar/',
-    removerPeriferico: '/ti/remover_periferico_pa/',
+    removerPeriferico: '/ti/api/remover-periferico-pa/',
     atualizarStatus: '/ti/api/periferico/{periferico_id}/atualizar-status/',
     cadastrarLote: '/ti/atribuicoes-perifericos/cadastrar-lote/'
   },
@@ -786,6 +786,9 @@ Object.assign(window, {
   adicionarAtribuicaoPendente,
   adicionarPerifericoPendenteVisualmente,
   abrirModalPerifericosDisponiveis,
+  mostrarModalPerifericosDisponiveis: abrirModalPerifericosDisponiveis, // Alias para compatibilidade
+  mostrarMenuPeriferico: abrirMenuAcoesPeriferico, // Alias para compatibilidade
+  confirmarRemocaoPeriferico: abrirModalConfirmacao, // Alias para compatibilidade
   atualizarStatusPerifericoNoServidor,
   perifericosPendentes: PERIFERICOS_STATE.perifericosPendentes,
   perifericosPendentesPorTipo: PERIFERICOS_STATE.perifericosPendentesPorTipo

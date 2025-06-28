@@ -414,20 +414,21 @@ def controle_salas(request):
     # Obter todas as lojas ativas para o seletor
     lojas = Loja.objects.filter(status=True).order_by('nome')
     
-    # Obter a loja selecionada, se houver
+    # Obter a loja selecionada (se houver) da URL, mas não carregar dados ainda
     loja_id = request.GET.get('loja')
     loja_selecionada = None
     loja_atual = None
     
-    # Filtrar por loja, se for selecionada
+    # Determinar loja padrão apenas para exibição no seletor
     if loja_id:
         try:
             loja_selecionada = int(loja_id)
             loja_atual = get_object_or_404(Loja, id=loja_selecionada)
         except (ValueError, TypeError):
             loja_selecionada = None
-    else:
-        # Se nenhuma loja for selecionada, usar a loja SEDE como padrão
+    
+    if not loja_selecionada:
+        # Se nenhuma loja for selecionada, tentar usar SEDE como padrão
         try:
             loja_sede = Loja.objects.get(nome='SEDE')
             loja_selecionada = loja_sede.id
@@ -438,13 +439,10 @@ def controle_salas(request):
                 primeira_loja = lojas.first()
                 loja_selecionada = primeira_loja.id
                 loja_atual = primeira_loja
-    
-    # Aplicar filtro de loja nas consultas
-    filtro_loja = {'loja_id': loja_selecionada} if loja_selecionada else {}
-    
-    # Verificar se o usuário é coordenador/supervisor e filtrar salas
+
+    # Verificar se o usuário é coordenador/supervisor (para passar ao JavaScript)
     usuario_restrito = False
-    salas_permitidas = None
+    salas_permitidas = []
     
     try:
         if hasattr(request.user, 'funcionario_profile') and request.user.funcionario_profile:
@@ -462,123 +460,14 @@ def controle_salas(request):
     except Exception:
         pass  # Se houver erro, manter como False (sem restrição)
     
-    # Carregar salas com filtro de loja e coordenação (se aplicável)
-    if usuario_restrito and salas_permitidas:
-        # Filtrar por loja E por salas permitidas para o coordenador
-        filtro_salas = {**filtro_loja, 'id__in': salas_permitidas}
-        salas = Sala.objects.filter(**filtro_salas).prefetch_related('ilhas')
-    elif usuario_restrito and not salas_permitidas:
-        # Coordenador sem salas associadas - não mostrar nenhuma sala
-        salas = Sala.objects.none()
-    else:
-        # Usuário sem restrição - mostrar todas as salas da loja
-        salas = Sala.objects.filter(**filtro_loja).prefetch_related('ilhas')
-    ilhas = Ilha.objects.filter(sala__in=salas).select_related('sala')
-    
-    # Carrega todas as posições de atendimento com seus relacionamentos (filtradas por salas da loja)
-    posicoes = PosicaoAtendimento.objects.filter(
-        sala__in=salas
-    ).select_related('ilha', 'sala').prefetch_related(
-        'atribuicaofuncionariopa_set',
-        'atribuicaoperifericopa_set__periferico__tipo',
-        'atribuicaocomputadorpa_set__computador'
-    )
-    
-    # Obter funcionários atribuídos a cada PA (otimizado com filtro de PA)
-    funcionarios_por_pa = {}
-    atribuicoes_funcionarios = AtribuicaoFuncionarioPA.objects.filter(
-        ativo=True,
-        posicao_atendimento__sala__in=salas
-    ).select_related('funcionario', 'posicao_atendimento')
-    
-    for atribuicao in atribuicoes_funcionarios:
-        pa_id = atribuicao.posicao_atendimento.id
-        funcionarios_por_pa[pa_id] = atribuicao.funcionario
-    
-    # Obter todos os tipos de periféricos
-    tipos_perifericos = TipoPeriferico.objects.all()
-    # Lista de tipos comuns/esperados para cada PA (usado para verificar o que está faltando)
-    tipos_perifericos_comuns = TipoPeriferico.objects.filter(nome__in=[
-        'Mouse', 'Teclado', 'Monitor', 'Fone', 'Mousepad'
-    ])
-    
-    # Carrega os periféricos atribuídos a cada PA (otimizado com filtro de PA)
-    perifericos_por_pa = {}
-    perifericos_faltando_por_pa = {} # Para rastrear tipos de periféricos faltantes em cada PA
-    
-    atribuicoes = AtribuicaoPerifericoPA.objects.filter(
-        ativo=True,
-        posicao_atendimento__sala__in=salas
-    ).select_related('periferico', 'periferico__tipo', 'posicao_atendimento')
-    
-    # Inicializar o dicionário para rastrear periféricos faltantes para todas as PAs
-    for pa in posicoes:
-        perifericos_faltando_por_pa[pa.id] = {
-            'tipos': [t for t in tipos_perifericos_comuns],  # Lista de objetos TipoPeriferico
-            'nomes': [t.nome for t in tipos_perifericos_comuns]  # Lista de nomes para facilitar verificação
-        }
-    
-    for atribuicao in atribuicoes:
-        pa_id = atribuicao.posicao_atendimento.id
-        if pa_id not in perifericos_por_pa:
-            perifericos_por_pa[pa_id] = []
-        
-        perifericos_por_pa[pa_id].append({
-            'tipo': atribuicao.periferico.tipo.nome,
-            'marca': atribuicao.periferico.marca,
-            'modelo': atribuicao.periferico.modelo,
-            'id': atribuicao.periferico.id
-        })
-        
-        # Remover da lista de tipos faltantes
-        tipo_atual = atribuicao.periferico.tipo
-        if pa_id in perifericos_faltando_por_pa and tipo_atual.nome in perifericos_faltando_por_pa[pa_id]['nomes']:
-            # Remover o tipo da lista de faltantes
-            tipo_index = perifericos_faltando_por_pa[pa_id]['nomes'].index(tipo_atual.nome)
-            perifericos_faltando_por_pa[pa_id]['nomes'].pop(tipo_index)
-            perifericos_faltando_por_pa[pa_id]['tipos'].pop(tipo_index)
-    
-    # Carregar periféricos disponíveis por tipo
-    perifericos_disponiveis_por_tipo = {}
-    for tipo in tipos_perifericos_comuns:
-        perifericos_disponiveis_por_tipo[tipo.id] = Periferico.objects.filter(
-            tipo=tipo, 
-            status='disponivel'
-        ).values('id', 'marca', 'modelo')
-    
-    # Carrega os computadores atribuídos a cada PA (otimizado com filtro de PA)
-    computadores_por_pa = {}
-    atribuicoes_computador = AtribuicaoComputadorPA.objects.filter(
-        ativo=True,
-        posicao_atendimento__sala__in=salas
-    ).select_related('computador', 'posicao_atendimento')
-    
-    for atribuicao in atribuicoes_computador:
-        pa_id = atribuicao.posicao_atendimento.id
-        if pa_id not in computadores_por_pa:
-            computadores_por_pa[pa_id] = []
-        computadores_por_pa[pa_id].append({
-            'marca': atribuicao.computador.marca,
-            'id': atribuicao.computador.id
-        })
-    
-    # A verificação de usuario_restrito já foi feita acima
-    
+    # Context simplificado - dados serão carregados via JavaScript
     context = {
         'title': 'Controle de Salas - TI',
-        'salas': salas,
-        'ilhas': ilhas,
-        'posicoes': posicoes,
-        'funcionarios_por_pa': funcionarios_por_pa,
-        'perifericos_por_pa': perifericos_por_pa,
-        'computadores_por_pa': computadores_por_pa,
-        'perifericos_faltando_por_pa': perifericos_faltando_por_pa,
-        'perifericos_disponiveis_por_tipo': perifericos_disponiveis_por_tipo,
-        'tipos_perifericos_comuns': tipos_perifericos_comuns,
         'lojas': lojas,
         'loja_selecionada': loja_selecionada,
         'loja_atual': loja_atual,
         'usuario_restrito': usuario_restrito,
+        'salas_permitidas': salas_permitidas,
     }
     return render(request, 'ti/controle_salas.html', context)
 
@@ -1471,10 +1360,10 @@ def api_get_perifericos_disponiveis_por_tipo(request, tipo_id):
                     status=400
                 )
         
-        # Buscar periféricos disponíveis
+        # Buscar periféricos disponíveis (apenas os disponíveis, não os em manutenção)
         perifericos_queryset = Periferico.objects.filter(
             tipo=tipo, 
-            status__in=['disponivel', 'manutencao'],
+            status='disponivel',
             **filtro_loja
         ).select_related('tipo').order_by('marca', 'modelo')
         
@@ -2978,7 +2867,7 @@ def api_get_funcionarios(request):
         # Obter todos os funcionários ativos
         logger.info("[DEBUG] Buscando funcionários ativos...")
         try:
-            funcionarios = Funcionario.objects.filter(status=True).select_related('empresa', 'setor')
+            funcionarios = Funcionario.objects.filter(status=True).select_related('empresa', 'setor', 'ramal_ti')
             logger.info(f"[DEBUG] Query executada com sucesso. Funcionários encontrados: {funcionarios.count()}")
         except Exception as query_error:
             logger.error(f"[DEBUG] Erro na query de funcionários: {str(query_error)}")
@@ -3000,12 +2889,22 @@ def api_get_funcionarios(request):
         lista_funcionarios = []
         for funcionario in funcionarios:
             try:
+                # Buscar ramal do funcionário
+                ramal_numero = ''
+                try:
+                    if hasattr(funcionario, 'ramal_ti') and funcionario.ramal_ti:
+                        ramal_numero = funcionario.ramal_ti.numero
+                except:
+                    ramal_numero = ''
+                
                 funcionario_info = {
                     'id': funcionario.id,
                     'nome_completo': funcionario.nome_completo or 'Nome não informado',
+                    'nome': funcionario.nome_completo or 'Nome não informado',  # Alias para compatibilidade
+                    'ramal': ramal_numero
                 }
                 lista_funcionarios.append(funcionario_info)
-                logger.debug(f"[DEBUG] Funcionário processado: {funcionario.id} - {funcionario.nome_completo}")
+                logger.debug(f"[DEBUG] Funcionário processado: {funcionario.id} - {funcionario.nome_completo} - Ramal: {ramal_numero}")
             except Exception as func_error:
                 logger.warning(f"[DEBUG] Erro ao processar funcionário {funcionario.id}: {str(func_error)}")
                 continue
@@ -4085,11 +3984,49 @@ def api_get_controle_salas_data(request):
         # Aplicar filtro de loja se especificado
         filtro_loja = {'loja_id': loja_id} if loja_id else {}
         
-        # Carregar salas com suas ilhas (aplicando filtros se necessário)
+        # Verificar se o usuário é coordenador/supervisor e filtrar salas
+        usuario_restrito = False
+        salas_permitidas = None
+        
+        try:
+            if hasattr(request.user, 'funcionario_profile') and request.user.funcionario_profile:
+                funcionario = request.user.funcionario_profile
+                if funcionario.cargo and funcionario.cargo.hierarquia in [3, 6]:  # COORDENADOR = 3, SUPERVISOR_GERAL = 6
+                    usuario_restrito = True
+                    # Buscar salas associadas ao coordenador/supervisor
+                    coordenacoes_ativas = CoordenadorSala.objects.filter(
+                        funcionario=funcionario,
+                        ativo=True
+                    ).values_list('sala_id', flat=True)
+                    
+                    if coordenacoes_ativas:
+                        salas_permitidas = list(coordenacoes_ativas)
+        except Exception:
+            pass  # Se houver erro, manter como False (sem restrição)
+        
+        # Carregar salas com filtro de loja e coordenação (se aplicável)
         if sala_id:
-            salas = Sala.objects.filter(id=sala_id, **filtro_loja)
+            filtro_salas = {**filtro_loja, 'id': sala_id}
+            if usuario_restrito and salas_permitidas:
+                filtro_salas['id__in'] = salas_permitidas
+            elif usuario_restrito and not salas_permitidas:
+                salas = Sala.objects.none()
+            else:
+                pass  # Usar filtro_salas normal
+            
+            if not usuario_restrito or salas_permitidas:
+                salas = Sala.objects.filter(**filtro_salas)
         else:
-            salas = Sala.objects.filter(**filtro_loja)
+            if usuario_restrito and salas_permitidas:
+                # Filtrar por loja E por salas permitidas para o coordenador
+                filtro_salas = {**filtro_loja, 'id__in': salas_permitidas}
+                salas = Sala.objects.filter(**filtro_salas)
+            elif usuario_restrito and not salas_permitidas:
+                # Coordenador sem salas associadas - não mostrar nenhuma sala
+                salas = Sala.objects.none()
+            else:
+                # Usuário sem restrição - mostrar todas as salas da loja
+                salas = Sala.objects.filter(**filtro_loja)
             
         salas_data = []
         
@@ -4199,12 +4136,33 @@ def api_get_controle_salas_data(request):
                     # Obter funcionário atribuído a esta PA
                     funcionario_pa = funcionarios_por_pa_ilha.get(pa.id)
                     
+                    # Montar dados do funcionário se existir
+                    funcionario_data = None
+                    if funcionario_pa:
+                        # Buscar ramal do funcionário
+                        ramal_funcionario = None
+                        try:
+                            ramal_obj = Ramal.objects.filter(funcionario=funcionario_pa).first()
+                            if ramal_obj:
+                                ramal_funcionario = ramal_obj.numero
+                        except Exception:
+                            pass
+                        
+                        funcionario_data = {
+                            'id': funcionario_pa.id,
+                            'nome_completo': funcionario_pa.nome_completo,
+                            'ramal': ramal_funcionario,
+                            'cargo': funcionario_pa.cargo.nome if funcionario_pa.cargo else None,
+                            'departamento': funcionario_pa.departamento.nome if funcionario_pa.departamento else None
+                        }
+                    
                     pa_dict = {
                         'id': pa.id,
                         'numero': pa.numero,
                         'status': pa.status,
                         'status_display': pa.get_status_display(),
                         'funcionario': funcionario_pa.nome_completo if funcionario_pa else None,
+                        'funcionario_data': funcionario_data,
                         'perifericos': perifericos_por_pa.get(pa.id, []),
                         'faltando': tipos_faltantes,
                         'computadores': computadores_por_pa.get(pa.id, [])
@@ -4230,7 +4188,9 @@ def api_get_controle_salas_data(request):
                 'salas': salas_data,
                 'tipos_perifericos_comuns': tipos_perifericos_comuns,
                 'perifericos_disponiveis': perifericos_disponiveis,
-                'computadores_disponiveis': computadores_disponiveis
+                'computadores_disponiveis': computadores_disponiveis,
+                'usuario_restrito': usuario_restrito,
+                'salas_permitidas': salas_permitidas or []
             }
         })
     except Exception as e:

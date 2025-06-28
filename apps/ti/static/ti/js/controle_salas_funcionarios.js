@@ -131,6 +131,18 @@ async function toggleDropdownFuncionarios(button) {
   console.log('[DEBUG] toggleDropdownFuncionarios iniciado para botão:', button);
   const paId = $(button).data('pa-id');
   console.log('[DEBUG] PA ID obtido:', paId);
+  console.log('[DEBUG] Botão data attributes:', $(button).data());
+  console.log('[DEBUG] Botão HTML:', button.outerHTML);
+  
+  // Verificar se paId está definido
+  if (!paId) {
+    console.error('❌ [DEBUG] paId é undefined ou vazio!');
+    console.log('[DEBUG] Botão completo:', button.outerHTML);
+    console.log('[DEBUG] Data attributes do botão:', $(button).data());
+    mostrarMensagem('Erro: ID da PA não encontrado', 'error');
+    return;
+  }
+  
   const existingDropdown = $(`#dropdown-pa-${paId}`);
   console.log('[DEBUG] Dropdown existente?', existingDropdown.length > 0);
 
@@ -149,6 +161,7 @@ async function toggleDropdownFuncionarios(button) {
   } else {
     // Se não existe, busca dados, cria e mostra
     console.log('[DEBUG] Criando novo dropdown para PA:', paId);
+    
     // Criar um loader flutuante próximo ao botão que clicamos
     const buttonRect = button.getBoundingClientRect();
     console.log('[DEBUG] Posição do botão:', buttonRect);
@@ -204,11 +217,33 @@ async function toggleDropdownFuncionarios(button) {
         // Adicionar listener para seleção
         newDropdown.find('.funcionario-dropdown-item').on('click', function() {
           const selectedFuncId = $(this).data('funcionario-id');
-          atribuirFuncionarioAPa(paId, selectedFuncId, $(`.pa-card[data-pa-id="${paId}"]`));
-          if (activeDropdown) {
-            activeDropdown.fadeOut(100, function() { $(this).remove(); });
-            activeDropdown = null;
+          console.log('🔍 [DEBUG] Clique no funcionário:', {
+            selectedFuncId: selectedFuncId,
+            paId: paId,
+            dropdownId: newDropdown.attr('id')
+          });
+          
+          // Verificar se paId está definido
+          if (!paId) {
+            console.error('❌ [DEBUG] paId está undefined no listener do dropdown');
+            mostrarMensagem('Erro: ID da PA não encontrado', 'error');
+            return;
           }
+          
+          // Encontrar o card da PA
+          const paCard = $(`.pa-card[data-pa-id="${paId}"]`);
+          if (paCard.length === 0) {
+            console.error('❌ [DEBUG] Card da PA não encontrado:', paId);
+            mostrarMensagem('Erro: Card da PA não encontrado', 'error');
+            return;
+          }
+          
+          // Fechar dropdown
+          newDropdown.fadeOut(100, function() { $(this).remove(); });
+          activeDropdown = null;
+          
+          // Atribuir funcionário
+          atribuirFuncionarioAPa(paId, selectedFuncId, paCard);
         });
       } else {
         // Caso fetchFuncionarios falhe, mostrar mensagem de erro
@@ -246,20 +281,61 @@ async function toggleDropdownFuncionarios(button) {
  * @param {jQuery} paCardElement - Elemento do card da PA
  */
 function atribuirFuncionarioAPa(paId, funcionarioId, paCardElement) {
+  // Debug: Log dos parâmetros recebidos
+  console.log('🔍 [DEBUG] atribuirFuncionarioAPa chamada com:', {
+    paId: paId,
+    funcionarioId: funcionarioId,
+    paCardElement: paCardElement ? 'Elemento encontrado' : 'Elemento não encontrado'
+  });
+
+  // Validar dados antes de enviar
+  if (!paId || !funcionarioId) {
+    console.error('❌ [DEBUG] Dados inválidos:', { paId, funcionarioId });
+    mostrarMensagem('Dados inválidos: PA ID e Funcionário ID são obrigatórios', 'error');
+    return;
+  }
+
+  // Preparar dados
+  const dados = {
+    pa_id: paId,
+    funcionario_id: funcionarioId
+  };
+
+  // Obter CSRF token
+  const csrfToken = $('[name=csrfmiddlewaretoken]').val();
+  console.log('🔍 [DEBUG] CSRF Token:', csrfToken ? 'Token encontrado' : 'Token NÃO encontrado');
+  
+  if (!csrfToken) {
+    console.error('❌ [DEBUG] CSRF Token não encontrado');
+    mostrarMensagem('Token CSRF não encontrado. Recarregue a página.', 'error');
+    return;
+  }
+
+  // Debug: Log dos dados que serão enviados
+  console.log('🔍 [DEBUG] Dados que serão enviados:', dados);
+  console.log('🔍 [DEBUG] URL da API:', atribuirFuncionarioApiUrl);
+
   $.ajax({
     url: atribuirFuncionarioApiUrl,
     method: 'POST',
     headers: {
       'X-Requested-With': 'XMLHttpRequest',
-      'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+      'X-CSRFToken': csrfToken,
+      'Content-Type': 'application/json; charset=utf-8'
     },
-    data: JSON.stringify({
-      pa_id: paId,
-      funcionario_id: funcionarioId
-    }),
+    data: JSON.stringify(dados),
     contentType: 'application/json; charset=utf-8',
     dataType: 'json',
+    beforeSend: function(xhr, settings) {
+      console.log('🔍 [DEBUG] Enviando requisição AJAX:', {
+        url: settings.url,
+        method: settings.type,
+        data: settings.data,
+        headers: settings.headers
+      });
+    },
     success: function(response) {
+      console.log('✅ [DEBUG] Resposta de sucesso:', response);
       if (response.success) {
         // Atualizar a interface da PA principal
         atualizarVisualizacaoFuncionarioPA(paCardElement, response.funcionario, response.novo_status);
@@ -300,15 +376,37 @@ function atribuirFuncionarioAPa(paId, funcionarioId, paCardElement) {
           }
         }
       } else {
+        console.error('❌ [DEBUG] Resposta com erro:', response);
         mostrarMensagem('Erro ao atribuir funcionário: ' + (response.error || 'Erro desconhecido'), 'error');
       }
     },
     error: function(jqXHR, textStatus, errorThrown) {
-      console.error('Erro AJAX ao atribuir funcionário:', textStatus, errorThrown, jqXHR.responseText);
+      console.error('❌ [DEBUG] Erro AJAX completo:', {
+        status: jqXHR.status,
+        statusText: jqXHR.statusText,
+        textStatus: textStatus,
+        errorThrown: errorThrown,
+        responseText: jqXHR.responseText,
+        responseJSON: jqXHR.responseJSON
+      });
+      
       let errorMsg = 'Erro ao comunicar com o servidor para atribuição.';
+      
+      // Tentar extrair mensagem de erro mais específica
       if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
         errorMsg = jqXHR.responseJSON.error;
+      } else if (jqXHR.responseText) {
+        try {
+          const errorResponse = JSON.parse(jqXHR.responseText);
+          if (errorResponse.error) {
+            errorMsg = errorResponse.error;
+          }
+        } catch (e) {
+          // Se não conseguir fazer parse do JSON, usar o texto bruto
+          errorMsg = jqXHR.responseText;
+        }
       }
+      
       mostrarMensagem(errorMsg, 'error');
     }
   });
@@ -396,6 +494,7 @@ $(document).ready(function() {
 window.fetchFuncionarios = fetchFuncionarios;
 window.criarDropdownHTML = criarDropdownHTML;
 window.toggleDropdownFuncionarios = toggleDropdownFuncionarios;
+window.mostrarDropdownFuncionarios = toggleDropdownFuncionarios; // Alias para compatibilidade
 window.atribuirFuncionarioAPa = atribuirFuncionarioAPa;
 window.atualizarVisualizacaoFuncionarioPA = atualizarVisualizacaoFuncionarioPA;
 

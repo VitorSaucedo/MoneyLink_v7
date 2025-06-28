@@ -33,7 +33,11 @@ TI - Controle de Salas, Ilhas e PAs
 {% endblock %}
 
 {% block content %}
-<div class="container my-4" id="controle-salas-container">
+<div class="container my-4" id="controle-salas-container" 
+     data-usuario-restrito="{% if usuario_restrito %}true{% else %}false{% endif %}"
+     data-salas-permitidas="{% if salas_permitidas %}{{ salas_permitidas|join:',' }}{% endif %}"
+     data-loja-selecionada="{{ loja_selecionada|default:'' }}"
+     data-loja-atual-nome="{% if loja_atual %}{{ loja_atual.nome }}{% endif %}">
   <h1 class="titulo-pagina mb-4"><i class='bx bx-building me-2'></i>Controle de Salas, Ilhas e PAs</h1>
   
   <!-- Seletor de Loja -->
@@ -45,17 +49,24 @@ TI - Controle de Salas, Ilhas e PAs
           <form method="GET" id="form-filtro-loja">
             <div class="input-group">
               <select name="loja" id="select-loja" class="form-select">
-                <!-- Opções de loja serão carregadas via JavaScript -->
+                <option value="">Carregando lojas...</option>
+                {% for loja in lojas %}
+                  <option value="{{ loja.id }}" {% if loja.id == loja_selecionada %}selected{% endif %}>
+                    {{ loja.nome }}
+                  </option>
+                {% endfor %}
               </select>
               <button type="submit" class="btn btn-primary">
                 <i class='bx bx-search'></i>
               </button>
             </div>
           </form>
-          <div class="loja-info-text" id="loja-info-text" style="display: none;">
+          {% if loja_atual %}
+          <div class="loja-info-text" id="loja-info-text">
             <i class='bx bx-info-circle me-1'></i>
-            Mostrando salas de: <strong id="loja-atual-nome"></strong>
+            Mostrando salas de: <strong id="loja-atual-nome">{{ loja_atual.nome }}</strong>
           </div>
+          {% endif %}
         </div>
       </div>
     </div>

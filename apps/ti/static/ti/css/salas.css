@@ -505,8 +505,30 @@ ul.nav-tabs li.nav-item {
     }
 }
 
-/* Ordenação das PAs agora é controlada pelo JavaScript */
-/* Removendo regras CSS de ordenação para evitar conflitos */
+/* Organização das PAs em duas colunas - metade em cada lado, dispostas verticalmente */
+.pa-column-left,
+.pa-column-right {
+  min-height: 200px; /* Altura mínima para garantir espaço */
+}
+
+/* Garantir que as PAs sejam distribuídas corretamente */
+.pa-grid-dual-column .pa-card {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* Em telas pequenas, as colunas empilham verticalmente */
+@media (max-width: 768px) {
+  .pa-grid-dual-column {
+    flex-direction: column;
+  }
+  
+  .pa-column-left,
+  .pa-column-right {
+    width: 100%;
+    min-width: auto;
+  }
+}
 
 /* ==========================================
    Estilos para cards de PAs

@@ -572,11 +572,14 @@
         fecharMenusComputadorAtivos: Utils.closeAllMenus,
         fetchDisponiveisComputadores: API.fetchComputadores,
         toggleDropdownDisponiveisComputadores: (btn) => Dropdown.toggle(btn),
+        mostrarDropdownComputadores: (btn) => Dropdown.toggle(btn), // Alias para compatibilidade
         adicionarComputadorAPa: Actions.addComputador,
         removerComputadorDaPa: Actions.removeComputador,
+        removerComputadorDaPA: Actions.removeComputador, // Alias para compatibilidade
         atualizarVisualizacaoComputadoresPA: UI.updateVisualization,
         atualizarStatusComputadorNoServidor: Actions.updateStatus,
-        computadoresDisponiveisCache: STATE.cache
+        computadoresDisponiveisCache: STATE.cache,
+        mostrarMenuComputador: UI.showActionMenu // Alias para compatibilidade
     });
 
 })(jQuery);
