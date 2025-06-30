@@ -94,6 +94,7 @@ urlpatterns = [
     path('api/periferico/<int:periferico_id>/atualizar-status/', views.api_post_periferico_atualizar_status, name='api_atualizar_status_periferico'),
     path('api/computador/<int:computador_id>/atualizar-status/', views.api_post_computador_atualizar_status, name='api_post_computador_atualizar_status'),
     path('api/perifericos-disponiveis-por-tipo/<int:tipo_id>/', views.api_get_perifericos_disponiveis_por_tipo, name='api_listar_perifericos_disponiveis_por_tipo'),
+    path('api/perifericos-disponiveis-por-nome-tipo/<str:nome_tipo>/', views.api_get_perifericos_disponiveis_por_nome_tipo, name='api_listar_perifericos_disponiveis_por_nome_tipo'),
     
     # APIs para Monitores
     path('api/monitores-disponiveis/', views.api_get_monitores_disponiveis, name='api_monitores_disponiveis'),
@@ -155,6 +156,7 @@ urlpatterns = [
     path('api/ajax/sala/cadastrar/', views.api_post_sala_create, name='api_ajax_sala_create'),
     path('api/ajax/ilha/cadastrar/', views.api_post_ilha_create, name='api_ajax_ilha_create'),
     path('api/ajax/posicao-atendimento/cadastrar/', views.api_post_posicao_atendimento_create, name='api_ajax_posicao_atendimento_create'),
+    path('api/ajax/posicao-atendimento/editar/', views.api_posicao_atendimento_update, name='api_posicao_atendimento_update'),
     path('api/ajax/tipo-periferico/cadastrar/', views.api_post_tipo_periferico_create, name='api_ajax_tipo_periferico_create'),
     path('api/ajax/monitor/cadastrar/', views.api_post_monitor_create, name='api_ajax_monitor_create'),
     path('api/ajax/chip/cadastrar/', views.api_post_chip_create, name='api_ajax_chip_create'),

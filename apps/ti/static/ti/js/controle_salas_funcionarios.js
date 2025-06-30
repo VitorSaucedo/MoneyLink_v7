@@ -26,37 +26,17 @@ async function fetchFuncionarios() {
   try {
     // Se já tivermos os dados em cache, retorná-los
     if (funcionariosCache && funcionariosCache.length > 0) {
-      console.log('[DEBUG] Retornando funcionários do cache, total:', funcionariosCache.length);
       return funcionariosCache;
     }
     
     // Caso contrário, fazer a requisição
-    console.log('[DEBUG] Buscando funcionários via API...');
-    console.log('[DEBUG] URL da API:', funcionariosApiUrl);
-    
-    // Verificar se a URL está correta
-    if (!funcionariosApiUrl || funcionariosApiUrl === '/ti/api/funcionarios/') {
-      console.log('[DEBUG] Usando URL padrão para funcionários. Verifique se esta URL existe no backend');
-    }
-    
     const response = await $.ajax({
       url: funcionariosApiUrl,
       type: 'GET',
-      dataType: 'json',
-      beforeSend: function() {
-        console.log('[DEBUG] Enviando requisição AJAX para buscar funcionários');
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.log('[DEBUG] Erro na requisição AJAX:', textStatus, errorThrown);
-        console.log('[DEBUG] Status HTTP:', jqXHR.status);
-        console.log('[DEBUG] Resposta completa:', jqXHR.responseText);
-      }
+      dataType: 'json'
     });
     
-    console.log('[DEBUG] Resposta recebida da API:', response);
-    
     if (response.success) {
-      console.log('[DEBUG] Funcionários obtidos com sucesso, total:', response.funcionarios.length);
       funcionariosCache = response.funcionarios;
       // Adicionar a opção "Nenhum" se ainda não existir
       if (!funcionariosCache.find(f => f.id === 0)) {
@@ -64,18 +44,9 @@ async function fetchFuncionarios() {
       }
       return funcionariosCache;
     } else {
-      console.log('[DEBUG] API retornou erro:', response.error || 'Erro não especificado');
       throw new Error(response.error || 'Erro desconhecido ao buscar funcionários.');
     }
   } catch (error) {
-    console.error("[DEBUG] Erro detalhado ao buscar funcionários:", error);
-    if (error.responseJSON) {
-      console.log('[DEBUG] Detalhes do erro (responseJSON):', error.responseJSON);
-    }
-    if (error.responseText) {
-      console.log('[DEBUG] Resposta de texto:', error.responseText);
-    }
-    
     let errorMsg = 'Erro desconhecido.';
     if (error.responseJSON && error.responseJSON.error) {
       // Erro vindo da nossa API Django
@@ -128,69 +99,50 @@ function criarDropdownHTML(funcionarios, paId) {
  * @param {HTMLElement} button - Botão que foi clicado
  */
 async function toggleDropdownFuncionarios(button) {
-  console.log('[DEBUG] toggleDropdownFuncionarios iniciado para botão:', button);
   const paId = $(button).data('pa-id');
-  console.log('[DEBUG] PA ID obtido:', paId);
-  console.log('[DEBUG] Botão data attributes:', $(button).data());
-  console.log('[DEBUG] Botão HTML:', button.outerHTML);
   
   // Verificar se paId está definido
   if (!paId) {
-    console.error('❌ [DEBUG] paId é undefined ou vazio!');
-    console.log('[DEBUG] Botão completo:', button.outerHTML);
-    console.log('[DEBUG] Data attributes do botão:', $(button).data());
     mostrarMensagem('Erro: ID da PA não encontrado', 'error');
     return;
   }
   
   const existingDropdown = $(`#dropdown-pa-${paId}`);
-  console.log('[DEBUG] Dropdown existente?', existingDropdown.length > 0);
 
   // Fechar dropdown ativo se existir e não for o atual
   if (activeDropdown && activeDropdown.attr('id') !== `dropdown-pa-${paId}`) {
-    console.log('[DEBUG] Fechando dropdown ativo diferente');
     activeDropdown.fadeOut(100, function() { $(this).remove(); });
     activeDropdown = null;
   }
 
   if (existingDropdown.length > 0) {
     // Se existe, apenas remove (fecha)
-    console.log('[DEBUG] Fechando dropdown existente');
     existingDropdown.fadeOut(100, function() { $(this).remove(); });
     activeDropdown = null;
   } else {
     // Se não existe, busca dados, cria e mostra
-    console.log('[DEBUG] Criando novo dropdown para PA:', paId);
     
     // Criar um loader flutuante próximo ao botão que clicamos
     const buttonRect = button.getBoundingClientRect();
-    console.log('[DEBUG] Posição do botão:', buttonRect);
     const loaderHTML = `<div id="dropdown-loader-${paId}" style="position: fixed; z-index: 9999; left: ${buttonRect.right + 10}px; top: ${buttonRect.top}px;">
                           <div class="spinner-border spinner-border-sm text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                           </div>
                         </div>`;
     $('body').append(loaderHTML);
-    console.log('[DEBUG] Loader adicionado, buscando funcionários...');
     
     try {
       const funcionarios = await fetchFuncionarios();
-      console.log('[DEBUG] Resultado da busca de funcionários:', funcionarios ? 'Sucesso' : 'Falha');
       $(`#dropdown-loader-${paId}`).remove(); // Remove o loader
-      console.log('[DEBUG] Loader removido');
       
       if (funcionarios) {
-        console.log('[DEBUG] Criando HTML do dropdown com', funcionarios.length, 'funcionários');
         const dropdownHTML = criarDropdownHTML(funcionarios, paId);
-        console.log('[DEBUG] HTML do dropdown criado');
         
         // Anexar dropdown ao body em vez de dentro do card
         $('body').append(dropdownHTML);
-        console.log('[DEBUG] Dropdown anexado ao body');
         
         const newDropdown = $(`#dropdown-pa-${paId}`);
         activeDropdown = newDropdown;
-        console.log('[DEBUG] Novo dropdown ativo definido');
 
         // Posicionar baseado na posição absoluta do botão na viewport
         const buttonRect = button.getBoundingClientRect();
@@ -217,15 +169,9 @@ async function toggleDropdownFuncionarios(button) {
         // Adicionar listener para seleção
         newDropdown.find('.funcionario-dropdown-item').on('click', function() {
           const selectedFuncId = $(this).data('funcionario-id');
-          console.log('🔍 [DEBUG] Clique no funcionário:', {
-            selectedFuncId: selectedFuncId,
-            paId: paId,
-            dropdownId: newDropdown.attr('id')
-          });
           
           // Verificar se paId está definido
           if (!paId) {
-            console.error('❌ [DEBUG] paId está undefined no listener do dropdown');
             mostrarMensagem('Erro: ID da PA não encontrado', 'error');
             return;
           }
@@ -233,7 +179,6 @@ async function toggleDropdownFuncionarios(button) {
           // Encontrar o card da PA
           const paCard = $(`.pa-card[data-pa-id="${paId}"]`);
           if (paCard.length === 0) {
-            console.error('❌ [DEBUG] Card da PA não encontrado:', paId);
             mostrarMensagem('Erro: Card da PA não encontrado', 'error');
             return;
           }
@@ -258,7 +203,6 @@ async function toggleDropdownFuncionarios(button) {
         }, 3000);
       }
     } catch (error) {
-      console.error('[DEBUG] Erro no toggleDropdownFuncionarios:', error);
       // Remover o loader se existir
       $(`#dropdown-loader-${paId}`).remove();
       // Mostrar mensagem de erro
@@ -281,16 +225,8 @@ async function toggleDropdownFuncionarios(button) {
  * @param {jQuery} paCardElement - Elemento do card da PA
  */
 function atribuirFuncionarioAPa(paId, funcionarioId, paCardElement) {
-  // Debug: Log dos parâmetros recebidos
-  console.log('🔍 [DEBUG] atribuirFuncionarioAPa chamada com:', {
-    paId: paId,
-    funcionarioId: funcionarioId,
-    paCardElement: paCardElement ? 'Elemento encontrado' : 'Elemento não encontrado'
-  });
-
   // Validar dados antes de enviar
   if (!paId || !funcionarioId) {
-    console.error('❌ [DEBUG] Dados inválidos:', { paId, funcionarioId });
     mostrarMensagem('Dados inválidos: PA ID e Funcionário ID são obrigatórios', 'error');
     return;
   }
@@ -303,17 +239,11 @@ function atribuirFuncionarioAPa(paId, funcionarioId, paCardElement) {
 
   // Obter CSRF token
   const csrfToken = $('[name=csrfmiddlewaretoken]').val();
-  console.log('🔍 [DEBUG] CSRF Token:', csrfToken ? 'Token encontrado' : 'Token NÃO encontrado');
   
   if (!csrfToken) {
-    console.error('❌ [DEBUG] CSRF Token não encontrado');
     mostrarMensagem('Token CSRF não encontrado. Recarregue a página.', 'error');
     return;
   }
-
-  // Debug: Log dos dados que serão enviados
-  console.log('🔍 [DEBUG] Dados que serão enviados:', dados);
-  console.log('🔍 [DEBUG] URL da API:', atribuirFuncionarioApiUrl);
 
   $.ajax({
     url: atribuirFuncionarioApiUrl,
@@ -326,16 +256,7 @@ function atribuirFuncionarioAPa(paId, funcionarioId, paCardElement) {
     data: JSON.stringify(dados),
     contentType: 'application/json; charset=utf-8',
     dataType: 'json',
-    beforeSend: function(xhr, settings) {
-      console.log('🔍 [DEBUG] Enviando requisição AJAX:', {
-        url: settings.url,
-        method: settings.type,
-        data: settings.data,
-        headers: settings.headers
-      });
-    },
     success: function(response) {
-      console.log('✅ [DEBUG] Resposta de sucesso:', response);
       if (response.success) {
         // Atualizar a interface da PA principal
         atualizarVisualizacaoFuncionarioPA(paCardElement, response.funcionario, response.novo_status);
@@ -376,20 +297,10 @@ function atribuirFuncionarioAPa(paId, funcionarioId, paCardElement) {
           }
         }
       } else {
-        console.error('❌ [DEBUG] Resposta com erro:', response);
         mostrarMensagem('Erro ao atribuir funcionário: ' + (response.error || 'Erro desconhecido'), 'error');
       }
     },
     error: function(jqXHR, textStatus, errorThrown) {
-      console.error('❌ [DEBUG] Erro AJAX completo:', {
-        status: jqXHR.status,
-        statusText: jqXHR.statusText,
-        textStatus: textStatus,
-        errorThrown: errorThrown,
-        responseText: jqXHR.responseText,
-        responseJSON: jqXHR.responseJSON
-      });
-      
       let errorMsg = 'Erro ao comunicar com o servidor para atribuição.';
       
       // Tentar extrair mensagem de erro mais específica
@@ -474,10 +385,6 @@ $(document).ready(function() {
     e.preventDefault();
     e.stopPropagation(); // Impede que feche imediatamente se clicar no botão
     
-    console.log('[DEBUG] Clique em ramal-badge ou assign-funcionario-btn');
-    console.log('[DEBUG] Elemento clicado:', this);
-    console.log('[DEBUG] Classe do elemento:', $(this).attr('class'));
-    console.log('[DEBUG] PA ID:', $(this).data('pa-id'));
     toggleDropdownFuncionarios(this);
   });
 

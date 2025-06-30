@@ -40,11 +40,6 @@ $(document).ready(function() {
         }
     });
 
-    // Debug: Log todas as requisições AJAX
-    $(document).ajaxStart(function() {
-        console.log('🔄 Iniciando requisição AJAX...');
-    });
-
     $(document).ajaxError(function(event, xhr, settings, error) {
         console.error('❌ Erro AJAX:', {
             url: settings.url,
@@ -62,10 +57,6 @@ $(document).ready(function() {
         } else if (xhr.status === 500) {
             console.error('🔥 Erro 500: Erro interno do servidor');
         }
-    });
-
-    $(document).ajaxSuccess(function(event, xhr, settings) {
-        console.log('✅ Requisição AJAX bem-sucedida:', settings.url);
     });
 });
 

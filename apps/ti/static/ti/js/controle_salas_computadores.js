@@ -286,7 +286,7 @@
                        .removeClass('bg-info').addClass('bg-primary');
                 
                 Actions.addComputador(paId, randomId, paCard);
-                this.close();
+                Dropdown.close();
             }).hover(
                 function() { $(this).css('background-color', '#f0f8ff'); },
                 function() { $(this).css('background-color', ''); }
@@ -337,6 +337,16 @@
     
     const Actions = {
         async addComputador(paId, computadorId, paCard) {
+            // Verificar se paCard é válido, caso contrário tentar encontrá-lo
+            if (!paCard || !paCard.length) {
+                paCard = $(`.pa-card[data-pa-id="${paId}"]`);
+                if (!paCard.length) {
+                    console.error('PA Card não encontrado para adição de computador');
+                    Utils.showMessage('Erro: PA não encontrada', 'error');
+                    return;
+                }
+            }
+            
             const existingTag = paCard.find(`.${CONFIG.classes.tag}`);
             if (existingTag.length) {
                 const existing = existingTag.text().trim();
@@ -348,7 +358,7 @@
             try {
                 const response = await API.adicionarComputador(paId, computadorId);
                 if (response.success) {
-                    UI.updateVisualization(paCard, response.lista_computadores_pa || []);
+                    UI.updateVisualization(paCard, response.data.lista_computadores_pa || []);
                     Utils.clearCache();
                     Utils.showMessage(response.message || 'Computador atribuído com sucesso!', 'success');
                 } else {
@@ -362,9 +372,19 @@
 
         async removeComputador(paId, computadorId, paCard) {
             try {
+                // Verificar se paCard é válido, caso contrário tentar encontrá-lo
+                if (!paCard || !paCard.length) {
+                    paCard = $(`.pa-card[data-pa-id="${paId}"]`);
+                    if (!paCard.length) {
+                        console.error('PA Card não encontrado para remoção de computador');
+                        Utils.showMessage('Erro: PA não encontrada', 'error');
+                        return;
+                    }
+                }
+                
                 const response = await API.removerComputador(paId, computadorId);
                 if (response.success) {
-                    UI.updateVisualization(paCard, response.lista_computadores_pa || []);
+                    UI.updateVisualization(paCard, response.data.lista_computadores_pa || []);
                     Utils.clearCache();
                     Utils.showMessage(response.message || 'Computador removido com sucesso!', 'success');
                 } else {
@@ -382,8 +402,16 @@
                 if (response.success) {
                     Utils.showMessage(response.message || 'Status atualizado!', 'success');
                     if (response.computador_removido_da_pa) {
-                        const paCard = tagElement.closest('.pa-card');
-                        UI.updateVisualization(paCard, response.lista_computadores_pa || []);
+                        let paCard = tagElement.closest('.pa-card');
+                        // Verificar se paCard é válido, caso contrário tentar encontrá-lo
+                        if (!paCard || !paCard.length) {
+                            paCard = $(`.pa-card[data-pa-id="${paId}"]`);
+                            if (!paCard.length) {
+                                console.error('PA Card não encontrado para atualização de status');
+                                return;
+                            }
+                        }
+                        UI.updateVisualization(paCard, response.data.lista_computadores_pa || []);
                         Utils.clearCache();
                     }
                 } else {
@@ -400,7 +428,17 @@
     
     const UI = {
         updateVisualization(paCard, computadores) {
-            const container = paCard.find('.computadores-list-container');
+            if (!paCard || !paCard.length) {
+                console.warn('PA Card não encontrado para atualização de visualização');
+                return;
+            }
+            
+            const container = paCard.find('.computadores-list');
+            if (!container.length) {
+                console.warn('Container de computadores não encontrado no PA Card');
+                return;
+            }
+            
             container.empty();
             
             const computador = computadores?.[0];
@@ -424,14 +462,23 @@
                 left: (rect.left + window.scrollX) + 'px'
             }).show();
             
-            this.attachActionEvents(tag);
+            UI.attachActionEvents(tag);
         },
 
         attachActionEvents(tag) {
             const computadorId = tag.data('computador-id');
             const paId = tag.data('pa-id');
             const nome = tag.contents().filter(function() { return this.nodeType === 3; }).text().trim();
-            const paCard = tag.closest('.pa-card');
+            let paCard = tag.closest('.pa-card');
+            
+            // Verificar se paCard é válido, caso contrário tentar encontrá-lo
+            if (!paCard || !paCard.length) {
+                paCard = $(`.pa-card[data-pa-id="${paId}"]`);
+                if (!paCard.length) {
+                    console.error('PA Card não encontrado para configuração de eventos');
+                    return;
+                }
+            }
             
             STATE.activeActionMenu.find('.computador-action-option').hover(
                 function() { $(this).addClass('hover'); },
@@ -441,7 +488,7 @@
             STATE.activeActionMenu.find('[data-action="update-status"]').on('click', (e) => {
                 e.stopPropagation();
                 Utils.closeAllMenus();
-                this.showStatusMenu(computadorId, nome, paId, tag);
+                UI.showStatusMenu(computadorId, nome, paId, tag);
             });
             
             STATE.activeActionMenu.find('[data-action="remove"]').on('click', (e) => {
@@ -533,7 +580,18 @@
                     
                     const computadorId = tag.data('computador-id');
                     const paId = tag.data('pa-id');
-                    const paCard = tag.closest('.pa-card');
+                    let paCard = tag.closest('.pa-card');
+                    
+                    // Verificar se paCard é válido, caso contrário tentar encontrá-lo
+                    if (!paCard || !paCard.length) {
+                        paCard = $(`.pa-card[data-pa-id="${paId}"]`);
+                        if (!paCard.length) {
+                            console.error('PA Card não encontrado para remoção de computador');
+                            Utils.showMessage('Erro: PA não encontrada', 'error');
+                            return;
+                        }
+                    }
+                    
                     Actions.removeComputador(paId, computadorId, paCard);
                     return;
                 }
@@ -564,7 +622,6 @@
     
     $(document).ready(() => {
         EventHandlers.init();
-        console.log('✅ Sistema de Computadores (Otimizado) carregado com sucesso');
     });
 
     // Exportação global para compatibilidade

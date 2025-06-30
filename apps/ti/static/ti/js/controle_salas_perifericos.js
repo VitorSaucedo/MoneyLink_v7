@@ -14,7 +14,7 @@ const PERIFERICOS_CONFIG = {
     atribuirPeriferico: '/ti/atribuicoes-perifericos/cadastrar/',
     removerPeriferico: '/ti/api/remover-periferico-pa/',
     atualizarStatus: '/ti/api/periferico/{periferico_id}/atualizar-status/',
-    cadastrarLote: '/ti/atribuicoes-perifericos/cadastrar-lote/'
+    cadastrarLote: '/ti/api/atribuicoes-perifericos/cadastrar-lote/'
   },
   classes: {
     perifericoTag: '.periferico-tag',
@@ -60,15 +60,6 @@ const PERIFERICOS_TEMPLATES = {
       <div class="periferico-status-item" data-status="disponivel">
         <span class="status-indicator status-disponivel"></span>Livre (Disponível)
       </div>
-    </div>`,
-
-  botaoFaltante: (paId, tipoId, tipoNome) => `
-    <div class="periferico-faltante-item">
-      <span class="periferico-faltante-nome">${tipoNome}</span>
-      <button type="button" class="btn btn-sm btn-outline-warning add-periferico-btn" 
-              data-pa-id="${paId}" data-tipo-id="${tipoId}" data-tipo-nome="${tipoNome}">
-        <i class='bx bx-plus-circle me-1'></i> Adicionar ${tipoNome}
-      </button>
     </div>`,
 
   itemDisponivel: (periferico) => `
@@ -224,12 +215,11 @@ function gerenciarModal(modal, acao, opcoes = {}) {
 // FUNÇÕES PRINCIPAIS DE PERIFÉRICOS
 // =============================================================================
 
-function atualizarPerifericosNaPA(paCardElement, perifericos = [], tiposFaltantes = []) {
+async function atualizarPerifericosNaPA(paCardElement, perifericos = []) {
   const perifericosList = paCardElement.querySelector(PERIFERICOS_CONFIG.classes.perifericosList);
   if (!perifericosList) return;
   
   renderizarListaPerifericos(perifericosList, perifericos);
-  gerenciarPerifericosFaltantes(paCardElement, tiposFaltantes);
   reativarEventosPerifericos(paCardElement);
 }
 
@@ -237,35 +227,6 @@ function renderizarListaPerifericos(container, perifericos) {
   container.innerHTML = perifericos.length > 0 
     ? perifericos.map(p => PERIFERICOS_TEMPLATES.perifericoTag(p)).join('')
     : `<span class="text-muted">${PERIFERICOS_CONFIG.messages.semPerifericos}</span>`;
-}
-
-function gerenciarPerifericosFaltantes(paCardElement, tiposFaltantes) {
-  const faltantesContainer = paCardElement.querySelector(PERIFERICOS_CONFIG.classes.faltantesContainer);
-  if (!faltantesContainer) return;
-  
-  const faltantesListElement = faltantesContainer.querySelector('.perifericos-faltantes-list');
-  
-  if (tiposFaltantes?.length > 0) {
-    faltantesContainer.classList.remove('d-none');
-    if (faltantesListElement) {
-      const paId = paCardElement.getAttribute('data-pa-id');
-      faltantesListElement.innerHTML = tiposFaltantes.map(tipoNome => {
-        const tipoId = window.tiposPerifericosComuns?.find(t => t.nome === tipoNome)?.id;
-        return PERIFERICOS_TEMPLATES.botaoFaltante(paId, tipoId, tipoNome);
-      }).join('');
-      
-      // Adicionar eventos aos botões
-      faltantesListElement.querySelectorAll('.add-periferico-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          const tipoId = this.getAttribute('data-tipo-id');
-          const tipoNome = this.getAttribute('data-tipo-nome');
-          abrirModalPerifericosDisponiveis(tipoId, tipoNome);
-        });
-      });
-    }
-  } else {
-    faltantesContainer.classList.add('d-none');
-  }
 }
 
 function reativarEventosPerifericos(paCardElement) {
@@ -295,6 +256,12 @@ function reativarEventosPerifericos(paCardElement) {
 function abrirMenuAcoesPeriferico(perifericoTag) {
   fecharMenusAtivos();
 
+  // Verificar se perifericoTag é um objeto jQuery válido
+  if (!perifericoTag || !perifericoTag.jquery) {
+    console.error('perifericoTag não é um objeto jQuery válido:', perifericoTag);
+    return;
+  }
+
   const perifericoId = perifericoTag.data('periferico-id');
   const paCard = perifericoTag.closest(PERIFERICOS_CONFIG.classes.paCard);
   const paId = paCard.data('pa-id');
@@ -316,12 +283,29 @@ function abrirMenuAcoesPeriferico(perifericoTag) {
   );
 
   const acoes = {
-    'update-status': () => abrirMenuAtualizarStatusPeriferico(perifericoId, perifericoNomeCompleto, perifericoTipo, paId, perifericoTag),
+    'update-status': () => {
+      // Verificar se todas as variáveis necessárias estão definidas
+      if (!perifericoId || !perifericoNomeCompleto || !perifericoTipo || !paId || !perifericoTag) {
+        console.error('Dados incompletos para atualização de status:', { perifericoId, perifericoNomeCompleto, perifericoTipo, paId, perifericoTag });
+        mostrarMensagem('Erro: Dados incompletos para atualização de status', 'error');
+        return;
+      }
+      
+      abrirMenuAtualizarStatusPeriferico(perifericoId, perifericoNomeCompleto, perifericoTipo, paId, perifericoTag);
+    },
     'remove': () => {
       if (window.usuarioRestrito) {
         mostrarMensagem('Você não tem permissão para remover periféricos.', 'warning');
         return;
       }
+      
+      // Verificar se todas as variáveis necessárias estão definidas
+      if (!perifericoId || !paId || !perifericoNomeCompleto || !perifericoTag) {
+        console.error('Dados incompletos para remoção:', { perifericoId, paId, perifericoNomeCompleto, perifericoTag });
+        mostrarMensagem('Erro: Dados incompletos para remoção do periférico', 'error');
+        return;
+      }
+      
       abrirModalConfirmacao(perifericoId, paId, perifericoNomeCompleto, perifericoTag);
     }
   };
@@ -430,12 +414,33 @@ async function atualizarStatusPerifericoNoServidor(perifericoId, novoStatus, paI
 }
 
 function abrirModalConfirmacao(perifericoId, paId, perifericoNome, perifericoElement) {
+  // Verificar se perifericoElement é um objeto jQuery válido
+  if (!perifericoElement || !perifericoElement.jquery) {
+    console.error('perifericoElement não é um objeto jQuery válido em abrirModalConfirmacao:', perifericoElement);
+    mostrarMensagem('Erro: Elemento do periférico não encontrado', 'error');
+    return;
+  }
+
   PERIFERICOS_STATE.dadosPerifericoParaRemover = { perifericoId, paId, perifericoElement };
   gerenciarModal(PERIFERICOS_DOM.modals.confirmRemove, 'abrir', { nome: perifericoNome });
 }
 
 async function removerPerifericoDaPA(perifericoId, paId, perifericoElement) {
+  // Verificar se perifericoElement é um objeto jQuery válido
+  if (!perifericoElement || !perifericoElement.jquery) {
+    console.error('perifericoElement não é um objeto jQuery válido:', perifericoElement);
+    mostrarMensagem('Erro: Elemento do periférico não encontrado', 'error');
+    return;
+  }
+
   const paCard = perifericoElement.closest(PERIFERICOS_CONFIG.classes.paCard);
+  
+  // Verificar se paCard foi encontrado
+  if (!paCard.length) {
+    console.error('PA card não encontrado para o periférico');
+    mostrarMensagem('Erro: Posição de atendimento não encontrada', 'error');
+    return;
+  }
   
   try {
     const response = await requestAPI(PERIFERICOS_CONFIG.urls.removerPeriferico, {
@@ -455,7 +460,7 @@ async function removerPerifericoDaPA(perifericoId, paId, perifericoElement) {
       });
       
       if (response.tipos_faltantes) {
-        atualizarPerifericosNaPA(paCard[0], response.perifericos || [], response.tipos_faltantes);
+        await atualizarPerifericosNaPA(paCard[0], response.perifericos || []);
       }
       
       mostrarMensagem(response.message || PERIFERICOS_CONFIG.messages.sucessoRemocao, 'success');
@@ -553,9 +558,33 @@ async function carregarPerifericosDisponiveis(tipoId) {
     
     PERIFERICOS_DOM.modals.perifericosDisponiveis.loading.hide();
     
-    if (response.success && response.perifericos?.length > 0) {
+    // Verificar se a resposta tem a estrutura esperada
+    let perifericos = [];
+    let success = false;
+    
+    // Tentar diferentes estruturas de resposta
+    if (response.success && response.data?.perifericos) {
+      // Estrutura: { success: true, data: { perifericos: [...] } }
+      perifericos = response.data.perifericos;
+      success = true;
+    } else if (response.success && response.perifericos) {
+      // Estrutura: { success: true, perifericos: [...] }
+      perifericos = response.perifericos;
+      success = true;
+    } else if (response.data?.perifericos) {
+      // Estrutura: { data: { perifericos: [...] } }
+      perifericos = response.data.perifericos;
+      success = true;
+    } else if (Array.isArray(response)) {
+      // Estrutura: [...] (array direto)
+      perifericos = response;
+      success = true;
+    }
+    
+    if (success && perifericos.length > 0) {
       const perifericosPendentesDesseTipo = PERIFERICOS_STATE.perifericosPendentesPorTipo[tipoId] || [];
-      const perifericosFiltrados = response.perifericos.filter(
+      
+      const perifericosFiltrados = perifericos.filter(
         periferico => !perifericosPendentesDesseTipo.includes(periferico.id)
       );
       
@@ -714,7 +743,7 @@ const PerifericosEventHandlers = {
   
   setupButtonEvents() {
     // Botões de adicionar periférico faltante
-    $(document).on('click', '.add-periferico-btn', function(e) {
+    $(document).on('click', '.add-periferico-btn', async function(e) {
       e.preventDefault();
       e.stopPropagation();
       
@@ -723,7 +752,61 @@ const PerifericosEventHandlers = {
         return;
       }
       
-      const { paId, tipoId, tipoNome } = $(this).data();
+      let { paId, tipoId, tipoNome } = $(this).data();
+      
+      // Converter tipoId para número se for string
+      if (typeof tipoId === 'string' && tipoId !== '') {
+        tipoId = parseInt(tipoId, 10);
+      }
+      
+      // Se o tipoId não estiver disponível ou for inválido, buscar pelo nome
+      if (!tipoId || tipoId === 'null' || tipoId === null || tipoId === '' || isNaN(tipoId)) {
+        try {
+          // Buscar os tipos de periféricos da API para obter os IDs corretos
+          if (!window.tiposPerifericosCache) {
+            const response = await requestAPI('/ti/api/tipos-perifericos/');
+            if (response.success && response.data?.tipos_perifericos) {
+              window.tiposPerifericosCache = response.data.tipos_perifericos;
+            }
+          }
+          
+          // Encontrar o ID pelo nome
+          if (window.tiposPerifericosCache) {
+            const tipoEncontrado = window.tiposPerifericosCache.find(t => t.nome === tipoNome);
+            if (tipoEncontrado) {
+              tipoId = parseInt(tipoEncontrado.id, 10);
+            }
+          }
+          
+          // Se ainda não encontrou, tentar pela API alternativa
+          if (!tipoId || isNaN(tipoId)) {
+            const response = await requestAPI(`/ti/api/perifericos-disponiveis-por-nome-tipo/${encodeURIComponent(tipoNome)}/`);
+            
+            if (response.success && response.data?.tipo?.id) {
+              tipoId = parseInt(response.data.tipo.id, 10);
+              
+              // Atualizar o cache para futuras consultas
+              if (!window.tiposPerifericosCache) {
+                window.tiposPerifericosCache = [];
+              }
+              
+              // Verificar se já não existe no cache
+              const jaExiste = window.tiposPerifericosCache.find(t => t.nome === tipoNome);
+              if (!jaExiste) {
+                window.tiposPerifericosCache.push({ id: tipoId, nome: tipoNome });
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Erro ao buscar tipo por nome:', error);
+        }
+        
+        // Se ainda não encontrou o tipo, exibir erro
+        if (!tipoId || isNaN(tipoId)) {
+          mostrarMensagem(`Erro: Tipo de periférico "${tipoNome}" não encontrado no sistema.`, 'error');
+          return;
+        }
+      }
       
       PERIFERICOS_STATE.modalDadosPa = { id: paId };
       PERIFERICOS_STATE.modalDadosTipo = { id: tipoId, nome: tipoNome };

@@ -60,8 +60,6 @@ function inicializarCarregamento() {
     
     // Configurar eventos
     configurarEventosCarregamento();
-    
-    console.log('Sistema de carregamento otimizado inicializado');
   } catch (error) {
     console.error('Erro ao inicializar carregamento:', error);
     mostrarErroCarregamento('Erro ao inicializar sistema de carregamento');
@@ -510,6 +508,8 @@ function renderizarFuncionarioPA(pa, usuarioRestrito) {
         <div>
           <span><strong>Funcionário:</strong> ${funcionario.nome_completo}</span>
           <button class="btn btn-outline-secondary btn-sm ramal-badge ms-2" 
+                  data-pa-id="${pa.id}"
+                  data-action="change"
                   title="Ramal: ${ramalTexto}"
                   ${usuarioRestrito ? 'disabled' : ''}>
             <i class='bx bx-phone'></i> ${ramalTexto}
@@ -525,6 +525,8 @@ function renderizarFuncionarioPA(pa, usuarioRestrito) {
         <div>
           <span><strong>Funcionário:</strong> ${pa.funcionario}</span>
           <button class="btn btn-outline-secondary btn-sm ramal-badge ms-2" 
+                  data-pa-id="${pa.id}"
+                  data-action="change"
                   ${usuarioRestrito ? 'disabled' : ''}>
             <i class='bx bx-phone'></i> 
           </button>
@@ -538,6 +540,7 @@ function renderizarFuncionarioPA(pa, usuarioRestrito) {
           <span><strong>Funcionário:</strong> <em>Não atribuído</em></span>
           <button class="btn btn-primary btn-sm assign-funcionario-btn ms-2" 
                   data-pa-id="${pa.id}"
+                  data-action="assign"
                   ${usuarioRestrito ? 'disabled' : ''}>
             <i class='bx bx-user-plus'></i> Atribuir
           </button>
@@ -557,12 +560,14 @@ function renderizarPerifericosPA(pa, dadosGlobais, usuarioRestrito) {
   if (pa.perifericos && pa.perifericos.length > 0) {
     pa.perifericos.forEach(periferico => {
       html += `
-        <span class="periferico-tag" data-periferico-id="${periferico.id}">
-          ${periferico.tipo}: ${periferico.marca} ${periferico.modelo}
+        <span class="periferico-tag" data-periferico-id="${periferico.id}" data-periferico-tipo="${periferico.tipo}">
+          ${periferico.tipo} ${periferico.marca} ${periferico.modelo ? `(${periferico.modelo})` : ''}
           ${!usuarioRestrito ? '<i class="fas fa-times remove-periferico-btn ms-1" title="Remover"></i>' : ''}
         </span>
       `;
     });
+  } else {
+    html += `<span class="text-muted">Nenhum periférico atribuído</span>`;
   }
   
   html += `</div>`;
@@ -576,10 +581,31 @@ function renderizarPerifericosPA(pa, dadosGlobais, usuarioRestrito) {
     `;
     
     pa.faltando.forEach(tipo => {
+      // Buscar o ID do tipo de periférico no cache ou dados globais
+      let tipoId = null;
+      
+      // Tentar encontrar o tipo nos dados globais primeiro
+      if (dadosGlobais?.tipos_perifericos) {
+        const tipoEncontrado = dadosGlobais.tipos_perifericos.find(t => t.nome === tipo);
+        if (tipoEncontrado) {
+          tipoId = tipoEncontrado.id;
+        }
+      }
+      
+      // Se não encontrou, tentar no cache global
+      if (!tipoId && window.tiposPerifericosCache) {
+        const tipoEncontrado = window.tiposPerifericosCache.find(t => t.nome === tipo);
+        if (tipoEncontrado) {
+          tipoId = tipoEncontrado.id;
+        }
+      }
+      
       html += `
         <div class="periferico-faltante-item">
           <span class="periferico-faltante-nome">${tipo}</span>
           <button class="btn btn-outline-warning btn-sm add-periferico-btn" 
+                  data-pa-id="${pa.id}"
+                  data-tipo-id="${tipoId || ''}"
                   data-tipo-nome="${tipo}"
                   ${usuarioRestrito ? 'disabled' : ''}>
             <i class='bx bx-plus'></i> Adicionar
@@ -618,6 +644,7 @@ function renderizarComputadoresPA(pa, dadosGlobais, usuarioRestrito) {
   } else {
     html += `
       <button class="btn btn-primary btn-sm assign-computador-btn-main" 
+              data-pa-id="${pa.id}"
               ${usuarioRestrito ? 'disabled' : ''}>
         <i class='bx bx-plus'></i> Atribuir Computador
       </button>
@@ -635,8 +662,6 @@ function renderizarComputadoresPA(pa, dadosGlobais, usuarioRestrito) {
 
 function reconfigurarEventosPAs() {
   try {
-    console.log('Reconfigurando eventos das PAs após carregamento dinâmico...');
-    
     // Reconfigurar eventos dos indicadores de status
     if (window.EventHandlers && window.EventHandlers.setupStatusIndicators) {
       window.EventHandlers.setupStatusIndicators();
@@ -648,7 +673,6 @@ function reconfigurarEventosPAs() {
       e.stopPropagation();
       
       const paId = $(this).data('pa-id');
-      console.log('[DEBUG] Botão assign-funcionario-btn clicado, paId:', paId);
       
       if (window.mostrarDropdownFuncionarios) {
         window.mostrarDropdownFuncionarios(this, paId);
@@ -657,34 +681,21 @@ function reconfigurarEventosPAs() {
       }
     });
     
-    // Reconfigurar eventos dos botões de periféricos
-    $('.add-periferico-btn').off('click.carregamento').on('click.carregamento', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      const paCard = $(this).closest('.pa-card');
-      const paId = paCard.data('pa-id');
-      const tipoNome = $(this).data('tipo-nome');
-      
-      if (window.mostrarModalPerifericosDisponiveis) {
-        window.mostrarModalPerifericosDisponiveis(paId, tipoNome);
-      } else {
-        console.error('Função mostrarModalPerifericosDisponiveis não encontrada');
-      }
-    });
+    // Eventos dos botões de periféricos são gerenciados pelo controle_salas_perifericos.js
+    // Removendo event handler duplicado para evitar conflitos
     
     // Reconfigurar eventos dos botões de remoção de periféricos
     $('.remove-periferico-btn').off('click.carregamento').on('click.carregamento', function(e) {
       e.preventDefault();
       e.stopPropagation();
       
-      const perifeريcoTag = $(this).closest('.periferico-tag');
+      const perifericoTag = $(this).closest('.periferico-tag');
       const paCard = $(this).closest('.pa-card');
       const paId = paCard.data('pa-id');
-      const perifericoId = perifeريcoTag.data('periferico-id');
+      const perifericoId = perifericoTag.data('periferico-id');
       
       if (window.confirmarRemocaoPeriferico) {
-        window.confirmarRemocaoPeriferico(paId, perifericoId, perifeريcoTag.text().replace('×', '').trim());
+        window.confirmarRemocaoPeriferico(perifericoId, paId, perifericoTag.text().replace('×', '').trim(), perifericoTag);
       } else {
         console.error('Função confirmarRemocaoPeriferico não encontrada');
       }
@@ -727,12 +738,8 @@ function reconfigurarEventosPAs() {
       e.preventDefault();
       e.stopPropagation();
       
-      const paCard = $(this).closest('.pa-card');
-      const paId = paCard.data('pa-id');
-      const perifericoId = $(this).data('periferico-id');
-      
       if (window.mostrarMenuPeriferico) {
-        window.mostrarMenuPeriferico(this, paId, perifericoId);
+        window.mostrarMenuPeriferico($(this));
       }
     });
     
@@ -741,16 +748,10 @@ function reconfigurarEventosPAs() {
       e.preventDefault();
       e.stopPropagation();
       
-      const paCard = $(this).closest('.pa-card');
-      const paId = paCard.data('pa-id');
-      const computadorId = $(this).data('computador-id');
-      
       if (window.mostrarMenuComputador) {
-        window.mostrarMenuComputador(this, paId, computadorId);
+        window.mostrarMenuComputador($(this));
       }
     });
-    
-    console.log('Eventos das PAs reconfigurados com sucesso');
     
   } catch (error) {
     console.error('Erro ao reconfigurar eventos das PAs:', error);
@@ -975,6 +976,4 @@ $(document).ready(function() {
   } catch (error) {
     console.error('Erro ao inicializar carregamento automático:', error);
   }
-});
-
-console.log('Sistema de carregamento otimizado carregado'); 
+}); 

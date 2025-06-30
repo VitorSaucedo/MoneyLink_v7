@@ -169,6 +169,17 @@ function mostrarMensagem(mensagem, tipo) {
 
 function animateTabTransition(containerSelector, currentSelector, targetSelector, direction) {
   try {
+    // Verificar se os seletores são válidos
+    if (!currentSelector || currentSelector.includes('null') || currentSelector.includes('undefined')) {
+      console.warn('Seletor de painel atual inválido:', currentSelector);
+      return;
+    }
+    
+    if (!targetSelector || targetSelector.includes('null') || targetSelector.includes('undefined')) {
+      console.warn('Seletor de painel alvo inválido:', targetSelector);
+      return;
+    }
+    
     const container = document.querySelector(containerSelector);
     const currentPane = document.querySelector(currentSelector);
     const targetPane = document.querySelector(targetSelector);
@@ -325,8 +336,8 @@ function atualizarVisualizacaoStatusPA(paCard, novoStatus) {
       console.warn('Indicador de status não encontrado na PA');
     }
     
-    // Atualizar badge de status
-    const statusBadge = paCard.querySelector('.pa-status .badge');
+    // Atualizar badge de status - corrigido o seletor
+    const statusBadge = paCard.querySelector('.pa-status-group .badge');
     if (statusBadge) {
       statusBadge.className = `badge ${config.badgeClass}`;
       statusBadge.textContent = config.text;
@@ -407,14 +418,19 @@ function initializeTabState() {
     STATE.currentSalaId = firstSalaButton.getAttribute('data-sala-id');
     STATE.previousSalaId = STATE.currentSalaId;
     
+    console.log('Estado inicial da sala definido:', STATE.currentSalaId);
+    
     document.querySelectorAll('.tab-pane[id^="sala-"]').forEach(salaPane => {
       const salaId = salaPane.id.replace('sala-', '');
       const activeIlhaTab = salaPane.querySelector('.ilhas-tabs .nav-link.active');
       if (activeIlhaTab) {
         STATE.currentIlhaIds[salaId] = activeIlhaTab.getAttribute('data-ilha-id');
         STATE.previousIlhaIds[salaId] = STATE.currentIlhaIds[salaId];
+        console.log(`Estado inicial da ilha ${salaId}:`, STATE.currentIlhaIds[salaId]);
       }
     });
+  } else {
+    console.warn('Nenhuma aba de sala ativa encontrada na inicialização');
   }
 }
 
@@ -436,6 +452,28 @@ function handleSalaNavigation(tab) {
   });
   tab.classList.add('active');
   tab.setAttribute('aria-selected', 'true');
+  
+  // Se é a primeira vez (STATE.currentSalaId é null), apenas mostrar o painel alvo
+  if (!STATE.currentSalaId) {
+    const targetPane = document.querySelector(`#sala-${targetSalaId}`);
+    if (targetPane) {
+      // Esconder todos os painéis primeiro
+      document.querySelectorAll('.tab-pane[id^="sala-"]').forEach(pane => {
+        pane.classList.remove('show', 'active');
+        pane.style.display = 'none';
+      });
+      
+      // Mostrar o painel alvo
+      targetPane.style.display = 'block';
+      targetPane.classList.add('show', 'active');
+      
+      STATE.previousSalaId = STATE.currentSalaId;
+      STATE.currentSalaId = targetSalaId;
+      
+      setTimeout(organizarLayoutPAs, CONFIG.timeouts.layoutDelay);
+      return;
+    }
+  }
   
   // Determinar direção e animar
   const direction = parseInt(targetSalaId) > parseInt(STATE.currentSalaId) ? 'right' : 'left';
@@ -606,7 +644,6 @@ function adicionarBotaoRecarga() {
 function setupLojaFilter() {
   // Verificar se o carregamento otimizado está ativo
   if (window.modoCarregamento === 'otimizado') {
-    console.log('Filtro de loja delegado para o sistema de carregamento otimizado');
     return; // O sistema de carregamento cuidará do filtro
   }
   

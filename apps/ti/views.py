@@ -7,6 +7,7 @@ from django.views.decorators.http import require_POST, require_GET
 from django.core.paginator import Paginator
 from django.utils import timezone
 import json
+from django.views.decorators.csrf import csrf_exempt
 
 # Imports locais
 from .utils import (
@@ -1387,6 +1388,38 @@ def api_get_perifericos_disponiveis_por_tipo(request, tipo_id):
         return JsonResponse(
             build_response_data(True, data=response_data)
         )
+        
+    except Exception as e:
+        return JsonResponse(
+            build_response_data(False, error=f'Erro interno: {str(e)}'),
+            status=500
+        )
+
+@require_GET
+@login_required
+def api_get_perifericos_disponiveis_por_nome_tipo(request, nome_tipo):
+    """
+    API GET para listar periféricos disponíveis pelo nome do tipo de periférico.
+    
+    Args:
+        request: HttpRequest com parâmetros GET opcionais (loja)
+        nome_tipo: Nome do tipo de periférico
+    
+    Returns:
+        JsonResponse com lista de periféricos disponíveis
+    """
+    try:
+        # Verificar se o tipo existe pelo nome
+        try:
+            tipo = get_object_or_404(TipoPeriferico, nome__iexact=nome_tipo)
+        except Exception:
+            return JsonResponse(
+                build_response_data(False, error=f'Tipo de periférico "{nome_tipo}" não encontrado'),
+                status=404
+            )
+        
+        # Reutilizar a lógica da função anterior
+        return api_get_perifericos_disponiveis_por_tipo(request, tipo.id)
         
     except Exception as e:
         return JsonResponse(
@@ -4142,9 +4175,8 @@ def api_get_controle_salas_data(request):
                         # Buscar ramal do funcionário
                         ramal_funcionario = None
                         try:
-                            ramal_obj = Ramal.objects.filter(funcionario=funcionario_pa).first()
-                            if ramal_obj:
-                                ramal_funcionario = ramal_obj.numero
+                            if hasattr(funcionario_pa, 'ramal_ti') and funcionario_pa.ramal_ti:
+                                ramal_funcionario = funcionario_pa.ramal_ti.numero
                         except Exception:
                             pass
                         
@@ -6598,3 +6630,51 @@ def api_verificar_ramal(request):
         'success': False,
         'error': 'Método não permitido'
     }, status=405)
+
+@csrf_exempt
+@require_POST
+@login_required
+def api_posicao_atendimento_update(request):
+    """
+    API para editar uma Posição de Atendimento (PA).
+    Espera: pa_id, numero, titulo, status, observacoes (POST ou JSON)
+    """
+    try:
+        if request.content_type == 'application/json':
+            data = json.loads(request.body.decode('utf-8'))
+        else:
+            data = request.POST
+        pa_id = data.get('pa_id')
+        if not pa_id:
+            return JsonResponse({'success': False, 'error': 'ID da PA não informado.'}, status=400)
+        try:
+            pa = PosicaoAtendimento.objects.get(id=pa_id)
+        except PosicaoAtendimento.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'PA não encontrada.'}, status=404)
+        # Campos editáveis
+        numero = data.get('numero')
+        titulo = data.get('titulo')
+        status = data.get('status')
+        observacoes = data.get('observacoes')
+        if numero is not None:
+            pa.numero = numero
+        if titulo is not None:
+            pa.titulo = titulo
+        if status is not None:
+            pa.status = status
+        if observacoes is not None:
+            pa.observacoes = observacoes
+        pa.save()
+        return JsonResponse({
+            'success': True,
+            'message': 'PA atualizada com sucesso!',
+            'data': {
+                'id': pa.id,
+                'numero': pa.numero,
+                'titulo': pa.titulo,
+                'status': pa.status,
+                'observacoes': pa.observacoes
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)

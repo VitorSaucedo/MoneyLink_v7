@@ -171,6 +171,4 @@
 
     // =================== INICIALIZAÇÃO ===================
 
-    console.log('✅ Sistema de Modais de Manutenção carregado com sucesso');
-
 })(jQuery); 
